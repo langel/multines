@@ -91,8 +91,25 @@ NES_MIRR_QUAD	EQM 8
 	byte .NES_MIRRORING|(.NES_MAPPER<<4)
 	byte .NES_MAPPER&$f0
 	byte 0,0,0,0,0,0,0,0 ; reserved, set to zero
-	seg Code
+	seg CODE
 	org $8000
+	ENDM
+
+	MAC NES_HEADER_NROM_128
+	seg Header
+	org $bff0
+.NES_MAPPER	SET {1}	;mapper number
+.NES_PRG_BANKS	SET {2}	;number of 16K PRG banks, change to 2 for NROM256
+.NES_CHR_BANKS	SET {3}	;number of 8K CHR banks (0 = RAM)
+.NES_MIRRORING	SET {4}	;0 horizontal, 1 vertical, 8 four screen
+	byte $4e,$45,$53,$1a ; header
+	byte .NES_PRG_BANKS
+	byte .NES_CHR_BANKS
+	byte .NES_MIRRORING|(.NES_MAPPER<<4)
+	byte .NES_MAPPER&$f0
+	byte 0,0,0,0,0,0,0,0 ; reserved, set to zero
+	seg CODE
+	org $c000
 	ENDM
 
 ;;;;; NES_INIT SETUP MACRO (place at start)
@@ -113,22 +130,6 @@ NES_MIRR_QUAD	EQM 8
 	sta APU_CHAN_CTRL	;disable DMC, enable/init other channels.        
 	ENDM
 
-;;;;; NES_VECTORS - CPU vectors at end of address space
-	MAC NES_VECTORS
-	seg Vectors		; segment "Vectors"
-	org $fffa		; start at address $fffa
-	.word NMIHandler	; $fffa vblank nmi
-	.word Start		; $fffc reset
-	.word NMIHandler	; $fffe irq / brk
-	ENDM
-        
-;;;;; BANK_SET <select> <data>
-	MAC BANK_SET
-	lda {1}
-	sta BANK_SELECT
-	lda {2}
-	sta BANK_DATA
-	ENDM
 
 ;;;;; PPU_SETADDR <address> - set 16-bit PPU address
 	MAC PPU_ADDR_SET
@@ -167,16 +168,6 @@ NES_MIRR_QUAD	EQM 8
 	REPEND
 	ENDM
         
-; example of iterator with index
-	MAC state_char_equip_anim_popslider 
-	count	SET 0
-.loop	SET {1}
-	REPEAT .loop
-		lda $0120 + {2} + count
-		sta PPU_DATA
-		count	SET count + 1
-	REPEND
-	ENDM
         
 ;;;;; STATE RESET
 	MAC STATE_REGISTERS_RESET

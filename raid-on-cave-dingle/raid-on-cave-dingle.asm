@@ -6,12 +6,18 @@
 
 	; HEADER
 	; mapper, PRGs (16k), CHRs (8k), mirror
-	NES_HEADER 0,2,1,NES_MIRR_VERT 
+	NES_HEADER_NROM_128 0,1,1,NES_MIRR_VERT 
 
 level_nam:
 	incbin "assets/level.nam"
 	
 	include "common.asm"
+
+level_pal:
+	hex 0f 0c 11 22
+	hex 0f 0c 11 22
+	hex 0f 0c 11 22
+	hex 0f 0c 11 22
 
 cart_start: subroutine
 	NES_INIT	; set up stack pointer, turn off PPU
@@ -35,38 +41,13 @@ cart_start: subroutine
 
 	; palette
 	PPU_ADDR_SET $3f00
-	lda #$0f
+	ldx #$00
+.pal_loop
+	lda level_pal,x
 	sta PPU_DATA
-	lda #$0c
-	sta PPU_DATA
-	lda #$11
-	sta PPU_DATA
-	lda #$22
-	sta PPU_DATA
-	lda #$0f
-	sta PPU_DATA
-	lda #$0c
-	sta PPU_DATA
-	lda #$11
-	sta PPU_DATA
-	lda #$22
-	sta PPU_DATA
-	lda #$0f
-	sta PPU_DATA
-	lda #$0c
-	sta PPU_DATA
-	lda #$11
-	sta PPU_DATA
-	lda #$22
-	sta PPU_DATA
-	lda #$0f
-	sta PPU_DATA
-	lda #$0c
-	sta PPU_DATA
-	lda #$11
-	sta PPU_DATA
-	lda #$22
-	sta PPU_DATA
+	inx
+	cpx #$10
+	bne .pal_loop
 
 	jsr render_enable
 	lda #$00

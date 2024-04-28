@@ -1,2 +1,2 @@
 #!/bin/bash
-dasm raid-on-cave-dingle.asm -oraid.nes -f3 -v2 
+dasm raid-on-cave-dingle.asm -orom.nes -f3 -v2 
