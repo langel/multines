@@ -20,6 +20,10 @@ state_level_init: subroutine
 	rts
 
 state_level_update: subroutine
+	lda ent_x
+	sta temp00
+	lda ent_y
+	sta temp01
 	; move ent
 	lda ent_d
 	beq .ent_right
@@ -29,52 +33,27 @@ state_level_update: subroutine
 	beq .ent_left
 	bne .ent_down
 .ent_right
-	ldx ent_x
-	inx
-	stx temp00
-	ldx ent_y
-	stx temp01
-	jsr level_get_block
-	sta $0308
+	jsr level_get_block_right
 	bne .ent_new_direction
 	inc ent_x
 	jmp .ent_move_done
 .ent_up
-	ldx ent_x
-	stx temp00
-	ldx ent_y
-	dex 
-	stx temp01
-	jsr level_get_block
+	jsr level_get_block_up
 	bne .ent_new_direction
 	dec ent_y
 	jmp .ent_move_done
 .ent_left
-	ldx ent_x
-	dex 
-	stx temp00
-	ldx ent_y
-	stx temp01
-	jsr level_get_block
+	jsr level_get_block_left
 	bne .ent_new_direction
 	dec ent_x
 	jmp .ent_move_done
 .ent_down
-	ldx ent_x
-	stx temp00
-	ldx ent_y
-	inx 
-	stx temp01
-	jsr level_get_block
+	jsr level_get_block_down
 	bne .ent_new_direction
 	inc ent_y
 	jmp .ent_move_done
 .ent_new_direction
-	jsr rand
-	jsr rand
-	lsr
-	and #$03
-	sta ent_d
+	jsr level_ent_new_direction
 .ent_move_done
 
 	;render ent
@@ -91,6 +70,64 @@ state_level_update: subroutine
 	dec $0200
 	rts
 
+ent_reverse_table:
+	hex 02 03 00 01
+
+level_ent_new_direction: subroutine
+	jsr rand
+	jsr rand
+	lsr
+	lsr
+	and #$01
+	asl
+	clc
+	adc #$01
+	adc ent_d
+	and #$03
+	sta temp02
+	sta temp04
+	lda ent_x
+	sta temp00
+	lda ent_y
+	sta temp01
+	jsr level_get_block_dir
+	bne .next_dir
+	lda temp04
+	sta ent_d
+	rts
+.next_dir
+	lda temp04
+	clc
+	adc #$02
+	and #$03
+	sta temp02
+	sta temp04
+	lda ent_x
+	sta temp00
+	lda ent_y
+	sta temp01
+	jsr level_get_block_dir
+	lda temp04
+	sta ent_d
+	rts
+	bne .turn_around
+.turn_around
+	ldx ent_d
+	lda ent_reverse_table,x
+	sta ent_d
+	rts
+
+level_get_block_dir: subroutine
+	; temp00 = x position
+	; temp01 = y position
+	; temp02 = direction
+	lda temp02
+	beq level_get_block_right
+	cmp #$01
+	beq level_get_block_up
+	cmp #$02
+	beq level_get_block_left
+	bne level_get_block_down
 
 
 level_get_block: subroutine
@@ -118,3 +155,18 @@ level_get_block: subroutine
 	sta temp03
 	lda (temp02),y
 	rts
+
+	; temp00 = x position
+	; temp01 = y position
+level_get_block_right: subroutine
+	inc temp00
+	jmp level_get_block
+level_get_block_up: subroutine
+	dec temp01
+	jmp level_get_block
+level_get_block_left: subroutine
+	dec temp00
+	jmp level_get_block
+level_get_block_down: subroutine
+	inc temp01
+	jmp level_get_block
