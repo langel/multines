@@ -54,7 +54,7 @@ cart_start: subroutine
 	cpx #$20
 	bne .pal_loop
 
-	; rng
+	; good stuff
 	lda #$ff
 	sta rng0
 
@@ -70,6 +70,7 @@ cart_start: subroutine
 
 
 nmi_handler: subroutine
+	inc wtf
 	lda #$02
 	sta $4014
 	jsr state_level_update
