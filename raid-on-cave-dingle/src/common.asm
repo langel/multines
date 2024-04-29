@@ -2,6 +2,9 @@
 
 ;;;;; SUBROUTINES
 
+do_nothing: subroutine
+	rts
+
         
 nametable_fill: subroutine
 	; a = nametable high address

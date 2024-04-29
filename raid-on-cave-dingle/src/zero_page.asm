@@ -30,7 +30,8 @@ state_interq_id        byte
 state_hook_init        byte
 ppu_mask_emph          byte
 
-
+ents_offset    byte
+sprite_offset  byte
 
 
 
