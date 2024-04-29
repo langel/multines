@@ -1,33 +1,39 @@
 
-sprite_y  eqm $0200
-sprite_i  eqm $0201
-sprite_a  eqm $0202
-sprite_x  eqm $0203
+spr_y  eqm $0200
+spr_i  eqm $0201
+spr_a  eqm $0202
+spr_x  eqm $0203
 
-ent_x eqm $0300
-ent_y eqm $0301
-ent_d eqm $0302
 
 state_level_init: subroutine
 	lda #$02
-	sta $0201
+	sta spr_i
+	sta spr_i+8
+	sta spr_i+16
+	sta spr_i+24
 	lda #$00
-	sta $0202
+	sta spr_a
+	sta spr_a+8
+	sta spr_a+16
+	sta spr_a+24
 	lda #$02
-	sta ent_x
-	sta ent_x+8
-	sta ent_x+16
-	sta ent_x+24
+	sta ent_x_grid
+	lda #$03
+	sta ent_x_grid+8
+	lda #$04
+	sta ent_x_grid+16
+	lda #$05
+	sta ent_x_grid+24
 	lda #$07
-	sta ent_y
-	sta ent_y+8
-	sta ent_y+16
-	sta ent_y+24
+	sta ent_y_grid
+	sta ent_y_grid+8
+	sta ent_y_grid+16
+	sta ent_y_grid+24
 	lda #$01
-	sta $0303
-	;sta $030b
-	;sta $0313
-	;sta $031b
+	sta ent_type
+	sta ent_type+8
+	sta ent_type+16
+	sta ent_type+24
 	rts
 
 

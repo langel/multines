@@ -1,4 +1,14 @@
 
+ent_type       eqm $0300
+ent_direction  eqm $0301
+ent_x_grid     eqm $0302
+ent_y_grid     eqm $0303
+ent_x_pos      eqm $0304
+ent_y_pos      eqm $0305
+ent_sub_travel eqm $0306
+ent_speed      eqm $0307
+
+
 ents_clear: subroutine
 	ldx #$00
 	txa
@@ -12,17 +22,19 @@ ents_clear: subroutine
 
 ents_update: subroutine
 	lda #$00
-	sta ents_offset
-	sta sprite_offset
+	sta ent_offset
+	sta spr_offset
 .ent_loop
-	ldx ents_offset
-	ldy $0303,x
+	ldx ent_offset
+	ldy ent_type,x
 	jsr ent_method
 .next_slop
 	lda #$08
 	clc
-	adc ents_offset
-	sta ents_offset
+	adc ent_offset
+	sta ent_offset
+	lsr
+	sta spr_offset
 	bne .ent_loop
 	rts
 

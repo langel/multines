@@ -4,12 +4,12 @@ ent_dingle_update: subroutine
 	and #$07
 	sta temp07
 	bne .ent_move_done
-	lda ent_x
+	lda ent_x_grid,x
 	sta temp00
-	lda ent_y
+	lda ent_y_grid,x
 	sta temp01
 	; move ent
-	lda ent_d
+	lda ent_direction,x
 	beq .ent_right
 	cmp #$01
 	beq .ent_up
@@ -19,41 +19,43 @@ ent_dingle_update: subroutine
 .ent_right
 	jsr level_get_block_right
 	bne .ent_new_direction
-	inc ent_x
+	inc ent_x_grid,x
 	jmp .ent_move_done
 .ent_up
 	jsr level_get_block_up
 	bne .ent_new_direction
-	dec ent_y
+	dec ent_y_grid,x
 	jmp .ent_move_done
 .ent_left
 	jsr level_get_block_left
 	bne .ent_new_direction
-	dec ent_x
+	dec ent_x_grid,x
 	jmp .ent_move_done
 .ent_down
 	jsr level_get_block_down
 	bne .ent_new_direction
-	inc ent_y
+	inc ent_y_grid,x
 	jmp .ent_move_done
 .ent_new_direction
 	jsr level_ent_new_direction
 .ent_move_done
 
 	;render ent
-	lda ent_x
+	ldx spr_offset
+	ldy ent_offset
+	lda ent_x_grid,y
 	asl
 	asl
 	asl
-	sta $0203
-	lda ent_y
+	sta spr_x,x
+	lda ent_y_grid,y
 	asl
 	asl
 	asl
-	sta $0200
-	dec $0200
+	sta spr_y,x
+	dec spr_y,x
 	; animate ent movement
-	lda ent_d
+	lda ent_direction,y
 	beq .ent_anim_right
 	cmp #$01
 	beq .ent_anim_up
@@ -64,37 +66,37 @@ ent_dingle_update: subroutine
 	lda temp07
 	eor #$07
 	sta temp06
-	lda $0203
+	lda spr_x,x
 	sec
 	sbc temp06
-	sta $0203
+	sta spr_x,x
 	rts
 .ent_anim_up
 	lda temp07
 	eor #$07
 	sta temp06
-	lda $0200
+	lda spr_y,x
 	clc
 	adc temp06
-	sta $0200
+	sta spr_y,x
 	rts
 .ent_anim_left
 	lda temp07
 	eor #$07
 	sta temp06
-	lda $0203
+	lda spr_x,y
 	clc
 	adc temp06
-	sta $0203
+	sta spr_x,y
 	rts
 .ent_anim_down
 	lda temp07
 	eor #$07
 	sta temp06
-	lda $0200
+	lda spr_y,x
 	sec
 	sbc temp06
-	sta $0200
+	sta spr_y,x
 	rts
 
 ent_reverse_table:
@@ -109,18 +111,18 @@ level_ent_new_direction: subroutine
 	asl
 	clc
 	adc #$01
-	adc ent_d
+	adc ent_direction,x
 	and #$03
 	sta temp02
 	sta temp04
-	lda ent_x
+	lda ent_x_grid,x
 	sta temp00
-	lda ent_y
+	lda ent_y_grid,x
 	sta temp01
 	jsr level_get_block_dir
 	bne .next_dir
 	lda temp04
-	sta ent_d
+	sta ent_direction,x
 	jmp .update_position
 .next_dir
 	lda temp04
@@ -129,19 +131,19 @@ level_ent_new_direction: subroutine
 	and #$03
 	sta temp02
 	sta temp04
-	lda ent_x
+	lda ent_x_grid,x
 	sta temp00
-	lda ent_y
+	lda ent_y_grid,x
 	sta temp01
 	jsr level_get_block_dir
 	bne .turn_around
 	lda temp04
-	sta ent_d
+	sta ent_direction,x
 	jmp .update_position
 .turn_around
-	ldx ent_d
-	lda ent_reverse_table,x
-	sta ent_d
+	ldy ent_direction,x
+	lda ent_reverse_table,y
+	sta ent_direction,x
 .update_position
 	; move ent
 	beq .ent_right
@@ -151,16 +153,16 @@ level_ent_new_direction: subroutine
 	beq .ent_left
 	bne .ent_down
 .ent_right
-	inc ent_x
+	inc ent_x_grid,x
 	jmp .ent_move_done
 .ent_up
-	dec ent_y
+	dec ent_y_grid,x
 	jmp .ent_move_done
 .ent_left
-	dec ent_x
+	dec ent_x_grid,x
 	jmp .ent_move_done
 .ent_down
-	inc ent_y
+	inc ent_y_grid,x
 	jmp .ent_move_done
 .ent_move_done
 	rts
