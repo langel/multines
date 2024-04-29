@@ -12,8 +12,13 @@ level_nam:
 	incbin "assets/level.nam"
 	
 	include "common.asm"
+	include "states/state.asm"
 
 level_pal:
+	hex 0f 0c 11 22
+	hex 0f 0c 11 22
+	hex 0f 0c 11 22
+	hex 0f 0c 11 22
 	hex 0f 0c 11 22
 	hex 0f 0c 11 22
 	hex 0f 0c 11 22
@@ -46,8 +51,14 @@ cart_start: subroutine
 	lda level_pal,x
 	sta PPU_DATA
 	inx
-	cpx #$10
+	cpx #$20
 	bne .pal_loop
+
+	; rng
+	lda #$ff
+	sta rng0
+
+	jsr state_level_init
 
 	jsr render_enable
 	lda #$00
@@ -59,6 +70,9 @@ cart_start: subroutine
 
 
 nmi_handler: subroutine
+	lda #$02
+	sta $4014
+	jsr state_level_update
 	rti
 
 	
