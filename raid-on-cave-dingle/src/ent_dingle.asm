@@ -84,10 +84,10 @@ ent_dingle_update: subroutine
 	lda temp07
 	eor #$07
 	sta temp06
-	lda spr_x,y
+	lda spr_x,x
 	clc
 	adc temp06
-	sta spr_x,y
+	sta spr_x,x
 	rts
 .ent_anim_down
 	lda temp07
@@ -103,6 +103,7 @@ ent_reverse_table:
 	hex 02 03 00 01
 
 level_ent_new_direction: subroutine
+	ldx ent_offset
 	jsr rand
 	jsr rand
 	lsr
