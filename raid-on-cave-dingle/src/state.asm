@@ -4,18 +4,51 @@ spr_i  eqm $0201
 spr_a  eqm $0202
 spr_x  eqm $0203
 
+ent_x_tab:
+	hex 02 03 04 05 
+	hex 02 03 04 05 06 07 08 09 10 11
+	hex 02 03 04 05 06 07 08 09 10 11
+ent_y_tab:
+	hex 07 07 07 07
+	hex 0b 0b 0b 0b 0b 0b 0b 0b 0b 0b
+	hex 0d 0d 0d 0d 0d 0d 0d 0d 0d 0d
 
 state_level_init: subroutine
+	ldx #$00
+.loop
+	txa
+	asl
+	asl
+	asl
+	tay
+	lda #$01
+	sta ent_type,y
+	lda ent_x_tab,x
+	sta ent_x_grid,y
+	lda ent_y_tab,x
+	sta ent_y_grid,y
+	tya
+	lsr
+	tay
+	lda #$02
+	sta spr_i,y
+	lda #$00
+	sta spr_a,y
+	inx
+	cpx #24
+	bne .loop
+	rts
+
 	lda #$02
 	sta spr_i
+	sta spr_i+4
 	sta spr_i+8
-	sta spr_i+16
-	sta spr_i+24
+	sta spr_i+12
 	lda #$00
 	sta spr_a
+	sta spr_a+4
 	sta spr_a+8
-	sta spr_a+16
-	sta spr_a+24
+	sta spr_a+12
 	lda #$02
 	sta ent_x_grid
 	lda #$03
