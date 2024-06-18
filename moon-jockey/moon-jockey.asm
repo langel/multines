@@ -35,12 +35,19 @@ cart_start: subroutine
 	lda #CTRL_INC_1
 	sta PPU_CTRL
 
-	; nametable	
+	; nametable	1
 	lda #$00
 	sta temp00
 	lda #$80
 	sta temp01
 	lda #$20
+	jsr nametable_load
+	; nametable	2
+	lda #$00
+	sta temp00
+	lda #$80
+	sta temp01
+	lda #$24
 	jsr nametable_load
 
 	; palette
@@ -52,6 +59,14 @@ cart_start: subroutine
 	inx
 	cpx #$20
 	bne .pal_loop
+
+	; clear sprites
+	lda #$ff
+	ldx #$00
+.sprite_clear
+	sta $0200,x
+	inx
+	bne .sprite_clear
 
 	; good stuff
 	lda #$ff
@@ -67,12 +82,86 @@ cart_start: subroutine
 .endless
 	jmp .endless	; endless loop
 
+SLEEP_CYCLES EQM 8054
 
 nmi_handler: subroutine
 	inc wtf
 	lda #$02
 	sta $4014
 	;jsr state_level_update
+	ldx $80
+	ldy #$00
+	stx PPU_SCROLL
+	sty PPU_SCROLL
+	SLEEP 3700
+	ldx $81
+	stx PPU_SCROLL
+	sty PPU_SCROLL
+	SLEEP 5400
+	ldx $82
+	stx PPU_SCROLL
+	sty PPU_SCROLL
+	SLEEP 5400
+	ldx $83
+	stx PPU_SCROLL
+	sty PPU_SCROLL
+	SLEEP 5400
+	ldx $84
+	stx PPU_SCROLL
+	sty PPU_SCROLL
+	SLEEP 5400
+	ldx $85
+	stx PPU_SCROLL
+	sty PPU_SCROLL
+	; row 1
+	lda $90
+	clc
+	adc #17
+	sta $90
+	lda #$0
+	adc $80
+	sta $80
+	; row 2
+	lda $91
+	clc
+	adc #47
+	sta $91
+	lda $81
+	adc #$0
+	sta $81
+	; row 3
+	lda $92
+	clc
+	adc #83
+	sta $92
+	lda $82
+	adc #$0
+	sta $82
+	; row 4
+	lda $92
+	clc
+	adc #151
+	sta $93
+	lda $83
+	adc #$0
+	sta $83
+	; row 5
+	lda $94
+	clc
+	adc #211
+	sta $94
+	lda $84
+	adc #$0
+	sta $84
+	;row 6
+	lda $95
+	clc
+	adc #7
+	sta $95
+	lda $85
+	adc #$0
+	sta $85
+	inc $85
 	rti
 
 	

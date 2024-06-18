@@ -21,17 +21,16 @@ APU_DMC_CTRL    EQM $4010
 APU_CHAN_CTRL   EQM $4015
 APU_FRAME       EQM $4017
 
-JOYPAD1		EQM $4016
-JOYPAD2		EQM $4017
-
-BANK_SELECT     EQM $8000
-BANK_DATA       EQM $8001
-MIRRORING       EQM $a000
-RAM_PROTECT     EQM $a001
-IRQ_LATCH       EQM $c000
-IRQ_RELOAD      EQM $c001
-IRQ_DISABLE     EQM $e000
-IRQ_ENABLE      EQM $e001
+JOYPAD1            EQM $4016
+JOYPAD2            EQM $4017
+BUTTON_A           EQM 1 << 7
+BUTTON_B   	       EQM 1 << 6
+BUTTON_SELECT      EQM 1 << 5
+BUTTON_START       EQM 1 << 4
+BUTTON_UP     	    EQM 1 << 3
+BUTTON_DOWN   	    EQM 1 << 2
+BUTTON_LEFT   	    EQM 1 << 1
+BUTTON_RIGHT  	    EQM 1 << 0
 
 ; NOTE: I've put this outside of the PPU & APU, because it is a feature
 ; of the APU that is primarily of use to the PPU.
@@ -127,7 +126,15 @@ NES_MIRR_QUAD	EQM 8
 	lda #$40
 	sta APU_FRAME		;disable APU Frame IRQ
 	lda #$0F
-	sta APU_CHAN_CTRL	;disable DMC, enable/init other channels.        
+	ENDM
+
+;;;;; NES_VECTORS - CPU vectors at end of address space
+	MAC NES_VECTORS
+	seg Vectors		; segment "Vectors"
+	org $fffa		; start at address $fffa
+	.word NMIHandler	; $fffa vblank nmi
+	.word Start		; $fffc reset
+	.word NMIHandler	; $fffe irq / brk
 	ENDM
 
 
@@ -137,6 +144,19 @@ NES_MIRR_QUAD	EQM 8
 	sta PPU_ADDR
 	lda #<{1}	; lower byte
 	sta PPU_ADDR
+	ENDM
+
+;;;;; PPU_PLOT_TEXT <nametable address>, <text label>
+	MAC PPU_PLOT_TEXT
+	PPU_SETADDR {1}
+	ldx #$00
+.text_loop
+	lda {2},x
+	beq .text_done
+	sta PPU_DATA
+	inx
+	jmp .text_loop
+.text_done
 	ENDM
 
 ;;;;; PPU_SETVALUE <value> - feed 8-bit value to PPU
@@ -154,6 +174,17 @@ NES_MIRR_QUAD	EQM 8
 	REPEND
 	ENDM
 
+;;;;; PPU_POPSLIDE <count>
+	MAC PPU_POPSLIDE
+.COUNT	SET {1}
+	REPEAT .COUNT
+		pla
+		sta PPU_DATA
+	REPEND
+	ENDM
+
+
+;;;;; SHIFT LEFT <count>
 	MAC shift_l
 .COUNT SET {1}
 	REPEAT .COUNT
@@ -161,6 +192,7 @@ NES_MIRR_QUAD	EQM 8
 	REPEND
 	ENDM
 
+;;;;; SHIFT RIGHT <count>
 	MAC shift_r
 .COUNT SET {1}
 	REPEAT .COUNT
