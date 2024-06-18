@@ -1,7 +1,7 @@
 
 	processor 6502
 
-	include "definitions.asm"
+	include "../_common/definitions.asm"
 	include "zero_page.asm"
 
 	; HEADER
@@ -11,17 +11,17 @@
 grid_nam:
 	incbin "assets/grid.nam"
 
-	include "common.asm"
+	include "../_common/util.asm"
 
 grid_pal:
 	hex 0f 01 11 21
 	hex 0f 05 15 25
+	hex 0f 07 17 27
 	hex 0f 09 19 29
-	hex 0f 0b 1b 2b
 	hex 0f 01 11 21
 	hex 0f 05 15 25
+	hex 0f 07 17 27
 	hex 0f 09 19 29
-	hex 0f 0b 1b 2b
 
 cart_start: subroutine
 	NES_INIT	; set up stack pointer, turn off PPU
@@ -47,7 +47,7 @@ cart_start: subroutine
 	PPU_ADDR_SET $3f00
 	ldx #$00
 .pal_loop
-	lda level_pal,x
+	lda grid_pal,x
 	sta PPU_DATA
 	inx
 	cpx #$20
@@ -57,7 +57,7 @@ cart_start: subroutine
 	lda #$ff
 	sta rng0
 
-	jsr state_level_init
+	;jsr state_level_init
 
 	jsr render_enable
 	lda #$00
@@ -72,7 +72,7 @@ nmi_handler: subroutine
 	inc wtf
 	lda #$02
 	sta $4014
-	jsr state_level_update
+	;jsr state_level_update
 	rti
 
 	
@@ -86,5 +86,5 @@ nmi_handler: subroutine
 
 	;;;;; GRAPHX
 	org $010000
-	incbin "assets/tiles.chr"
-	incbin "assets/tiles.chr"
+	incbin "assets/patterns.chr"
+	incbin "assets/patterns.chr"

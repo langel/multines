@@ -1,21 +1,21 @@
 
 	processor 6502
 
-	include "definitions.asm"
-	include "zero_page.asm"
+	include "../_common/definitions.asm"
+	include "src/zero_page.asm"
 
 	; HEADER
 	; mapper, PRGs (16k), CHRs (8k), mirror
 	NES_HEADER_NROM_128 0,1,1,NES_MIRR_VERT 
 
 level_nam:
-	incbin "level.nam"
+	incbin "assets/level.nam"
 	
-	include "common.asm"
-	include "state.asm"
-	include "level.asm"
-	include "ents.asm"
-	include "ent_dingle.asm"
+	include "../_common/util.asm"
+	include "src/state.asm"
+	include "src/level.asm"
+	include "src/ents.asm"
+	include "src/ent_dingle.asm"
 
 level_pal:
 	hex 0f 0c 11 22
