@@ -68,6 +68,49 @@ cart_start: subroutine
 	inx
 	bne .sprite_clear
 
+	; setup vert split luts
+;	yyy NN YYYYY XXXXX
+;	||| || ||||| +++++-- coarse X scroll
+;	||| || +++++-------- coarse Y scroll
+;	||| ++-------------- nametable select
+;	+++----------------- fine Y scroll
+;  lo byte YYYXXXXX
+	ldx #$00
+.split_lut_lo_loop_40
+	txa
+	SHIFT_L 5
+	ora #$08
+	sta $0400,x
+	inx
+	bne .split_lut_lo_loop_40
+.split_lut_lo_loop_80
+	txa
+	SHIFT_L 5
+	ora #$10
+	sta $0500,x
+	inx
+	bne .split_lut_lo_loop_80
+.split_lut_lo_loop_c0
+	txa
+	SHIFT_L 5
+	ora #$18
+	sta $0600,x
+	inx
+	bne .split_lut_lo_loop_c0
+;  hi byte 0yyyNNYY
+.split_lut_hi_loop
+	txa
+	SHIFT_R 6
+	sta temp00
+	txa
+	SHIFT_L 5
+	ora temp00
+	and #%01110011
+	sta $0700,x
+	inx 
+	bne .split_lut_hi_loop
+
+
 	; good stuff
 	lda #$ff
 	sta rng0
@@ -116,6 +159,57 @@ nmi_handler: subroutine
 	stx PPU_SCROLL
 	sty PPU_SCROLL
 	ENDIF
+	;; VERTICAL TAKE ][
+	lda #$00
+	sta PPU_SCROLL
+	sta PPU_SCROLL
+	tay
+	SLEEP 4660
+.vert_line_loop
+	; col 1
+	tya
+	clc
+	adc $40
+	tax
+	lda $0700,x
+	sta PPU_ADDR
+	lda $0400,x
+	sta PPU_ADDR
+	; col 2
+	tya
+	clc
+	adc $41
+	tax
+	lda $0700,x
+	sta PPU_ADDR
+	lda $0500,x
+	sta PPU_ADDR
+	; col 3
+	tya
+	clc
+	adc $42
+	tax
+	lda $0700,x
+	sta PPU_ADDR
+	lda $0600,x
+	sta PPU_ADDR
+	; col x
+	tya
+	tax
+	lda $0700,x
+	sta PPU_ADDR
+	lda $0400,x
+	sta PPU_ADDR
+	;inc $40
+	;inc $41
+	SLEEP 10
+	; loop
+	iny
+	cpy #200
+	beq .vert_lines_done
+	jmp .vert_line_loop
+.vert_lines_done
+	IF 0
 	;; VERTICAL PARALLAX
 	ldy #$00
 	ldx #$00
@@ -198,6 +292,7 @@ nmi_handler: subroutine
 	beq .vert_lines_done
 	jmp .vert_line_loop
 .vert_lines_done
+	ENDIF
 
 	; row 1
 	lda $90
@@ -231,6 +326,7 @@ nmi_handler: subroutine
 	lda $82
 	adc #$0
 	sta $82
+	sta $40
 	and #%00111000
 	asl
 	asl
@@ -243,6 +339,7 @@ nmi_handler: subroutine
 	lda $83
 	adc #$0
 	sta $83
+	sta $41
 	; row 5
 	lda $94
 	clc
@@ -251,6 +348,7 @@ nmi_handler: subroutine
 	lda $84
 	adc #$0
 	sta $84
+	sta $42
 	;row 6
 	lda $95
 	clc

@@ -185,7 +185,7 @@ NES_MIRR_QUAD	EQM 8
 
 
 ;;;;; SHIFT LEFT <count>
-	MAC shift_l
+	MAC SHIFT_L
 .COUNT SET {1}
 	REPEAT .COUNT
 		asl
@@ -193,7 +193,7 @@ NES_MIRR_QUAD	EQM 8
 	ENDM
 
 ;;;;; SHIFT RIGHT <count>
-	MAC shift_r
+	MAC SHIFT_R
 .COUNT SET {1}
 	REPEAT .COUNT
 		lsr
