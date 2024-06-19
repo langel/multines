@@ -89,6 +89,8 @@ nmi_handler: subroutine
 	lda #$02
 	sta $4014
 	;jsr state_level_update
+	IF 0
+	;; HORIZONTAL PARALLAX
 	ldx $80
 	ldy #$00
 	stx PPU_SCROLL
@@ -113,6 +115,90 @@ nmi_handler: subroutine
 	ldx $85
 	stx PPU_SCROLL
 	sty PPU_SCROLL
+	ENDIF
+	;; VERTICAL PARALLAX
+	ldy #$00
+	ldx #$00
+	stx PPU_SCROLL
+	stx PPU_SCROLL
+	SLEEP 4786
+.vert_line_loop
+	; col 1
+	lda $80
+	stx PPU_ADDR
+	sta PPU_SCROLL
+	stx PPU_SCROLL
+	lda $a0
+	sta PPU_ADDR
+	inc $a0
+	; col 2
+	lda $81
+	stx PPU_ADDR
+	sta PPU_SCROLL
+	stx PPU_SCROLL
+	lda $a1
+	sta PPU_ADDR
+	; col 3
+	lda $82
+	stx PPU_ADDR
+	sta PPU_SCROLL
+	stx PPU_SCROLL
+	lda $a2
+	sta PPU_ADDR
+	; 0,0 border
+	lda $83
+	stx PPU_ADDR
+	stx PPU_SCROLL
+	stx PPU_SCROLL
+	stx PPU_ADDR
+; DO IT TWICE
+	;lda $00
+	SLEEP 20
+	; col 1
+	lda $80
+	stx PPU_ADDR
+	sta PPU_SCROLL
+	stx PPU_SCROLL
+	lda $a0
+	sta PPU_ADDR
+	inc $a1
+	; col 2
+	lda $81
+	stx PPU_ADDR
+	sta PPU_SCROLL
+	stx PPU_SCROLL
+	lda $a1
+	sta PPU_ADDR
+	; col 3
+	lda $82
+	stx PPU_ADDR
+	sta PPU_SCROLL
+	stx PPU_SCROLL
+	lda $a2
+	sta PPU_ADDR
+	; 0,0 border
+	lda $83
+	stx PPU_ADDR
+	sta PPU_SCROLL
+	stx PPU_SCROLL
+	stx PPU_ADDR
+;	SLEEP 8
+;	lda $84
+;	stx PPU_SCROLL
+;	sta PPU_SCROLL
+;	SLEEP 8
+;	lda $85
+;	stx PPU_SCROLL
+;	sta PPU_SCROLL
+	lda #$00
+	SLEEP 12
+	lda $00
+	iny
+	cpy #80
+	beq .vert_lines_done
+	jmp .vert_line_loop
+.vert_lines_done
+
 	; row 1
 	lda $90
 	clc
@@ -121,6 +207,10 @@ nmi_handler: subroutine
 	lda #$0
 	adc $80
 	sta $80
+	and #%00111000
+	asl
+	asl
+	sta $a0
 	; row 2
 	lda $91
 	clc
@@ -129,6 +219,10 @@ nmi_handler: subroutine
 	lda $81
 	adc #$0
 	sta $81
+	and #%00111000
+	asl
+	asl
+	sta $a1
 	; row 3
 	lda $92
 	clc
@@ -137,6 +231,10 @@ nmi_handler: subroutine
 	lda $82
 	adc #$0
 	sta $82
+	and #%00111000
+	asl
+	asl
+	sta $a2
 	; row 4
 	lda $92
 	clc
