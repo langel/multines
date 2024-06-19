@@ -103,7 +103,7 @@ cart_start: subroutine
 	SHIFT_R 6
 	sta temp00
 	txa
-	SHIFT_L 5
+	SHIFT_L 4
 	ora temp00
 	and #%01110011
 	sta $0700,x
@@ -164,7 +164,7 @@ nmi_handler: subroutine
 	sta PPU_SCROLL
 	sta PPU_SCROLL
 	tay
-	SLEEP 4660
+	SLEEP 4658
 .vert_line_loop
 	; col 1
 	tya
@@ -202,7 +202,47 @@ nmi_handler: subroutine
 	sta PPU_ADDR
 	;inc $40
 	;inc $41
-	SLEEP 10
+	SLEEP 12
+	; loop
+	iny
+	; col 1
+	tya
+	clc
+	adc $40
+	tax
+	lda $0700,x
+	sta PPU_ADDR
+	lda $0400,x
+	sta PPU_ADDR
+	; col 2
+	tya
+	clc
+	adc $41
+	tax
+	lda $0700,x
+	sta PPU_ADDR
+	lda $0500,x
+	sta PPU_ADDR
+	; col 3
+	tya
+	clc
+	adc $42
+	tax
+	lda $0700,x
+	sta PPU_ADDR
+	lda $0600,x
+	sta PPU_ADDR
+	; col x
+	tya
+	tax
+	lda $0700,x
+	sta PPU_ADDR
+	lda $0400,x
+	sta PPU_ADDR
+	;inc $40
+	;inc $41
+	lda $00
+	SLEEP 12
 	; loop
 	iny
 	cpy #200
