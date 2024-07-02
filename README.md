@@ -20,6 +20,6 @@ clone/glowup of VIC20 Tooth Invaders
 4 generations of lemonade stands
 
 ### See Saw (or Teeter Totter)
-circus/clowns clone
+circus/clowns clone - left/right speed controlled with buttons
 
 other possible games to consider for glowups/inspirations: moon patrol, super bunny, lords of conquest, cities of gold, clowns, blue meanies, scare city motel, electrician (fds), hotdog stand (flash)
