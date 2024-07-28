@@ -94,7 +94,7 @@ NES_MIRR_QUAD	EQM 8
 	org $8000
 	ENDM
 
-	MAC NES_HEADER_NROM_128
+	MAC NES_HEADER
 	seg Header
 	org $bff0
 .NES_MAPPER	SET {1}	;mapper number
