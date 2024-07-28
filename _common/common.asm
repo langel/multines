@@ -1,6 +1,6 @@
+;
+; COMMON SUBROUTINES
 
-
-;;;;; SUBROUTINES
 
 do_nothing: subroutine
 	rts
@@ -9,76 +9,76 @@ do_nothing: subroutine
 nametable_fill: subroutine
 	; a = nametable high address
 	; temp00 = fill tile
-        ; temp01 = fill attribute
-        ; requires render_disable status
-        sta PPU_ADDR
-        lda #$00
-        sta PPU_ADDR
-        sta PPU_CTRL
-        tax
-        lda temp00
+	; temp01 = fill attribute
+	; requires render_disable status
+	sta PPU_ADDR
+	lda #$00
+	sta PPU_ADDR
+	sta PPU_CTRL
+	tax
+	lda temp00
 .loop0
 	sta PPU_DATA
-        inx
-        bne .loop0
+	inx
+	bne .loop0
 .loop1
 	sta PPU_DATA
-        inx
-        bne .loop1
+	inx
+	bne .loop1
 .loop2
 	sta PPU_DATA
-        inx
-        bne .loop2
+	inx
+	bne .loop2
 .loop3
 	sta PPU_DATA
-        inx
-        cpx #$c0
-        bne .loop3
-  	; attributes here
-        lda temp01
+	inx
+	cpx #$c0
+	bne .loop3
+	; attributes here
+	lda temp01
 .attr_loop
 	sta PPU_DATA
-        inx
-        bne .attr_loop
+	inx
+	bne .attr_loop
 	rts
-        
-        
+
+
 nametable_load: subroutine
 	; a = nametable high address
-        ; temp00 = .nam lo address
-        ; temp01 = .nam hi address
-        sta PPU_ADDR
-        lda #$00
-        sta PPU_ADDR
-        sta PPU_CTRL
-        tay
+	; temp00 = .nam lo address
+	; temp01 = .nam hi address
+	sta PPU_ADDR
+	lda #$00
+	sta PPU_ADDR
+	sta PPU_CTRL
+	tay
 .loop0
 	lda (temp00),y
 	sta PPU_DATA
-        iny
-        bne .loop0
-        inc temp01
+	iny
+	bne .loop0
+	inc temp01
 .loop1
 	lda (temp00),y
 	sta PPU_DATA
-        iny
-        bne .loop1
-        inc temp01
+	iny
+	bne .loop1
+	inc temp01
 .loop2
 	lda (temp00),y
 	sta PPU_DATA
-        iny
-        bne .loop2
-        inc temp01
+	iny
+	bne .loop2
+	inc temp01
 .loop3
 	lda (temp00),y
 	sta PPU_DATA
-        iny
-        bne .loop3
-        rts
-        
-     
-           
+	iny
+	bne .loop3
+	rts
+
+
+
 shift_divide_7_into_8: subroutine
 	; temp00 dividend
 	; temp01 divisor
@@ -101,8 +101,8 @@ shift_divide_7_into_8: subroutine
 	bne .loop
 	sta temp01
 	rts
-        
-        
+
+
 shift_divide_7_into_16: subroutine
 	; temp00 dividend lo
 	; temp01 dividend hi
@@ -126,18 +126,18 @@ shift_divide_7_into_16: subroutine
 	bne .loop
 	sta temp01
 	rts
-       
-                
+
+
 shift_divide_15_into_16: subroutine
 	; temp00 = dividend lo
-        ; temp01 = dividend hi
-        ; temp02 = divisor lo
-        ; temp03 = divisor hi
-        ; RETURNS
+	; temp01 = dividend hi
+	; temp02 = divisor lo
+	; temp03 = divisor hi
+	; RETURNS
 	; temp00 = result (lo only)
-        ; temp04 = remainder lo
-        ; temp05 = remainder hi
-        
+	; temp04 = remainder lo
+	; temp05 = remainder hi
+
 	lda #0	        ; zero out remainder
 	sta temp04
 	sta temp05
@@ -162,31 +162,47 @@ shift_divide_15_into_16: subroutine
 	dex
 	bne .loop	
 	rts
-        
-        
+
+
 shift_multiply: subroutine
-        ; shift + add multiplication
-        ; temp00, temp01 in = factors
-        ; returns little endian 16bit val
-        ;         at temp01, temp00
-        lda #$00
-        ldx #$08
-        lsr temp00
+	; shift + add multiplication
+	; temp00, temp01 in = factors
+	; returns little endian 16bit val
+	;         at temp01, temp00
+	lda #$00
+	ldx #$08
+	lsr temp00
 .loop
 	bcc .no_add
-        clc
-        adc temp01
+	clc
+	adc temp01
 .no_add
 	ror
-        ror temp00
-        dex
-        bne .loop
-        sta temp01
-        rts        
-        
+	ror temp00
+	dex
+	bne .loop
+	sta temp01
+	rts        
 
-        
 
+
+registers_clear: subroutine
+	lda #$00
+	sta temp00
+	sta temp01
+	sta temp02
+	sta temp03
+	sta temp04
+	sta temp05
+	sta state00
+	sta state01
+	sta state02
+	sta state03
+	sta state04
+	sta state05
+	sta state06
+	sta state07
+	rts
 
 rng_next subroutine
 	lsr
@@ -204,22 +220,23 @@ rng_prev subroutine
 	rts
 
 rand: subroutine
-	lda rng0
+	lda rng00
 	lsr
 	bcc .no_ex_or
 	eor #$d4
 .no_ex_or:
-	sta rng0
+	sta rng00
 	rts
         
         
+        
 ram_clear: subroutine
-	lda #0		; A = 0
-        tax		; X = 0
+	lda #0	; A = 0
+	tax		; X = 0
 .loop
 	sta $0,x	; clear $0-$ff
-        cpx #$fe	; last 2 bytes of stack?
-        bcs .skip_stack	; don't clear it
+	cpx #$fe	; last 2 bytes of stack?
+	bcs .skip_stack	; don't clear it
 	sta $100,x	; clear $100-$1fd
 .skip_stack
 	sta $200,x	; clear $200-$2ff
@@ -228,71 +245,69 @@ ram_clear: subroutine
 	sta $500,x	; clear $500-$5ff
 	sta $600,x	; clear $600-$6ff
 	sta $700,x	; clear $700-$7ff
-        inx		; X = X + 1
-        bne .loop	; loop 256 times
-        rts
-        
-        
-render_enable:
-        lda #CTRL_NMI|CTRL_BG_1000
-        sta PPU_CTRL	; enable NMI
-		  lda ppu_mask_emph
-        ora #MASK_BG|MASK_SPR|MASK_SPR_CLIP|MASK_BG_CLIP
-        sta PPU_MASK	; enable rendering
+	inx		; X = X + 1
+	bne .loop	; loop 256 times
 	rts
-        
-        
+
+
+render_enable:
+	lda #CTRL_NMI|CTRL_BG_1000
+	sta PPU_CTRL	; enable NMI
+	lda ppu_mask_emph
+	ora #MASK_BG|MASK_SPR|MASK_SPR_CLIP|MASK_BG_CLIP
+	sta PPU_MASK	; enable rendering
+	rts
+
+
 render_disable:
 	lda #$00
-        sta PPU_MASK	
-        sta PPU_CTRL	
+	sta PPU_MASK	
+	sta PPU_CTRL	
 	rts
 
 
 vsync_wait:
 	bit PPU_STATUS
 	bpl vsync_wait
-        rts
-        
-        
-        
-                
+	rts
+
+
 collision_detect: subroutine
 	; returns true/false in a
 	clc
-        lda collision_0_x
-        adc collision_0_w
-        bcs .no_collision ; make sure x+w is not less than x
-        cmp collision_1_x
-        bcc .no_collision
-        clc
-        lda collision_1_x
-        adc collision_1_w
-        cmp collision_0_x
-        bcc .no_collision
-        clc
-        lda collision_0_y
-        adc collision_0_h
-        cmp collision_1_y
-        bcc .no_collision
-        clc 
-        lda collision_1_y
-        adc collision_1_h
-        cmp collision_0_y
-        bcc .no_collision
+	lda collision_0_x
+	adc collision_0_w
+	bcs .no_collision ; make sure x+w is not less than x
+	cmp collision_1_x
+	bcc .no_collision
+	clc
+	lda collision_1_x
+	adc collision_1_w
+	cmp collision_0_x
+	bcc .no_collision
+	clc
+	lda collision_0_y
+	adc collision_0_h
+	cmp collision_1_y
+	bcc .no_collision
+	clc 
+	lda collision_1_y
+	adc collision_1_h
+	cmp collision_0_y
+	bcc .no_collision
 .collision
 	lda #$ff
-        rts
+	rts
 .no_collision
 	lda #$00
-        rts
+	rts
 
 
 
-;;;;; CONTROLLER READING
+; CONTROLLER READING
 
-BUTTON_A      	EQM 1 << 7
-BUTTON_B   	EQM 1 << 6
+BUTTON_A       EQM 1 << 7
+BUTTON_B       EQM 1 << 6
 BUTTON_SELECT 	EQM 1 << 5
 BUTTON_START  	EQM 1 << 4
 BUTTON_UP     	EQM 1 << 3
@@ -302,38 +317,40 @@ BUTTON_RIGHT  	EQM 1 << 0
 
 controller_poller: subroutine
 	ldx #$01
-        stx JOYPAD1
-        dex
-        stx JOYPAD1
-        ldx #$08
+	stx JOYPAD1
+	dex
+	stx JOYPAD1
+	ldx #$08
 .read_loop
 	lda JOYPAD1
-        lsr
-        rol temp00
-        lsr
-        rol temp01
-        dex
-        bne .read_loop
-        lda temp00
-        ora temp01
-        sta temp00
-        rts
-        
+	lsr
+	rol temp00
+	lsr
+	rol temp01
+	dex
+	bne .read_loop
+	lda temp00
+	ora temp01
+	sta temp00
+	rts
+
 controller_read: subroutine
 	jsr controller_poller
 .checksum_loop
-        ldy temp00
-        jsr controller_poller
-        cpy temp00
-        bne .checksum_loop
-        lda temp00
-        tay
-        eor controls
-        and temp00
-        sta controls_d
-        sty controls
-        rts
+	ldy temp00
+	jsr controller_poller
+	cpy temp00
+	bne .checksum_loop
+	lda temp00
+	tay
+	eor controls
+	and temp00
+	sta controls_d
+	sty controls
+	rts
 
+
+                
 
 sine_table:
 	hex 808386898c8f9295
