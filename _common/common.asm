@@ -78,6 +78,14 @@ nametable_load: subroutine
 	rts
 
 
+sprites_clear: subroutine
+	lda #$ff
+	ldx #$00
+.sprite_clear
+	sta $0200,x
+	inx
+	bne .sprite_clear
+
 
 shift_divide_7_into_8: subroutine
 	; temp00 dividend
