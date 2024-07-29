@@ -1,18 +1,32 @@
 ;
 ; KERNEL
 
-bootup: subroutine
-	NES_INIT	; set up stack pointer, turn off PPU
-	jsr vsync_wait
-	jsr vsync_wait
-	jsr vsync_wait
-	jsr ram_clear
 
-	; ppu setup
+bootup: subroutine
+
+	sei
+	cld
+	ldx #$ff
+	txs
+	inx
+	stx PPU_CTRL
+	stx PPU_MASK
+	bit PPU_STATUS
+	lda #$40
+	sta APU_FRAME
+	bit APU_CHAN_CTRL
+	stx DMC_FREQ
+
+	jsr vsync_wait
+	jsr vsync_wait
+	jsr vsync_wait
+
+	jsr ram_clear
+	jsr sprites_clear
+
+	; clear nametables
 	lda #CTRL_INC_1
 	sta PPU_CTRL
-
-; clear nametables
 	lda #$00
 	sta temp00
 	sta temp01
@@ -24,8 +38,6 @@ bootup: subroutine
 	jsr nameteable_fill
 	lda #$2c
 	jsr nameteable_fill
-
-	jsr sprites_clear
 
 	; seed rng
 	lda #$ff

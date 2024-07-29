@@ -85,6 +85,7 @@ sprites_clear: subroutine
 	sta $0200,x
 	inx
 	bne .sprite_clear
+	rts
 
 
 shift_divide_7_into_8: subroutine
@@ -313,15 +314,6 @@ collision_detect: subroutine
 
 
 ; CONTROLLER READING
-
-BUTTON_A       EQM 1 << 7
-BUTTON_B       EQM 1 << 6
-BUTTON_SELECT 	EQM 1 << 5
-BUTTON_START  	EQM 1 << 4
-BUTTON_UP     	EQM 1 << 3
-BUTTON_DOWN   	EQM 1 << 2
-BUTTON_LEFT   	EQM 1 << 1
-BUTTON_RIGHT  	EQM 1 << 0
 
 controller_poller: subroutine
 	ldx #$01

@@ -71,71 +71,25 @@ F_SCAN8         EQM %00100000 	; More than 8 sprites on current scanline
 F_WIGNORE       EQM %00010000 	; VRAM Writes currently ignored.
 
 
-;;;;; CARTRIDGE FILE HEADER
+; ROM FILE HEADER
 
 NES_MIRR_HORIZ	EQM 0
 NES_MIRR_VERT	EQM 1
 NES_MIRR_QUAD	EQM 8
 
 	MAC NES_HEADER
-	seg Header
-	org $7ff0
-.NES_MAPPER	SET {1}	;mapper number
-.NES_PRG_BANKS	SET {2}	;number of 16K PRG banks, change to 2 for NROM256
-.NES_CHR_BANKS	SET {3}	;number of 8K CHR banks (0 = RAM)
-.NES_MIRRORING	SET {4}	;0 horizontal, 1 vertical, 8 four screen
-	byte $4e,$45,$53,$1a ; header
+.NES_MAPPER	SET {1}	
+.NES_PRG_BANKS	SET {2}	; 2 = NROM256
+.NES_CHR_BANKS	SET {3}	; 0 = RAM
+.NES_MIRRORING	SET {4}	; 0 horizontal, 1 vertical, 8 four screen
+	byte $4e,$45,$53,$1a ; "NES⌁"
 	byte .NES_PRG_BANKS
 	byte .NES_CHR_BANKS
 	byte .NES_MIRRORING|(.NES_MAPPER<<4)
 	byte .NES_MAPPER&$f0
-	byte 0,0,0,0,0,0,0,0 ; reserved, set to zero
-	seg CODE
-	org $8000
+	byte 0,0,0,0,0,0,0,0 ; bunk buffer space
 	ENDM
 
-	MAC NES_HEADER
-	seg Header
-	org $bff0
-.NES_MAPPER	SET {1}	;mapper number
-.NES_PRG_BANKS	SET {2}	;number of 16K PRG banks, change to 2 for NROM256
-.NES_CHR_BANKS	SET {3}	;number of 8K CHR banks (0 = RAM)
-.NES_MIRRORING	SET {4}	;0 horizontal, 1 vertical, 8 four screen
-	byte $4e,$45,$53,$1a ; header
-	byte .NES_PRG_BANKS
-	byte .NES_CHR_BANKS
-	byte .NES_MIRRORING|(.NES_MAPPER<<4)
-	byte .NES_MAPPER&$f0
-	byte 0,0,0,0,0,0,0,0 ; reserved, set to zero
-	seg CODE
-	org $c000
-	ENDM
-
-;;;;; NES_INIT SETUP MACRO (place at start)
-	MAC NES_INIT
-	sei			;disable IRQs
-	cld			;decimal mode not supported
-	ldx #$ff
-	txs			;set up stack pointer
-	inx			;increment X to 0
-	stx PPU_MASK		;disable rendering
-	stx DMC_FREQ		;disable DMC interrupts
-	stx PPU_CTRL		;disable NMI interrupts
-	bit PPU_STATUS		;clear VBL flag
-	bit APU_CHAN_CTRL	;ack DMC IRQ bit 7
-	lda #$40
-	sta APU_FRAME		;disable APU Frame IRQ
-	lda #$0F
-	ENDM
-
-;;;;; NES_VECTORS - CPU vectors at end of address space
-	MAC NES_VECTORS
-	seg Vectors		; segment "Vectors"
-	org $fffa		; start at address $fffa
-	.word NMIHandler	; $fffa vblank nmi
-	.word Start		; $fffc reset
-	.word NMIHandler	; $fffe irq / brk
-	ENDM
 
 
 ;;;;; PPU_SETADDR <address> - set 16-bit PPU address
@@ -165,15 +119,6 @@ NES_MIRR_QUAD	EQM 8
 	sta PPU_DATA
 	ENDM
         
-;;;;; PPU_POPSLIDE <count>
-	MAC PPU_POPSLIDE
-.COUNT	SET {1}
-	REPEAT .COUNT
-		pla
-		sta PPU_DATA
-	REPEND
-	ENDM
-
 ;;;;; PPU_POPSLIDE <count>
 	MAC PPU_POPSLIDE
 .COUNT	SET {1}
