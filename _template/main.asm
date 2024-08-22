@@ -4,13 +4,11 @@
 
 	processor 6502
 
-	seg ZEROPAGE
+	seg.u ZEROPAGE
 	org $0000
+	include "../_common/definitions.asm"
 	include "../_common/zero_page.asm"
 	include "./src/memory_map.asm"
-
-
-	include "../_common/definitions.asm"
 	
 	seg HEADER
 	; $bff0 = 1 PRG ; $7ff0 = 2+ PRG
