@@ -1,9 +1,6 @@
 ;
 ;	ZERO PAGE VARIABLES
 
-	seg ZEROPAGE
-	org $0000
-
 
 wtf              byte
 rng00            byte

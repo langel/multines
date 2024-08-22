@@ -31,4 +31,4 @@ single screen collect and advance Fast Eddie clone
 ### See Saw (or Teeter Totter)
 circus/clowns clone - left/right speed controlled with buttons
 
-other possible games to consider for glowups/inspirations: moon patrol, megamania (vcs), super bunny, lords of conquest, cities of gold, blue meanies, scare city motel, electrician (fds), hotdog stand (flash)
+other possible games to consider for glowups/inspirations: moon patrol, megamania (vcs), super bunny, lords of conquest, cities of gold, blue meanies, scare city motel, electrician (fds), hotdog stand (flash), simon, dragon fire, solar fox, cauldron, cauldron ii, frog bog, fast food

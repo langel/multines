@@ -1,17 +1,24 @@
 
 	processor 6502
 
+	seg ZEROPAGE
+	org $0000
+	include "../_common/zero_page.asm"
+	include "./src/memory_map.asm"
+
 	include "../_common/definitions.asm"
-	include "src/zero_page.asm"
 
-	; HEADER
+	seg HEADER
+	; $bff0 = 1 PRG ; $7ff0 = 2+ PRG
+	org $bff0
 	; mapper, PRGs (16k), CHRs (8k), mirror
-	NES_HEADER_NROM_128 0,1,1,NES_MIRR_VERT 
+	NES_HEADER 0,1,1,NES_MIRR_VERT 
 
+	seg CODE
+	org $c000
 level_nam:
 	incbin "assets/level.nam"
 	
-	include "../_common/util.asm"
 	include "src/state.asm"
 	include "src/level.asm"
 	include "src/ents.asm"
@@ -28,16 +35,7 @@ level_pal:
 	hex 0f 0c 11 22
 
 cart_start: subroutine
-	NES_INIT	; set up stack pointer, turn off PPU
-	jsr vsync_wait
-	jsr vsync_wait
-	jsr vsync_wait
-	jsr ram_clear
-;	jsr sprites_clear
-
-	; ppu setup
-	lda #CTRL_INC_1
-	sta PPU_CTRL
+	jsr bootup_clean
 
 	; nametable	
 	lda #$00
@@ -57,16 +55,9 @@ cart_start: subroutine
 	cpx #$20
 	bne .pal_loop
 
-	; good stuff
-	lda #$ff
-	sta rng0
-
 	jsr state_level_init
 
 	jsr render_enable
-	lda #$00
-	sta PPU_SCROLL
-	sta PPU_SCROLL
 
 .endless
 	jmp .endless	; endless loop
@@ -79,13 +70,15 @@ nmi_handler: subroutine
 	jsr state_level_update
 	rti
 
-	
-	;;;;; CPU VECTORS
+	seg KERNEL
+	org $f000
+	include "../_common/common.asm"
+
 	seg VECTORS
-	org $fffa ; start at address $fffa
-	.word nmi_handler	; $fffa vblank nmi
-	.word cart_start	; $fffc reset
-	.word cart_start	; $fffe irq / brk
+	org $fffa 
+	.word nmi_handler ; $fffa vblank nmi
+	.word cart_start  ; $fffc reset
+	.word cart_start  ; $fffe irq / brk
 
 
 	;;; GRAPHX
