@@ -34,6 +34,7 @@ level_pal:
 	hex 0f 0c 11 22
 
 cart_start: subroutine
+	NES_INITIALIZE
 	jsr bootup_clean
 
 	; nametable	
@@ -66,6 +67,9 @@ nmi_handler: subroutine
 	inc wtf
 	lda #$02
 	sta $4014
+	lda #$00
+	sta PPU_SCROLL
+	sta PPU_SCROLL
 	jsr state_level_update
 	rti
 

@@ -21,15 +21,25 @@
 	org $c000
 	include "./src/states.asm
 
+cart_start: subroutine
+	NES_INITIALIZE
+	jsr bootup_clean
+
+.endless
+	jmp .endless	; endless loop
+
+nmi_handler: subroutine
+	rti
+
 	seg KERNEL
 	org $f000
 	include "../_common/common.asm"
 
 	seg VECTORS
 	org $fffa 
-	.word kernel  ; $fffa vblank nmi
-	.word bootup  ; $fffc reset
-	.word bootup  ; $fffe irq / brk
+	.word nmi_handler ; $fffa vblank nmi
+	.word cart_start  ; $fffc reset
+	.word cart_start  ; $fffe irq / brk
 
 
 	seg GRAPHICS

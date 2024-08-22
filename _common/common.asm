@@ -7,19 +7,6 @@ do_nothing: subroutine
 
 
 bootup_clean: subroutine
-	sei
-	cld
-	ldx #$ff
-	txs
-	inx
-	stx PPU_CTRL
-	stx PPU_MASK
-	bit PPU_STATUS
-	lda #$40
-	sta APU_FRAME
-	bit APU_CHAN_CTRL
-	stx DMC_FREQ
-
 	jsr vsync_wait
 	jsr vsync_wait
 	jsr vsync_wait
@@ -290,11 +277,8 @@ ram_clear: subroutine
 	lda #0	; A = 0
 	tax		; X = 0
 .loop
-	sta $0,x	; clear $0-$ff
-	cpx #$fe	; last 2 bytes of stack?
-	bcs .skip_stack	; don't clear it
-	sta $100,x	; clear $100-$1fd
-.skip_stack
+	sta $000,x	; clear $0-$ff
+	; skip stack page
 	sta $200,x	; clear $200-$2ff
 	sta $300,x	; clear $300-$3ff
 	sta $400,x	; clear $400-$4ff

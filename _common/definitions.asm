@@ -91,6 +91,33 @@ NES_MIRR_QUAD	EQM 8
 	ENDM
 
 
+	MAC NES_INITIALIZE
+	sei
+	cld
+	ldx #$ff
+	txs
+	inx
+	stx PPU_CTRL
+	stx PPU_MASK
+	bit PPU_STATUS
+	lda #$40
+	sta APU_FRAME
+	bit APU_CHAN_CTRL
+	stx DMC_FREQ
+	lda #0
+	tax		
+.ram_clear_loop
+	sta $000,x	; clear $000-$0ff
+	sta $100,x	; clear $100-$1ff
+	sta $200,x	; clear $200-$2ff
+	sta $300,x	; clear $300-$3ff
+	sta $400,x	; clear $400-$4ff
+	sta $500,x	; clear $500-$5ff
+	sta $600,x	; clear $600-$6ff
+	sta $700,x	; clear $700-$7ff
+	bne .ram_clear_loop
+	ENDM
+
 
 ;;;;; PPU_SETADDR <address> - set 16-bit PPU address
 	MAC PPU_ADDR_SET
