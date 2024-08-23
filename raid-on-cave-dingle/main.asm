@@ -15,13 +15,14 @@
 
 	seg CODE
 	org $c000
-level_nam:
-	incbin "assets/level.nam"
-	
 	include "src/state.asm"
 	include "src/level.asm"
 	include "src/ents.asm"
 	include "src/ent_dingle.asm"
+
+	org $e000
+level_nam:
+	incbin "assets/level.nam"
 
 level_pal:
 	hex 0f 0c 11 22
@@ -40,7 +41,7 @@ cart_start: subroutine
 	; nametable	
 	lda #$00
 	sta temp00
-	lda #$80
+	lda #$e0
 	sta temp01
 	lda #$20
 	jsr nametable_load

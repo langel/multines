@@ -6,9 +6,9 @@
 
 	seg.u ZEROPAGE
 	org $0000
-	include "../_common/definitions.asm"
-	include "../_common/zero_page.asm"
-	include "./src/memory_map.asm"
+	include "./_common/definitions.asm"
+	include "./_common/zero_page.asm"
+	include "src/memory_map.asm"
 	
 	seg HEADER
 	; $bff0 = 1 PRG ; $7ff0 = 2+ PRG
@@ -19,7 +19,7 @@
 	seg CODE
 	; $c000 = 1 PRG ; $8000 = 2+ PRG
 	org $c000
-	include "./src/states.asm
+	include "src/states.asm
 
 cart_start: subroutine
 	NES_INITIALIZE
@@ -33,7 +33,7 @@ nmi_handler: subroutine
 
 	seg KERNEL
 	org $f000
-	include "../_common/common.asm"
+	include "./_common/common.asm"
 
 	seg VECTORS
 	org $fffa 
