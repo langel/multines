@@ -9,8 +9,9 @@ nmi_lockout      byte
 controls         byte
 controls_d       byte
 
-state_update_id  byte
-state_render_id  byte
+scroll_x         byte
+scroll_y         byte
+
 state00          byte
 state01          byte
 state02          byte
@@ -37,3 +38,10 @@ collision_1_x    byte
 collision_1_y    byte
 collision_1_w    byte
 collision_1_h    byte
+
+state_render_id  byte
+state_update_id  byte
+state_update_lo  byte
+state_update_hi  byte
+state_render_lo  byte
+state_render_hi  byte

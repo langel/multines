@@ -12,28 +12,25 @@
 	
 	seg HEADER
 	; $bff0 = 1 PRG ; $7ff0 = 2+ PRG
-	org $bff0
+	org $7ff0
 	; mapper, PRGs (16k), CHRs (8k), mirror
-	NES_HEADER 0,1,1,NES_MIRR_VERT 
+	NES_HEADER 0,2,1,NES_MIRR_VERT 
 
 	seg CODE
 	; $c000 = 1 PRG ; $8000 = 2+ PRG
-	org $c000
+	org $8000
 	include "src/states.asm
 
 cart_start: subroutine
 	NES_INITIALIZE
 	jsr bootup_clean
+	jsr state_init
+.idle_cpu
+	jmp .idle_cpu
 
-.endless
-	jmp .endless	; endless loop
-
-nmi_handler: subroutine
-	rti
-
-	seg KERNEL
-	org $f000
-	include "./_common/common.asm"
+	seg COMMON
+	org $c000
+	include "./_common/top_bank.asm"
 
 	seg VECTORS
 	org $fffa 

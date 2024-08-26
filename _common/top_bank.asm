@@ -2,16 +2,13 @@
 ; COMMON SUBROUTINES
 
 
-do_nothing: subroutine
-	rts
-
 
 bootup_clean: subroutine
 	jsr vsync_wait
 	jsr vsync_wait
 	jsr vsync_wait
 
-	jsr ram_clear
+	;jsr ram_clear
 	jsr sprites_clear
 
 	; clear nametables
@@ -34,12 +31,60 @@ bootup_clean: subroutine
 	sta rng00
 	sta rng01
 
+	ldx #render_do_nothing_id
+	jsr state_set_render_routine
+	ldx #update_do_nothing_id
+	jsr state_set_update_routine
+
 	lda #$00
 	sta PPU_SCROLL
 	sta PPU_SCROLL
 	rts
 
+
+nmi_handler: subroutine
+	inc wtf
+	lda #$02
+	sta $4014
+	lda scroll_x
+	sta PPU_SCROLL
+	lda scroll_y
+	sta PPU_SCROLL
+	jmp (state_render_lo)
+nmi_render_done
+	jmp (state_update_lo)
+nmi_update_done
+	rti
+
+
+state_set_render_routine: subroutine
+	; x = state id
+	stx state_render_id
+	lda state_table_lo,x
+	sta state_render_lo
+	lda state_table_hi,x
+	sta state_render_hi
+	rts
+	
+state_set_update_routine: subroutine
+	; x = state id
+	stx state_update_id
+	lda state_table_lo,x
+	sta state_update_lo
+	lda state_table_hi,x
+	sta state_update_hi
+	rts
         
+render_do_nothing: subroutine
+	jmp nmi_render_done
+
+update_do_nothing: subroutine
+	jmp nmi_update_done
+
+do_nothing: subroutine
+	rts
+
+
 nametable_fill: subroutine
 	; a = nametable high address
 	; temp00 = fill tile

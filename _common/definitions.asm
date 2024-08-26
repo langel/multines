@@ -11,6 +11,11 @@ PPU_SCROLL  EQM $2005
 PPU_ADDR    EQM $2006
 PPU_DATA    EQM $2007
 
+spr_y  eqm $0200
+spr_i  eqm $0201
+spr_a  eqm $0202
+spr_x  eqm $0203
+
 PPU_OAM_DMA     EQM $4014
 DMC_FREQ        EQM $4010
 APU_STATUS      EQM $4015

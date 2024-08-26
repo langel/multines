@@ -1,16 +1,20 @@
 ;
 ; STATE SUBROUTINES
 
-	org $c000
+render_do_nothing_id                   eqm $00
+update_do_nothing_id                   eqm $01
+
+	org $8000
 state_table_lo:
-	byte <#do_nothing
-	byte <#state_game_init
+	byte <#update_do_nothing
+	byte <#render_do_nothing
 
-	org $c020
+	org $8040
 state_table_hi:
-	byte >#do_nothing
-	byte >#state_game_init
+	byte >#update_do_nothing
+	byte >#render_do_nothing
 
-
+	org $8080
+	; bootup state initializer
 state_init: subroutine
 	rts

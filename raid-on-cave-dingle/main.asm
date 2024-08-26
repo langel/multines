@@ -9,18 +9,18 @@
 
 	seg HEADER
 	; $bff0 = 1 PRG ; $7ff0 = 2+ PRG
-	org $bff0
+	org $7ff0
 	; mapper, PRGs (16k), CHRs (8k), mirror
-	NES_HEADER 0,1,1,NES_MIRR_VERT 
+	NES_HEADER 0,2,1,NES_MIRR_VERT 
 
 	seg CODE
-	org $c000
-	include "src/state.asm"
+	org $8000
+	include "src/states.asm"
 	include "src/level.asm"
 	include "src/ents.asm"
 	include "src/ent_dingle.asm"
 
-	org $e000
+	org $a000
 level_nam:
 	incbin "assets/level.nam"
 
@@ -37,46 +37,15 @@ level_pal:
 cart_start: subroutine
 	NES_INITIALIZE
 	jsr bootup_clean
-
-	; nametable	
-	lda #$00
-	sta temp00
-	lda #$e0
-	sta temp01
-	lda #$20
-	jsr nametable_load
-
-	; palette
-	PPU_ADDR_SET $3f00
-	ldx #$00
-.pal_loop
-	lda level_pal,x
-	sta PPU_DATA
-	inx
-	cpx #$20
-	bne .pal_loop
-
-	jsr state_level_init
-
+	jsr state_init
 	jsr render_enable
+.idle_cpu
+	jmp .idle_cpu
 
-.endless
-	jmp .endless	; endless loop
 
-
-nmi_handler: subroutine
-	inc wtf
-	lda #$02
-	sta $4014
-	lda #$00
-	sta PPU_SCROLL
-	sta PPU_SCROLL
-	jsr state_level_update
-	rti
-
-	seg KERNEL
-	org $f000
-	include "./_common/common.asm"
+	seg COMMON
+	org $c000
+	include "./_common/top_bank.asm"
 
 	seg VECTORS
 	org $fffa 
