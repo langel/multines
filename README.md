@@ -32,3 +32,17 @@ single screen collect and advance Fast Eddie clone
 circus/clowns clone - left/right speed controlled with buttons
 
 other possible games to consider for glowups/inspirations: moon patrol, megamania (vcs), super bunny, lords of conquest, cities of gold, blue meanies, scare city motel, electrician (fds), hotdog stand (flash), simon, dragon fire, solar fox, cauldron, cauldron ii, frog bog, fast food
+
+# Engine Structure (notes to self)
+
+Individually games are 40k NROM-256 ROMs
+Multicart is 256kb UNROM or something like that
+
+`cart_start` is at `$8000`
+
+`nmi_handler` is in common upper bank
+
+state controllers have 64 slots
+`$8080` = low address
+`$80c0` = high address
+`$8100` = `state_init` subroutine
