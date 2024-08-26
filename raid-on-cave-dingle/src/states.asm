@@ -5,24 +5,24 @@ render_do_nothing_id                   eqm $00
 update_do_nothing_id                   eqm $01
 state_level_update_id                  eqm $02
 
-	org $8000
+	org $8080
 state_table_lo:
-	byte <#update_do_nothing
 	byte <#render_do_nothing
+	byte <#update_do_nothing
 	byte <#state_level_update
 
-	org $8040
+	org $80c0
 state_table_hi:
-	byte >#update_do_nothing
 	byte >#render_do_nothing
+	byte >#update_do_nothing
 	byte >#state_level_update
 
-	org $8080
+	org $8100
 	; bootup state initializer
 state_init: subroutine
 	jsr state_level_init
-	ldx state_level_update_id
-	jsr state_set_render_routine
+	ldx #state_level_update_id
+	jsr state_set_update_routine
 	rts
 
 ent_x_tab:
@@ -33,6 +33,17 @@ ent_y_tab:
 	hex 07 07 07 07
 	hex 0b 0b 0b 0b 0b 0b 0b 0b 0b 0b
 	hex 0d 0d 0d 0d 0d 0d 0d 0d 0d 0d
+
+level_pal:
+	hex 0f
+	hex 0c 11 22
+	hex 0c 11 22
+	hex 0c 11 22
+	hex 0c 11 22
+	hex 0c 11 22
+	hex 0c 11 22
+	hex 0c 11 22
+	hex 0c 11 22
 
 state_level_init: subroutine
 
@@ -45,14 +56,12 @@ state_level_init: subroutine
 	jsr nametable_load
 
 	; palette
-	PPU_ADDR_SET $3f00
-	ldx #$00
+	ldx #$18
 .pal_loop
 	lda level_pal,x
-	sta PPU_DATA
-	inx
-	cpx #$20
-	bne .pal_loop
+	sta palette_cache,x
+	dex
+	bpl .pal_loop
 
 	; populate ents
 	ldx #$00
@@ -112,8 +121,9 @@ state_level_init: subroutine
 
 
 state_level_update: subroutine
+	jsr render_enable
 	jsr ents_update
-	jmp nmi_render_done
+	jmp nmi_update_done
 
 level_get_block_dir: subroutine
 	; temp00 = x position

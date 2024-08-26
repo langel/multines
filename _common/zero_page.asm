@@ -41,7 +41,7 @@ collision_1_h    byte
 
 state_render_id  byte
 state_update_id  byte
-state_update_lo  byte
-state_update_hi  byte
 state_render_lo  byte
 state_render_hi  byte
+state_update_lo  byte
+state_update_hi  byte

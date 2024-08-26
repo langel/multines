@@ -11,6 +11,8 @@ PPU_SCROLL  EQM $2005
 PPU_ADDR    EQM $2006
 PPU_DATA    EQM $2007
 
+palette_cache	EQU $e7
+
 spr_y  eqm $0200
 spr_i  eqm $0201
 spr_a  eqm $0202
@@ -124,7 +126,7 @@ NES_MIRR_QUAD	EQM 8
 	ENDM
 
 
-;;;;; PPU_SETADDR <address> - set 16-bit PPU address
+;;;;; PPU_ADDR_SET <address> - set 16-bit PPU address
 	MAC PPU_ADDR_SET
 	lda #>{1}	; upper byte
 	sta PPU_ADDR

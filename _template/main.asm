@@ -19,14 +19,14 @@
 	seg CODE
 	; $c000 = 1 PRG ; $8000 = 2+ PRG
 	org $8000
-	include "src/states.asm
-
 cart_start: subroutine
 	NES_INITIALIZE
 	jsr bootup_clean
 	jsr state_init
 .idle_cpu
 	jmp .idle_cpu
+	;   $8080
+	include "src/states.asm
 
 	seg COMMON
 	org $c000

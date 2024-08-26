@@ -6,13 +6,13 @@ update_do_nothing_id                   eqm $01
 
 	org $8000
 state_table_lo:
-	byte <#update_do_nothing
 	byte <#render_do_nothing
+	byte <#update_do_nothing
 
 	org $8040
 state_table_hi:
-	byte >#update_do_nothing
 	byte >#render_do_nothing
+	byte >#update_do_nothing
 
 	org $8080
 	; bootup state initializer

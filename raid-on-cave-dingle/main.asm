@@ -15,6 +15,14 @@
 
 	seg CODE
 	org $8000
+cart_start: subroutine
+	NES_INITIALIZE
+	jsr bootup_clean
+	jsr state_init
+	jsr render_enable
+.idle_cpu
+	jmp .idle_cpu
+	;   $8080
 	include "src/states.asm"
 	include "src/level.asm"
 	include "src/ents.asm"
@@ -23,24 +31,6 @@
 	org $a000
 level_nam:
 	incbin "assets/level.nam"
-
-level_pal:
-	hex 0f 0c 11 22
-	hex 0f 0c 11 22
-	hex 0f 0c 11 22
-	hex 0f 0c 11 22
-	hex 0f 0c 11 22
-	hex 0f 0c 11 22
-	hex 0f 0c 11 22
-	hex 0f 0c 11 22
-
-cart_start: subroutine
-	NES_INITIALIZE
-	jsr bootup_clean
-	jsr state_init
-	jsr render_enable
-.idle_cpu
-	jmp .idle_cpu
 
 
 	seg COMMON
