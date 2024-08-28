@@ -1,0 +1,11 @@
+some chips
+
+`02  4x 2-input NOR gates
+`10  3x 3-input NAND gates
+`32  4x 2-input OR gates
+`139 2x 2bit-input 4-line-output
+`161 4bit programmable counter
+`377 octal flip-flops
+`873 dual 4bit latches
+
+UM61256FK abundant 32kb SRAM
