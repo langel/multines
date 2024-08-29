@@ -2,6 +2,15 @@
 ; COMMON SUBROUTINES
 
 
+	include "./_common/src/input.asm"
+	include "./_common/src/math.asm"
+	include "./_common/src/nametable.asm"
+	include "./_common/src/nmi.asm"
+	include "./_common/src/rng.asm"
+	include "./_common/src/sprite.asm"
+	include "./_common/src/state.asm"
+
+
 
 bootup_clean: subroutine
 	jsr vsync_wait
@@ -41,269 +50,10 @@ bootup_clean: subroutine
 	rts
 
 
-nmi_handler: subroutine
-	lda nmi_lockout
-	beq no_lock
-	jmp nmi_end
-no_lock
-	inc nmi_lockout
-	; ~2250 cycles for PPU access
-	; (PAL is 7450 cycles)
-	; NTSC ~= 160 bytes of PPU writes
-	inc wtf
-	lda #$02
-	; OAM DMA         513 cycles
-	sta $4014
-	; PALETTE         236 cycles??
-	PPU_ADDR_SET $3f00
-	ldx #0
-	ldy #8
-palette_loop
-	lda palette_cache
-	sta PPU_DATA
-	inx
-	lda palette_cache,x
-	sta PPU_DATA
-	inx
-	lda palette_cache,x
-	sta PPU_DATA
-	inx
-	lda palette_cache,x
-	sta PPU_DATA
-	dey
-	bne palette_loop
-	; SCROLL POS	    17 cycles
-	bit PPU_STATUS
-	lda scroll_x
-	sta PPU_SCROLL
-	lda scroll_y
-	sta PPU_SCROLL
-	; STATE RENDER     ?? cycles
-	jmp (state_render_lo)
-nmi_render_done
-	; hope everything above was under
-	; ~2250 cycles!
-	jmp (state_update_lo)
-nmi_update_done
-	dec nmi_lockout
-nmi_end
-	rti
-
-
-state_set_render_routine: subroutine
-	; x = state id
-	stx state_render_id
-	lda state_table_lo,x
-	sta state_render_lo
-	lda state_table_hi,x
-	sta state_render_hi
-	rts
-	
-state_set_update_routine: subroutine
-	; x = state id
-	stx state_update_id
-	lda state_table_lo,x
-	sta state_update_lo
-	lda state_table_hi,x
-	sta state_update_hi
-	rts
-        
-render_do_nothing: subroutine
-	jmp nmi_render_done
-
-update_do_nothing: subroutine
-	jmp nmi_update_done
 
 do_nothing: subroutine
 	rts
 
-
-nametable_fill: subroutine
-	; a = nametable high address
-	; temp00 = fill tile
-	; temp01 = fill attribute
-	; requires render_disable status
-	sta PPU_ADDR
-	lda #$00
-	sta PPU_ADDR
-	sta PPU_CTRL
-	tax
-	lda temp00
-.loop0
-	sta PPU_DATA
-	inx
-	bne .loop0
-.loop1
-	sta PPU_DATA
-	inx
-	bne .loop1
-.loop2
-	sta PPU_DATA
-	inx
-	bne .loop2
-.loop3
-	sta PPU_DATA
-	inx
-	cpx #$c0
-	bne .loop3
-	; attributes here
-	lda temp01
-.attr_loop
-	sta PPU_DATA
-	inx
-	bne .attr_loop
-	rts
-
-
-nametable_load: subroutine
-	; a = nametable high address
-	; temp00 = .nam lo address
-	; temp01 = .nam hi address
-	sta PPU_ADDR
-	lda #$00
-	sta PPU_ADDR
-	sta PPU_CTRL
-	tay
-.loop0
-	lda (temp00),y
-	sta PPU_DATA
-	iny
-	bne .loop0
-	inc temp01
-.loop1
-	lda (temp00),y
-	sta PPU_DATA
-	iny
-	bne .loop1
-	inc temp01
-.loop2
-	lda (temp00),y
-	sta PPU_DATA
-	iny
-	bne .loop2
-	inc temp01
-.loop3
-	lda (temp00),y
-	sta PPU_DATA
-	iny
-	bne .loop3
-	rts
-
-
-sprites_clear: subroutine
-	lda #$ff
-	ldx #$00
-.sprite_clear
-	sta $0200,x
-	inx
-	bne .sprite_clear
-	rts
-
-
-shift_divide_7_into_8: subroutine
-	; temp00 dividend
-	; temp01 divisor
-	; RETURNS
-	; A = remainder
-	; temp00 = result
-	; temp01 = remainder
-	ldx #$08
-	lda #$00
-	clc
-.loop
-	asl temp00
-	rol 
-	cmp temp01
-	bcc .no_sub
-	sbc temp01
-	inc temp00
-.no_sub
-	dex
-	bne .loop
-	sta temp01
-	rts
-
-
-shift_divide_7_into_16: subroutine
-	; temp00 dividend lo
-	; temp01 dividend hi
-	; temp02 divisor
-	; RETURNS
-	; A = remainder
-	; temp00 = result
-	; temp01 = remainder
-	ldx #16
-	lda #0
-.loop
-	asl temp00
-	rol temp01
-	rol 
-	cmp temp02
-	bcc .no_sub
-	sbc temp02
-	inc temp00
-.no_sub
-	dex
-	bne .loop
-	sta temp01
-	rts
-
-
-shift_divide_15_into_16: subroutine
-	; temp00 = dividend lo
-	; temp01 = dividend hi
-	; temp02 = divisor lo
-	; temp03 = divisor hi
-	; RETURNS
-	; temp00 = result (lo only)
-	; temp04 = remainder lo
-	; temp05 = remainder hi
-
-	lda #0	        ; zero out remainder
-	sta temp04
-	sta temp05
-	ldx #16	        
-
-.loop	
-	asl temp00	
-	rol temp01	
-	rol temp04	
-	rol temp05
-	lda temp04
-	sec
-	sbc temp02	; check if divisor fits
-	tay	       
-	lda temp05
-	sbc temp03
-	bcc .skip	
-	sta temp05	
-	sty temp04	
-	inc temp00	; XXX could add result hi byte 
-.skip	
-	dex
-	bne .loop	
-	rts
-
-
-shift_multiply: subroutine
-	; shift + add multiplication
-	; temp00, temp01 in = factors
-	; returns little endian 16bit val
-	;         at temp01, temp00
-	lda #$00
-	ldx #$08
-	lsr temp00
-.loop
-	bcc .no_add
-	clc
-	adc temp01
-.no_add
-	ror
-	ror temp00
-	dex
-	bne .loop
-	sta temp01
-	rts        
 
 
 
@@ -325,30 +75,6 @@ registers_clear: subroutine
 	sta state07
 	rts
 
-rng_next subroutine
-	lsr
-	bcc .NoEor
-	eor #$d4
-.NoEor:
-	rts
-
-
-rng_prev subroutine
-	asl
-	bcc .NoEor
-	eor #$a9
-.NoEor:
-	rts
-
-rand: subroutine
-	lda rng00
-	lsr
-	bcc .no_ex_or
-	eor #$d4
-.no_ex_or:
-	sta rng00
-	rts
-        
         
         
 ram_clear: subroutine
@@ -418,44 +144,6 @@ collision_detect: subroutine
 	rts
 .no_collision
 	lda #$00
-	rts
-
-
-
-; CONTROLLER READING
-
-controller_poller: subroutine
-	ldx #$01
-	stx JOYPAD1
-	dex
-	stx JOYPAD1
-	ldx #$08
-.read_loop
-	lda JOYPAD1
-	lsr
-	rol temp00
-	lsr
-	rol temp01
-	dex
-	bne .read_loop
-	lda temp00
-	ora temp01
-	sta temp00
-	rts
-
-controller_read: subroutine
-	jsr controller_poller
-.checksum_loop
-	ldy temp00
-	jsr controller_poller
-	cpy temp00
-	bne .checksum_loop
-	lda temp00
-	tay
-	eor controls
-	and temp00
-	sta controls_d
-	sty controls
 	rts
 
 
