@@ -1,2 +1,6 @@
 .*
 !.gitignore
+*rom.nes
+*romsym.txt
+*listing.txt
+
