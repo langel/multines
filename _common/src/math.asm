@@ -147,3 +147,51 @@ shift_sine: subroutine
 .no_bit_8
 	rts
 
+
+
+decimal_add_4_bytes: subroutine
+	; big endian
+	; temp00..03 addend #1
+	; temp04..07 addend #2
+	; max: 99,999,999
+	; sum returned in temp00..03
+.ones
+	lda temp03
+	clc
+	adc temp07
+	cmp #100
+	bcc .ones_no_carry
+	inc temp02
+	sbc #100
+.ones_no_carry
+	sta temp03
+.hundreds
+	lda temp02
+	clc
+	adc temp06
+	cmp #100
+	bcc .hundreds_no_carry
+	inc temp01
+	sbc #100
+.hundreds_no_carry
+	sta temp02
+.thousands
+	lda temp01
+	clc
+	adc temp05
+	cmp #100
+	bcc .thousands_no_carry
+	inc temp01
+	sbc #100
+.thousands_no_carry
+	sta temp01
+.millions
+	lda temp00
+	clc
+	adc temp04
+	cmp #100
+	bcc .millions_no_carry
+	lda #99
+.millions_no_carry
+	sta temp00
+	rts

@@ -101,27 +101,32 @@ state_level_update: subroutine
 	jsr render_enable
 	jsr ents_update
 	
-	; scoreboard?
+	lda score00
+	sta temp00
+	lda score01
+	sta temp01
+	lda score02
+	sta temp02
+	lda score03
+	sta temp03
+	lda #$00
+	sta temp04
+	sta temp05
+	lda #$01
+	sta temp06
 	lda #37
-	clc
-	adc $83
-	cmp #100
-	bcc ones
-	inc $82
-	sbc #100
-ones
-	sta $83
-	lda #1
-	clc
-	adc $82
-	cmp #100
-	bcc hundreds
-	inc $81
-	sbc #100
-hundreds
-	sta $82
+	sta temp07
+	jsr decimal_add_4_bytes
+	lda temp00
+	sta score00
+	lda temp01
+	sta score01
+	lda temp02
+	sta score02
+	lda temp03
+	sta score03
 
-	ldx $83
+	ldx score03
 	lda space_pad_01s_table,x
 	clc
 	adc #$c0
@@ -131,7 +136,7 @@ hundreds
 	adc #$c0
 	sta $8e
 
-	ldx $82
+	ldx score02
 	lda space_pad_01s_table,x
 	clc
 	adc #$c0
@@ -141,7 +146,7 @@ hundreds
 	adc #$c0
 	sta $8c
 
-	ldx $81
+	ldx score01
 	lda space_pad_01s_table,x
 	clc
 	adc #$c0
@@ -150,12 +155,26 @@ hundreds
 	clc
 	adc #$c0
 	sta $8a
+	
+	ldx score00
+	lda space_pad_01s_table,x
+	clc
+	adc #$c0
+	sta $89
+	lda space_pad_10s_table,x
+	clc
+	adc #$c0
+	sta $88
 
 	jmp nmi_update_done
 
 
 state_level_render: subroutine
 	PPU_ADDR_SET $238b
+	lda $88
+	sta PPU_DATA
+	lda $89
+	sta PPU_DATA
 	lda $8a
 	sta PPU_DATA
 	lda $8b
