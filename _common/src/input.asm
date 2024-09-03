@@ -1,4 +1,6 @@
 
+; XXX need 2nd controller
+; potentially zapper and others?
 
 ; CONTROLLER READING
 

@@ -15,3 +15,6 @@
 
 	org $f000
 	include "./_common/src/nametable.asm"
+
+	org $f400
+	include "./_common/src/sine_tables.asm"
