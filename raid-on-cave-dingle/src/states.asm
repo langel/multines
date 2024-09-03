@@ -4,18 +4,21 @@
 render_do_nothing_id                   eqm $00
 update_do_nothing_id                   eqm $01
 state_level_update_id                  eqm $02
+state_level_render_id                  eqm $03
 
 	org $8080
 state_table_lo:
 	byte <#render_do_nothing
 	byte <#update_do_nothing
 	byte <#state_level_update
+	byte <#state_level_render
 
 	org $80c0
 state_table_hi:
 	byte >#render_do_nothing
 	byte >#update_do_nothing
 	byte >#state_level_update
+	byte >#state_level_render
 
 	org $8100
 	; bootup state initializer
@@ -23,6 +26,8 @@ state_init: subroutine
 	jsr state_level_init
 	ldx #state_level_update_id
 	jsr state_set_update_routine
+	ldx #state_level_render_id
+	jsr state_set_render_routine
 	rts
 
 ent_x_tab:
@@ -44,6 +49,7 @@ level_pal:
 	hex 0c 11 22
 	hex 0c 11 22
 	hex 0c 11 22
+
 
 state_level_init: subroutine
 
@@ -94,6 +100,75 @@ state_level_init: subroutine
 state_level_update: subroutine
 	jsr render_enable
 	jsr ents_update
+	
+	; scoreboard?
+	lda #37
+	clc
+	adc $83
+	cmp #100
+	bcc ones
+	inc $82
+	sbc #100
+ones
+	sta $83
+	lda #1
+	clc
+	adc $82
+	cmp #100
+	bcc hundreds
+	inc $81
+	sbc #100
+hundreds
+	sta $82
+
+	ldx $83
+	lda space_pad_01s_table,x
+	clc
+	adc #$c0
+	sta $8f
+	lda space_pad_10s_table,x
+	clc
+	adc #$c0
+	sta $8e
+
+	ldx $82
+	lda space_pad_01s_table,x
+	clc
+	adc #$c0
+	sta $8d
+	lda space_pad_10s_table,x
+	clc
+	adc #$c0
+	sta $8c
+
+	ldx $81
+	lda space_pad_01s_table,x
+	clc
+	adc #$c0
+	sta $8b
+	lda space_pad_10s_table,x
+	clc
+	adc #$c0
+	sta $8a
+
 	jmp nmi_update_done
 
 
+state_level_render: subroutine
+	PPU_ADDR_SET $238b
+	lda $8a
+	sta PPU_DATA
+	lda $8b
+	sta PPU_DATA
+	lda $8c
+	sta PPU_DATA
+	lda $8d
+	sta PPU_DATA
+	lda $8e
+	sta PPU_DATA
+	lda $8f
+	sta PPU_DATA
+	lda #$00
+	sta PPU_SCROLL
+	sta PPU_SCROLL
+	jmp nmi_render_done
