@@ -112,9 +112,9 @@ state_level_update: subroutine
 	lda #$00
 	sta temp04
 	sta temp05
-	lda #$01
+	lda #7
 	sta temp06
-	lda #37
+	lda #77
 	sta temp07
 	jsr decimal_add_4_bytes
 	lda temp00
@@ -126,45 +126,87 @@ state_level_update: subroutine
 	lda temp03
 	sta score03
 
-	ldx score03
-	lda space_pad_01s_table,x
-	clc
-	adc #$c0
-	sta $8f
-	lda space_pad_10s_table,x
-	clc
-	adc #$c0
-	sta $8e
-
-	ldx score02
-	lda space_pad_01s_table,x
-	clc
-	adc #$c0
-	sta $8d
-	lda space_pad_10s_table,x
-	clc
-	adc #$c0
-	sta $8c
-
-	ldx score01
-	lda space_pad_01s_table,x
-	clc
-	adc #$c0
-	sta $8b
-	lda space_pad_10s_table,x
-	clc
-	adc #$c0
-	sta $8a
-	
 	ldx score00
-	lda space_pad_01s_table,x
-	clc
-	adc #$c0
-	sta $89
 	lda space_pad_10s_table,x
 	clc
 	adc #$c0
 	sta $88
+	lda space_pad_01s_table,x
+	clc
+	adc #$c0
+	sta $89
+
+	lda score00
+	bne .thousands_zero_pad
+
+	ldx score01
+	lda space_pad_10s_table,x
+	clc
+	adc #$c0
+	sta $8a
+	lda space_pad_01s_table,x
+	clc
+	adc #$c0
+	sta $8b
+
+	lda score01
+	bne .hundreds_zero_pad
+
+	ldx score02
+	lda space_pad_10s_table,x
+	clc
+	adc #$c0
+	sta $8c
+	lda space_pad_01s_table,x
+	clc
+	adc #$c0
+	sta $8d
+
+	lda score02
+	bne .ones_zero_pad
+	
+	ldx score03
+	lda space_pad_10s_table,x
+	clc
+	adc #$c0
+	sta $8e
+	lda space_pad_01s_table,x
+	clc
+	adc #$c0
+	sta $8f
+
+	jmp nmi_update_done
+
+.thousands_zero_pad
+	ldx score01
+	lda zero_pad_10s_table,x
+	clc
+	adc #$c0
+	sta $8a
+	lda zero_pad_01s_table,x
+	clc
+	adc #$c0
+	sta $8b
+.hundreds_zero_pad
+	ldx score02
+	lda zero_pad_10s_table,x
+	clc
+	adc #$c0
+	sta $8c
+	lda zero_pad_01s_table,x
+	clc
+	adc #$c0
+	sta $8d
+.ones_zero_pad
+	ldx score03
+	lda zero_pad_10s_table,x
+	clc
+	adc #$c0
+	sta $8e
+	lda zero_pad_01s_table,x
+	clc
+	adc #$c0
+	sta $8f
 
 	jmp nmi_update_done
 

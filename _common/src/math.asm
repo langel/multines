@@ -181,7 +181,7 @@ decimal_add_4_bytes: subroutine
 	adc temp05
 	cmp #100
 	bcc .thousands_no_carry
-	inc temp01
+	inc temp00
 	sbc #100
 .thousands_no_carry
 	sta temp01
@@ -192,6 +192,9 @@ decimal_add_4_bytes: subroutine
 	cmp #100
 	bcc .millions_no_carry
 	lda #99
+	sta temp03
+	sta temp02
+	sta temp01
 .millions_no_carry
 	sta temp00
 	rts
