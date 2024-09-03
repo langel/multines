@@ -106,3 +106,44 @@ shift_multiply: subroutine
 	rts        
 
 
+shift_sine: subroutine
+	; returns scaled value of sine table
+	; a = sine max
+	; x = sine pos
+	eor #$ff
+	sta temp00
+	lda #$00
+	lsr temp00
+	bcs .no_bit_1
+	adc sine_table_bit_1,x
+.no_bit_1
+	lsr temp00
+	bcs .no_bit_2
+	adc sine_table_bit_2,x
+.no_bit_2
+	lsr temp00
+	bcs .no_bit_3
+	adc sine_table_bit_3,x
+.no_bit_3
+	lsr temp00
+	bcs .no_bit_4
+	adc sine_table_bit_4,x
+.no_bit_4
+	lsr temp00
+	bcs .no_bit_5
+	adc sine_table_bit_5,x
+.no_bit_5
+	lsr temp00
+	bcs .no_bit_6
+	adc sine_table_bit_6,x
+.no_bit_6
+	lsr temp00
+	bcs .no_bit_7
+	adc sine_table_bit_7,x
+.no_bit_7
+	lsr temp00
+	bcs .no_bit_8
+	adc sine_table_bit_8,x
+.no_bit_8
+	rts
+
