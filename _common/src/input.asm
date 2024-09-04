@@ -32,10 +32,10 @@ controller_read: subroutine
 	bne .checksum_loop
 	lda temp00
 	tay
-	eor controls
+	eor controller1
 	and temp00
-	sta controls_d
-	sty controls
+	sta controller1_d
+	sty controller1
 	rts
 
 

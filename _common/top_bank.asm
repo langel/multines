@@ -10,6 +10,7 @@
 
 	include "./_common/src/state.asm"
 	include "./_common/src/ent.asm"
+	include "./_common/src/score.asm"
 	include "./_common/src/sprite.asm"
 	include "./_common/src/collision.asm"
 

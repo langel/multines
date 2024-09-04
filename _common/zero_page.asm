@@ -6,8 +6,6 @@ wtf              byte
 rng00            byte
 rng01            byte
 nmi_lockout      byte
-controls         byte
-controls_d       byte
 
 scroll_x         byte
 scroll_y         byte
@@ -39,9 +37,19 @@ collision_1_y    byte
 collision_1_w    byte
 collision_1_h    byte
 
+score00			  byte
+score01			  byte
+score02			  byte
+score03			  byte
+
 state_render_id  byte
 state_update_id  byte
 state_render_lo  byte
 state_render_hi  byte
 state_update_lo  byte
 state_update_hi  byte
+
+controller1      byte
+controller1_d    byte
+controller2      byte
+controller2_d    byte

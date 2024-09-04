@@ -101,30 +101,14 @@ state_level_update: subroutine
 	jsr render_enable
 	jsr ents_update
 	
-	lda score00
-	sta temp00
-	lda score01
-	sta temp01
-	lda score02
-	sta temp02
-	lda score03
-	sta temp03
 	lda #$00
-	sta temp04
-	sta temp05
+	sta temp00
+	sta temp01
 	lda #7
-	sta temp06
+	sta temp02
 	lda #77
-	sta temp07
-	jsr decimal_add_4_bytes
-	lda temp00
-	sta score00
-	lda temp01
-	sta score01
-	lda temp02
-	sta score02
-	lda temp03
-	sta score03
+	sta temp03
+	jsr score_add_4_bytes
 
 	ldx score00
 	lda space_pad_10s_table,x
