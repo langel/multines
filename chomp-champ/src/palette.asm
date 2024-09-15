@@ -20,3 +20,4 @@ palette_init: subroutine
 	sta palette_cache,x
 	rts
 
+

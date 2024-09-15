@@ -29,6 +29,10 @@ cart_start: subroutine
 	include "src/states.asm"
 	include "src/palette.asm"
 
+	org $b000
+title_screen_nam:
+	incbin "assets/title_screen.nam"
+
 	seg COMMON
 	org $c000
 	include "./_common/top_bank.asm"
