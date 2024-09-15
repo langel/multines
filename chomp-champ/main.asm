@@ -27,6 +27,7 @@ cart_start: subroutine
 	jmp .idle_cpu
 	;   $8080
 	include "src/states.asm"
+	include "src/palette.asm"
 
 	seg COMMON
 	org $c000
@@ -41,3 +42,5 @@ cart_start: subroutine
 
 	seg GRAPHICS
 	org $010000
+	incbin "assets/main.chr"
+	incbin "assets/main.chr"

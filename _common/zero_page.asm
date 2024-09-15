@@ -7,6 +7,9 @@ rng00            byte
 rng01            byte
 nmi_lockout      byte
 
+ppu_mask_emph    byte
+ppu_huh_holder   byte ; XXX replace
+
 scroll_x         byte
 scroll_y         byte
 
