@@ -89,10 +89,14 @@ title_screen_update: subroutine
 	clc
 	adc #$15
 	sta palette_cache+2
-.throb_cancel
+; throb canclel
 	lda state01
 	and #$03
+	cmp #$03
+	beq .throb_cancel
+	and #$03
 	bne .throb_dont_cancel
+.throb_cancel
 	lda #$15
 	sta palette_cache+1
 	lda #$25
