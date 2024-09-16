@@ -37,18 +37,67 @@ title_screen_update: subroutine
 	jsr render_enable
 .palette_cycle
 	lda wtf
+	bne .not_next
+	inc state01
+.not_next
+	lda state01
+	and #$02
+	beq .throb_asym
+.throb_symm
+	lda state00
+	clc
+	adc #$07
+	sta state00
+	jmp .throb_done
+.throb_asym
+	lda wtf
 	SHIFT_R 4
 	clc
 	adc state00
 	sta state00
+.throb_done
 	tax
+	; color 3
 	lda sine_table,x
 	SHIFT_R 6
 	SHIFT_L 4
 	clc
 	adc #title_screen_line_pal_base
 	sta palette_cache+3
-
+	; color 1
+	lda state00
+	clc
+	adc #$20
+	tax
+	lda sine_table,x
+	SHIFT_R 7
+	SHIFT_L 4
+	tay
+	clc
+	adc #$05
+	sta palette_cache+1
+	; color 2
+	lda state00
+	clc
+	adc #$40
+	tax
+	lda sine_table,x
+	SHIFT_R 7
+	SHIFT_L 4
+	tay
+	clc
+	clc
+	adc #$15
+	sta palette_cache+2
+.throb_cancel
+	lda state01
+	and #$03
+	bne .throb_dont_cancel
+	lda #$15
+	sta palette_cache+1
+	lda #$25
+	sta palette_cache+2
+.throb_dont_cancel
 	jmp nmi_update_done
 
 
