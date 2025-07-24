@@ -3,9 +3,6 @@ cart_start: subroutine
 	NES_INIT	; set up stack pointer, turn off PPU
 	jsr vsync_wait
 	jsr vsync_wait
-	; prg ram exp write enable
-	lda #$80
-	sta $a001
 
 	; clear ram
 	lda #0	
@@ -22,8 +19,6 @@ cart_start: subroutine
 	sta $500,x	
 	sta $600,x	
 	sta $700,x	
-	sta $6000,x
-	sta $6100,x
 	inx		
 	bne .ram_clear_loop
 
@@ -35,27 +30,12 @@ cart_start: subroutine
 
 	cli
 
-	;lda #state_scene_dream_init_id
-	jsr state_jmp_to
+	jsr scr_text_init
 
 
 .endless
 	jmp .endless	; endless loop
 
-
-
-
- 
-
-irq_handler: subroutine
-	; save time by only stashing the accumulator
-	; x and y registers should be stashed by the
-	; called subroutine if they use them
-	pha
-	jmp (irq_ptr_lo)
-state_irq_done:
-	pla
-	rti
 
 
 
@@ -91,6 +71,7 @@ nmi_handler: subroutine
 	sta PPU_OAM_DMA
 .oam_skip
 
+/*
 	; PALETTE RENDER 
 	; old method: 12 + 32 x 7 = 236 cycles
 	; current method: 90 (+ 64 for sprites) = 154 cycles
@@ -101,13 +82,9 @@ nmi_handler: subroutine
 	txs			; 21
 	PPU_POPSLIDE 32  ; 8 cycles each
 
-	; RENDER	va cycles
-	lda state_render_id
-	jmp state_jmp_to
-state_render_done:
-
 	ldx temp02		; 88
 	txs			; 90
+	*/
 
 	; SCROLL POS	17 cycles
 	bit PPU_STATUS
@@ -129,25 +106,14 @@ state_render_done:
 	; hope everything above was under
 	; ~2250 cycles!
 
-	; check state hook init
-	lda state_hook_init
-	beq .state_undisturbed
-	jsr state_jmp_to
-	lda #$00
-	sta state_hook_init
-.state_undisturbed
-
-	; main state logic
-	jsr controller_read
-	lda state_update_id
-	jsr state_jmp_to
-state_update_done:
-
 	inc wtf
+	
+	jsr scr_text_update
 
 	; disable NMI lockout
 	lda #$00
 	sta nmi_lockout
+	
 	
 	lda ppu_mask_emph
 	ora #MASK_BG|MASK_SPR|MASK_SPR_CLIP|MASK_BG_CLIP
