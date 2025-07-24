@@ -13,7 +13,9 @@ cart_start: subroutine
 	bcs .skip_stack
 	sta $100,x	
 .skip_stack
+	lda #$ef
 	sta $200,x	
+	lda #$00
 	sta $300,x	
 	sta $400,x	
 	sta $500,x	
