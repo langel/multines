@@ -7,8 +7,16 @@ rng00            byte
 rng01            byte
 nmi_lockout      byte
 
+rng_seed0        byte
+rng_seed1        byte
+rng_val0         byte
+rng_val1         byte
+
+
 ppu_mask_emph    byte
 ppu_huh_holder   byte ; XXX replace
+spr_offset     byte
+ent_offset     byte
 
 scroll_x         byte
 scroll_y         byte

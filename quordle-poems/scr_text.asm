@@ -49,6 +49,7 @@ scr_text_init: subroutine
 	lda poem_id
 	shift_r 6
 	sta BANK_DATA
+	sta poem_bank
 
 	lda poem_id
 	shift_r 1

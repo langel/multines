@@ -32,6 +32,9 @@ cart_start: subroutine
 
 	cli
 
+	lda #126
+	sta poem_id
+
 	jsr scr_text_init
 
 
