@@ -6,7 +6,7 @@ bootup_clean: subroutine
 	jsr vsync_wait
 	jsr vsync_wait
 
-	;jsr ram_clear
+	jsr ram_clear
 	jsr sprites_clear
 
 	; clear nametables

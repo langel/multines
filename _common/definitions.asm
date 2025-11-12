@@ -14,7 +14,7 @@ PPU_DATA    EQM $2007
 palette_cache	EQU $e7
 
 spr_y  eqm $0200
-spr_i  eqm $0201
+spr_p  eqm $0201
 spr_a  eqm $0202
 spr_x  eqm $0203
 
@@ -104,38 +104,127 @@ NES_MIRR_QUAD	EQM 8
 	ldx #$ff
 	txs
 	inx
+	stx DMC_FREQ
 	stx PPU_CTRL
 	stx PPU_MASK
 	bit PPU_STATUS
 	lda #$40
 	sta APU_FRAME
-	bit APU_CHAN_CTRL
-	stx DMC_FREQ
-	lda #0
-	tax		
-.ram_clear_loop
-	sta $000,x	; clear $000-$0ff
-	sta $100,x	; clear $100-$1ff
-	sta $200,x	; clear $200-$2ff
-	sta $300,x	; clear $300-$3ff
-	sta $400,x	; clear $400-$4ff
-	sta $500,x	; clear $500-$5ff
-	sta $600,x	; clear $600-$6ff
-	sta $700,x	; clear $700-$7ff
-	bne .ram_clear_loop
+	lda #$0f
+	sta APU_CHAN_CTRL
 	ENDM
 
 
-;;;;; PPU_ADDR_SET <address> - set 16-bit PPU address
+
+	MAC BLIT
+.COUNT SET {1}
+	REPEAT .COUNT
+		bit $2002
+	REPEND
+	ENDM
+
+
+	MAC INC_X
+.COUNT SET {1}
+	REPEAT .COUNT
+		inx
+	REPEND
+	ENDM
+
+
+	MAC INC_Y
+.COUNT SET {1}
+	REPEAT .COUNT
+		iny
+	REPEND
+	ENDM
+
+
+	MAC NOPS
+.COUNT SET {1}
+	REPEAT .COUNT
+		nop
+	REPEND
+	ENDM
+
+        
 	MAC PPU_ADDR_SET
+	; set 16bit address pointer in PPU
 	lda #>{1}	; upper byte
 	sta PPU_ADDR
 	lda #<{1}	; lower byte
 	sta PPU_ADDR
 	ENDM
 
-;;;;; PPU_PLOT_TEXT <nametable address>, <text label>
+
+	MAC PPU_DECIMAL_00
+	asl
+	tax
+	lda decimal_99_text_offset_80,x
+	sta PPU_DATA
+	inx
+	lda decimal_99_text_offset_80,x
+	sta PPU_DATA
+	ENDM
+
+
+	MAC PPU_DECIMAL_X0
+	asl
+	tax
+	lda decimal_x9_text_offset_80,x
+	sta PPU_DATA
+	inx
+	lda decimal_x9_text_offset_80,x
+	sta PPU_DATA
+	ENDM
+
+
+	MAC PPU_FILL
+	; unwound loop
+	; sends {1} to PPU data {2} times
+	REPEAT {2}
+		lda #{1}
+		sta PPU_DATA
+	REPEND
+	ENDM
+
+
+	MAC PPU_LOOP
+	; load {1} into PPU {2} times
+	lda #{1}
+	ldx #{2}
+.loop
+	sta PPU_DATA
+	dex
+	bne .loop
+	ENDM
+
+
+	MAC PPU_POPSLIDE
+	; popslide {1} times
+.COUNT	SET {1}
+	REPEAT .COUNT
+		pla
+		sta PPU_DATA
+	REPEND
+	ENDM
+
+
+	MAC PPU_PLOT
+	; unwound loop
+	; reads {2} bytes to PPU starting at {1}
+.COUNT SET 0
+	REPEAT {2}
+		lda #{1}+.COUNT
+		sta PPU_DATA
+.COUNT SET .COUNT+1
+	REPEND
+	ENDM
+        
+
 	MAC PPU_PLOT_TEXT
+	; write string at {2} to PPU at {1}
+	; 00 terminated
 	PPU_SETADDR {1}
 	ldx #$00
 .text_loop
@@ -147,23 +236,14 @@ NES_MIRR_QUAD	EQM 8
 .text_done
 	ENDM
 
-;;;;; PPU_SETVALUE <value> - feed 8-bit value to PPU
+
 	MAC PPU_SETVALUE
+	; feed {1} to PPU
 	lda #{1}
 	sta PPU_DATA
 	ENDM
-        
-;;;;; PPU_POPSLIDE <count>
-	MAC PPU_POPSLIDE
-.COUNT	SET {1}
-	REPEAT .COUNT
-		pla
-		sta PPU_DATA
-	REPEND
-	ENDM
 
 
-;;;;; SHIFT LEFT <count>
 	MAC SHIFT_L
 .COUNT SET {1}
 	REPEAT .COUNT
@@ -171,16 +251,15 @@ NES_MIRR_QUAD	EQM 8
 	REPEND
 	ENDM
 
-;;;;; SHIFT RIGHT <count>
+
 	MAC SHIFT_R
 .COUNT SET {1}
 	REPEAT .COUNT
 		lsr
 	REPEND
 	ENDM
+
         
-        
-;;;;; STATE RESET
 	MAC STATE_REGISTERS_RESET
 	lda #$00
 	sta state00
@@ -189,11 +268,13 @@ NES_MIRR_QUAD	EQM 8
 	sta state03
 	sta state04
 	sta state05
+	sta state06
+	sta state07
 	sta scroll_x
 	sta scroll_y
 	ENDM
 
-;;;;; SAVE_REGS - save A/X/Y registers
+
 	MAC SAVE_REGS
 	pha
 	txa
@@ -202,7 +283,7 @@ NES_MIRR_QUAD	EQM 8
 	pha
 	ENDM
 
-;;;;; RESTORE_REGS - restore Y/X/A registers
+
 	MAC RESTORE_REGS
 	pla
 	tay

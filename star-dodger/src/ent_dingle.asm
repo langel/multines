@@ -32,7 +32,7 @@ ent_dingle_update: subroutine
 	lda ent_yp_hi,x
 	sta spr_y,y
 	lda #$02
-	sta spr_i,y
+	sta spr_p,y
 
 
 	rts
