@@ -31,7 +31,7 @@ cart_start: subroutine
 
 	org $b000
 title_screen_nam:
-	incbin "assets/title_screen.nam"
+	incbin "assets/title.bin"
 
 	seg COMMON
 	org $c000
