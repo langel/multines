@@ -27,6 +27,9 @@ cart_start: subroutine
 	jmp .idle_cpu
 	;   $8080
 	include "src/states.asm"
+	include "src/state_title.asm"
+	include "src/game/init.asm"
+	include "src/game/update.asm"
 	include "src/palette.asm"
 
 	org $b000

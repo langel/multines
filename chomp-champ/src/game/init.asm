@@ -1,0 +1,127 @@
+
+
+state_game_init: subroutine
+
+
+	jsr render_disable
+
+
+	lda #$20
+	sta PPU_ADDR
+	lda #$c0
+	sta PPU_ADDR
+	; gumline
+	ldx #$20
+	lda #$09
+.loop_gumline_top
+	sta PPU_DATA
+	dex
+	bne .loop_gumline_top
+	; upper_top
+	ldx #$00
+	ldy #$00
+.loop_upper_top
+	lda tooth_row_upper_top,x
+	sta PPU_DATA
+	inx
+	txa
+	and #$07
+	tax
+	iny
+	cpy #$20
+	bne .loop_upper_top
+	; generic teefs
+	ldx #$00
+	ldy #$00
+.loop_upper_generics
+	lda tooth_row_generic,x
+	sta PPU_DATA
+	inx
+	txa
+	and #$07
+	tax
+	iny
+	cpy #$e0
+	bne .loop_upper_generics
+	; upper_bottom
+	ldx #$00
+	ldy #$00
+.loop_upper_bottom
+	lda tooth_row_upper_bottom,x
+	sta PPU_DATA
+	inx
+	txa
+	and #$07
+	tax
+	iny
+	cpy #$20
+	bne .loop_upper_bottom
+	; lower_top
+	ldx #$00
+	ldy #$00
+.loop_lower_top
+	lda tooth_row_lower_top,x
+	sta PPU_DATA
+	inx
+	txa
+	and #$07
+	tax
+	iny
+	cpy #$20
+	bne .loop_lower_top
+	; generic teefs
+	ldx #$00
+	ldy #$00
+.loop_lower_generics
+	lda tooth_row_generic,x
+	sta PPU_DATA
+	inx
+	txa
+	and #$07
+	tax
+	iny
+	cpy #$e0
+	bne .loop_lower_generics
+	; lower_bottom
+	ldx #$00
+	ldy #$00
+.loop_lower_bottom
+	lda tooth_row_lower_bottom,x
+	sta PPU_DATA
+	inx
+	txa
+	and #$07
+	tax
+	iny
+	cpy #$20
+	bne .loop_lower_bottom
+	; gumline
+	ldx #$20
+	lda #$09
+.loop_gumline_bottom
+	sta PPU_DATA
+	dex
+	bne .loop_gumline_bottom
+	; clear butt
+	lda #$08
+	ldx #$60
+.butt_clear
+	sta PPU_DATA
+	dex
+	bne .butt_clear
+
+	
+	jsr render_enable
+
+	rts
+
+tooth_row_generic:
+	hex e6 0b 0b 0b 0b 0b 0b e7
+tooth_row_upper_top:
+	hex e0 e1 e2 0b 0b e3 e4 e5
+tooth_row_upper_bottom:
+	hex e8 0b 0b 0b 0b 0b 0b e9
+tooth_row_lower_top:
+	hex f6 f7 f7 f7 f7 f7 f7 f8
+tooth_row_lower_bottom:
+	hex f0 f1 f2 0b 0b f3 f4 f5
