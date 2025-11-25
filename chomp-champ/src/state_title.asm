@@ -264,6 +264,8 @@ state_title_update: subroutine
 	inc state04
 	inc state04
 
+	inc scroll_x
+
 	jmp nmi_update_done
 
 

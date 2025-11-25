@@ -5,11 +5,21 @@ state_game_init: subroutine
 
 	jsr render_disable
 
-
 	lda #$20
+	sta temp00
+.nametable_loop
+
+	lda temp00
 	sta PPU_ADDR
-	lda #$c0
+	lda #$00
 	sta PPU_ADDR
+	; clear head
+	lda #$08
+	ldx #$c0
+.head_clear
+	sta PPU_DATA
+	dex
+	bne .head_clear
 	; gumline
 	ldx #$20
 	lda #$09
@@ -104,12 +114,21 @@ state_game_init: subroutine
 	bne .loop_gumline_bottom
 	; clear butt
 	lda #$08
-	ldx #$60
+	ldx #$80
 .butt_clear
 	sta PPU_DATA
 	dex
 	bne .butt_clear
-
+	
+	; another nametable?
+	lda temp00
+	clc
+	adc #$04
+	cmp #$28
+	beq .done_nametabling
+	sta temp00
+	jmp .nametable_loop
+.done_nametabling
 	
 	jsr render_enable
 
