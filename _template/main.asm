@@ -27,6 +27,7 @@ cart_start: subroutine
 	jmp .idle_cpu
 	;   $8080
 	include "src/states.asm"
+	include "src/ents.asm"
 
 	seg COMMON
 	org $c000
