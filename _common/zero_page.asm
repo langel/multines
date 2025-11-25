@@ -74,32 +74,32 @@ controller2_d    byte
 	org $0400
 ent_type  byte
 	org $0420
-ent_spawn byte
-	org $0440
-ent_x_hi  byte
-	org $0460
-ent_x     byte
-	org $0480
-ent_x_lo  byte
-	org $04a0
-ent_y_hi  byte
-	org $04c0
-ent_y     byte
-	org $04e0
-ent_y_lo  byte
-	org $0500
 ent_hp    byte
-	org $0520
-ent_hit   byte
-	org $0540
+	org $0500
+ent_x_hi  byte
+	org $0440
+ent_x     byte
+	org $0460
+ent_x_lo  byte
+	org $0480
+ent_y_hi  byte
+	org $04a0
+ent_y     byte
+	org $04c0
+ent_y_lo  byte
+	org $04e0
 ent_r0    byte
-	org $0560
+	org $0520
 ent_r1    byte
-	org $0580
+	org $0540
 ent_r2    byte
-	org $05a0
+	org $0560
 ent_r3    byte
-	org $05c0
+	org $0580
 ent_r4    byte
-	org $05e0
+	org $05a0
 ent_r5    byte
+	org $05c0
+ent_r6    byte
+	org $05e0
+ent_r7    byte
