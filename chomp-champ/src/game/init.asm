@@ -33,6 +33,9 @@ state_game_init: subroutine
 	sta $80
 	jsr state_set_update_routine
 
+	jsr ent_germ_spawn
+	jsr ent_germ_spawn
+
 	; load palette
 	ldx #$00
 .pal_loop
