@@ -11,19 +11,21 @@ state_table_lo:
 	byte <#render_do_nothing
 	byte <#update_do_nothing
 	byte <#state_title_update
+	byte <#state_game_update
 
 	org $80c0
 state_table_hi:
 	byte >#render_do_nothing
 	byte >#update_do_nothing
 	byte >#state_title_update
+	byte >#state_game_update
 
 
 	org $8100
 	; bootup state initializer
 state_init: subroutine
 	jsr state_title_init
-	jsr state_game_init
+	;jsr state_game_init
 
 	rts
 

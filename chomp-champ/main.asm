@@ -31,6 +31,10 @@ cart_start: subroutine
 	include "src/game/init.asm"
 	include "src/game/update.asm"
 	include "src/ents.asm"
+	include "src/ent/big_teef.asm"
+	include "src/ent/food.asm"
+	include "src/ent/germ.asm"
+	include "src/ent/poop.asm"
 	include "src/palette.asm"
 
 	org $b000

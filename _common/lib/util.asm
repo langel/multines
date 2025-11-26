@@ -87,6 +87,7 @@ registers_clear: subroutine
         
 render_enable:
 	lda #CTRL_NMI|CTRL_BG_1000
+	ora scroll_nm
 	sta PPU_CTRL	; enable NMI
 	lda ppu_mask_emph
 	ora #MASK_BG|MASK_SPR|MASK_SPR_CLIP|MASK_BG_CLIP

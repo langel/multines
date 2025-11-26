@@ -15,11 +15,6 @@ rng_val1         byte
 
 ppu_mask_emph    byte
 ppu_huh_holder   byte ; XXX replace
-spr_offset     byte
-ent_offset     byte
-
-scroll_x         byte
-scroll_y         byte
 
 state00          byte
 state01          byte
@@ -63,6 +58,11 @@ state_update_hi  byte
 ent_spr_ptr      byte
 ent_slot         byte
 ent_slot_start   byte
+
+scroll_nm        byte
+scroll_x         byte
+scroll_y         byte
+
 
 controller1      byte
 controller1_d    byte
