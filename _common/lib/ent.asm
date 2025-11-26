@@ -1,4 +1,22 @@
 
+ent_type   eqm $0400
+ent_hp     eqm $0420
+ent_x_hi   eqm $0440
+ent_x      eqm $0460
+ent_x_lo   eqm $0480
+ent_y_hi   eqm $04a0
+ent_y      eqm $04c0
+ent_y_lo   eqm $04e0
+ent_r0     eqm $0500
+ent_r1     eqm $0520
+ent_r2     eqm $0540
+ent_r3     eqm $0560
+ent_r4     eqm $0580
+ent_r5     eqm $05a0
+ent_r6     eqm $05c0
+ent_r7     eqm $05e0
+
+
 ent_find_slot: subroutine
 	; returns empty slot in x
 	; x = 0xff if none found
