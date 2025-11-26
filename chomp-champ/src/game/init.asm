@@ -33,6 +33,12 @@ state_game_init: subroutine
 	sta $80
 	jsr state_set_update_routine
 
+	jsr player_init
+
+	jsr ent_germ_spawn
+	jsr ent_germ_spawn
+	jsr ent_germ_spawn
+	jsr ent_germ_spawn
 	jsr ent_germ_spawn
 	jsr ent_germ_spawn
 

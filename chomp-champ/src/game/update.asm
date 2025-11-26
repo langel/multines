@@ -5,8 +5,10 @@ state_game_update: subroutine
 
 	inc scroll_x
 
-	jsr player_update
-
 	jsr ents_update
+
+	; maybe render last and 
+	; update before ents?
+	jsr player_update
 
 	jmp nmi_update_done
