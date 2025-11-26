@@ -1,18 +1,22 @@
 ;
 ; STATE SUBROUTINES
 
-render_do_nothing_id                   eqm $00
-update_do_nothing_id                   eqm $01
+render_do_nothing_id      eqm $00
+update_do_nothing_id      eqm $01
+__template_update_id      eqm $02
+
 
 	org $8080
 state_table_lo:
 	byte <#render_do_nothing
 	byte <#update_do_nothing
+	byte <#__template_update_id
 
 	org $80c0
 state_table_hi:
 	byte >#render_do_nothing
 	byte >#update_do_nothing
+	byte >#__template_update_id
 
 	org $8100
 	; bootup state initializer

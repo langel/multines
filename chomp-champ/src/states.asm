@@ -24,8 +24,8 @@ state_table_hi:
 	org $8100
 	; bootup state initializer
 state_init: subroutine
-	jsr state_title_init
-	;jsr state_game_init
+	;jsr state_title_init
+	jsr state_game_init
 
 	rts
 
