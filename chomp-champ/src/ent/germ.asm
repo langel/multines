@@ -10,22 +10,7 @@ ent_germ_spawn: subroutine
 	bmi .done
 	lda #ent_germ_id
 	sta ent_type,x
-.reroll
-	jsr rng_update
-	lda rng_val0
-	cmp #$10
-	bcc .reroll
-	rol
-	sta ent_x,x
-	bcs .not_nm2
-	inc ent_x_hi,x
-.not_nm2
-	lda rng_val1
-	cmp #$d0
-	bcs .reroll
-	cmp #$30
-	bcc .reroll
-	sta ent_y,x
+	jsr ent_random_spawn_pos
 	; setup ppo clock
 	jsr rng_update
 	lda rng_val0

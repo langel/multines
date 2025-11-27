@@ -1,4 +1,6 @@
 
+player_speed    eqm #$01
+
 player_init: subroutine
 	lda #$20
 	sta player_x
@@ -18,7 +20,7 @@ player_update: subroutine
 .go_right
 	clc
 	lda player_x
-	adc #$03
+	adc #player_speed
 	sta player_x
 	lda player_x_hi
 	adc #$00
@@ -34,7 +36,7 @@ player_update: subroutine
 .go_left
 	sec
 	lda player_x
-	sbc #$03
+	sbc #player_speed
 	sta player_x
 	lda player_x_hi
 	sbc #$00
@@ -56,8 +58,10 @@ player_update: subroutine
 	shift_r 3
 	and #$01
 	asl
+	sta temp00
+	asl
 	clc
-	adc #$c0
+	adc #$80
 	sta spr_p,y
 	adc #$01
 	sta spr_p+4,y
@@ -65,7 +69,13 @@ player_update: subroutine
 	sta spr_p+8,y
 	adc #$01
 	sta spr_p+12,y
-	adc #$0f
+	; (brush)
+	adc #$01
+	sta spr_p+32,y
+	adc #$01
+	sta spr_p+36,y
+	adc #$0d
+	;adc #$0f
 	sta spr_p+16,y
 	adc #$01
 	sta spr_p+20,y
@@ -83,6 +93,9 @@ player_update: subroutine
 	sta spr_a+20,y
 	sta spr_a+24,y
 	sta spr_a+28,y
+	; (brush)
+	sta spr_a+32,y
+	sta spr_a+36,y
 	; x
 	sec
 	lda player_x
@@ -97,8 +110,12 @@ player_update: subroutine
 	sta spr_x+12,y
 	sta spr_x+20,y
 	sta spr_x+28,y
+	adc #$08
+	sta spr_x+32,y
+	adc #$08
+	sta spr_x+36,y
 	; y
-	lda #$90
+	lda player_y
 	sta spr_y,y
 	sta spr_y+4,y
 	clc
@@ -111,5 +128,12 @@ player_update: subroutine
 	adc #$08
 	sta spr_y+24,y
 	sta spr_y+28,y
+	; (y brush)
+	lda player_y
+	clc
+	adc #$08
+	adc temp00
+	sta spr_y+32,y
+	sta spr_y+36,y
 
 	rts

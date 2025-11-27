@@ -8,7 +8,7 @@ game_palette:
 	hex 15 0c 18
 	hex 15 0c 08
 	; spr
-	hex 02 11 21 ; player
+	hex 02 11 38 ; player
 	hex 0b 19 2a ; germ / broccoli
 	hex 06 17 28 ; poop / bird leg
 	hex 13 23 34 ; berries?
@@ -47,6 +47,14 @@ state_game_init: subroutine
 	jsr ent_germ_spawn
 	jsr ent_germ_spawn
 	jsr ent_germ_spawn
+	jsr ent_food_spawn
+	jsr ent_food_spawn
+	jsr ent_food_spawn
+	jsr ent_food_spawn
+	jsr ent_food_spawn
+	jsr ent_food_spawn
+	jsr ent_food_spawn
+	jsr ent_food_spawn
 
 	; load palette
 	ldx #$00

@@ -1,4 +1,21 @@
 
+; food behaviors
+
+; static position
+; can be behind/between teeth
+; has hp against brush/floss
+; falls downwards on death
+; germs can eat it too
+
+; ent_r0 is subtype
+
+ent_food_sprite:
+	hex 00 02 04 06
+	hex 20 22 24 26
+
+ent_food_attr:
+	hex 02 01 01 00
+	hex 00 03 02 03
 
 
 ent_food_spawn: subroutine
@@ -6,10 +23,24 @@ ent_food_spawn: subroutine
 	bmi .done
 	lda #ent_food_id
 	sta ent_type,x
+	jsr ent_random_spawn_pos
+	; set subtype
+	txa
+	and #$07
+	sta ent_r0,x
 .done
 	rts
 
 ent_food_update: subroutine
 	; update logic
-	; render (reload y?)
+	; RENDER
+	jsr ent_calc_position
+	lda ent_r0,x
+	tay
+	lda ent_food_sprite,y
+	sta temp00
+	lda ent_food_attr,y
+	sta temp01
+	ldy ent_spr_ptr
+	jsr ent_render_generic
 	rts
