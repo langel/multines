@@ -10,7 +10,7 @@ game_palette:
 	; spr
 	hex 02 11 21 ; player
 	hex 0b 19 2a ; germ / broccoli
-	hex 06 17 37 ; poop / bird leg
+	hex 06 17 28 ; poop / bird leg
 	hex 13 23 34 ; berries?
 
 tooth_row_generic:
@@ -35,6 +35,12 @@ state_game_init: subroutine
 
 	jsr player_init
 
+	jsr ent_germ_spawn
+	jsr ent_germ_spawn
+	jsr ent_germ_spawn
+	jsr ent_germ_spawn
+	jsr ent_germ_spawn
+	jsr ent_germ_spawn
 	jsr ent_germ_spawn
 	jsr ent_germ_spawn
 	jsr ent_germ_spawn

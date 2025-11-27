@@ -35,5 +35,20 @@ ent_poop_from_germ: subroutine
 
 ent_poop_update: subroutine
 	; update logic
-	; render (reload y?)
+	dec ent_x,x
+	lda ent_x,x
+	cmp #$ff
+	bne .dont_despawn
+	ent_despawn
 	rts
+.dont_despawn
+	; render (reload y?)
+
+	jsr ent_calc_position
+	lda #$64
+	sta temp00
+	lda #$02
+	sta temp01
+	jsr ent_render_generic
+	rts
+

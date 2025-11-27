@@ -10,16 +10,27 @@ ent_germ_spawn: subroutine
 	bmi .done
 	lda #ent_germ_id
 	sta ent_type,x
-.done
+.reroll
 	jsr rng_update
 	lda rng_val0
+	cmp #$10
+	bcc .reroll
+	rol
 	sta ent_x,x
+	bcs .not_nm2
+	inc ent_x_hi,x
+.not_nm2
 	lda rng_val1
+	cmp #$d0
+	bcs .reroll
+	cmp #$30
+	bcc .reroll
 	sta ent_y,x
 	; setup ppo clock
 	jsr rng_update
 	lda rng_val0
 	sta ent_r2,x
+.done
 	rts
 
 ent_germ_update: subroutine
@@ -28,7 +39,7 @@ ent_germ_update: subroutine
 	lda ent_r2,x
 	cmp wtf
 	bne .no_poop
-	jsr ent_poop_from_germ
+	;jsr ent_poop_from_germ
 .no_poop
 
 	; update animation frame
@@ -45,41 +56,14 @@ ent_germ_update: subroutine
 .not_next_frame
 
 	; RENDER
-	; pattern
+	jsr ent_calc_position
 	lda ent_r1,x
 	asl
 	clc
 	adc #$60
-	sta spr_p,y
-	adc #$01
-	sta spr_p+4,y
-	adc #$0f
-	sta spr_p+8,y
-	adc #$01
-	sta spr_p+12,y
-	; attr
+	sta temp00
 	lda #$01
-	sta spr_a,y
-	sta spr_a+4,y
-	sta spr_a+8,y
-	sta spr_a+12,y
-	; x
-	lda ent_x,x
-	sta spr_x,y
-	sta spr_x+8,y
-	clc
-	adc #$08
-	sta spr_x+4,y
-	sta spr_x+12,y
-	; y
-	lda ent_y,x
-	sta spr_y,y
-	sta spr_y+4,y
-	clc
-	adc #$08
-	sta spr_y+8,y
-	sta spr_y+12,y
-	
-	inc_y 16
-
+	sta temp01
+	jsr ent_render_generic
 	rts
+

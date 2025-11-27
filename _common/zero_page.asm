@@ -58,8 +58,11 @@ state_update_hi  byte
 ent_spr_ptr      byte
 ent_slot         byte
 ent_slot_start   byte
+ent_visible      byte
 
 scroll_nm        byte
+scroll_x_hi      byte
+scroll_y_hi      byte
 scroll_x         byte
 scroll_y         byte
 

@@ -1,9 +1,53 @@
 
 player_init: subroutine
+	lda #$20
+	sta player_x
+	lda #$90
+	sta player_y
+	; player direction
+	lda #$00
+	sta state00
 	rts
 
 
 player_update: subroutine
+	
+	; player direction
+	lda state00
+	bmi .go_left
+.go_right
+	clc
+	lda player_x
+	adc #$03
+	sta player_x
+	lda player_x_hi
+	adc #$00
+	sta player_x_hi
+	; check right boundary
+	lda player_x_hi
+	beq .go_done
+	lda player_x
+	cmp #$ec
+	bcc .go_done
+	lda #$ff
+	sta state00
+.go_left
+	sec
+	lda player_x
+	sbc #$03
+	sta player_x
+	lda player_x_hi
+	sbc #$00
+	sta player_x_hi
+	; check right boundary
+	lda player_x_hi
+	bne .go_done
+	lda player_x
+	cmp #$04
+	bcs .go_done
+	lda #$00
+	sta state00
+.go_done
 
 	; render
 	ldy ent_spr_ptr
@@ -40,7 +84,9 @@ player_update: subroutine
 	sta spr_a+24,y
 	sta spr_a+28,y
 	; x
-	lda #$80-8
+	sec
+	lda player_x
+	sbc scroll_x
 	sta spr_x,y
 	sta spr_x+8,y
 	sta spr_x+16,y

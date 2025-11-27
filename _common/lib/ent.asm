@@ -122,20 +122,13 @@ ents_update_jump: subroutine
 	MAC ent_despawn
 	lda #$00
 	sta ent_type,x
-	sta ent_spawn,x
+	sta ent_hp,x
 	sta ent_x_hi,x
 	sta ent_x,x
 	sta ent_x_lo,x
+	sta ent_y_hi,x
 	sta ent_y,x
 	sta ent_y_lo,x
-	sta ent_h,x
-	sta ent_h_lo,x
-	sta ent_v,x
-	sta ent_v_lo,x
-	sta ent_dir,x
-	sta ent_hp,x
-	sta ent_dmg,x
-	sta ent_hit,x
 	sta ent_r0,x
 	sta ent_r1,x
 	sta ent_r2,x
@@ -144,7 +137,175 @@ ents_update_jump: subroutine
 	sta ent_r5,x
 	sta ent_r6,x
 	sta ent_r7,x
-	sta ent_r8,x
 	ENDM
 
 
+ent_calc_position: subroutine
+	; calculate ent screen position and size
+	; accounts for sprite columns off screen
+	; sets up collision_0 with ent data
+	; reset visibility
+	lda #$00
+	sta ent_visible
+	; check y position
+	lda ent_y,x
+	sta collision_0_y
+	cmp #240 ; screen height
+	bcc .y_safe
+	cmp #$f0
+	bcs .y_safe
+	rts
+.y_safe
+	; check x columns
+	sec
+	lda ent_x,x
+	sbc scroll_x
+	sta collision_0_x
+	lda ent_x_hi,x
+	sbc scroll_x_hi
+	beq .left_visible
+	cmp #$ff
+	bne .left_done
+	lda collision_0_x
+	cmp #$f8
+	bcs .right_visible
+	bcc .left_done
+.left_visible
+	lda ent_visible
+	ora #$01
+	sta ent_visible
+	lda collision_0_x
+	cmp #$f8
+	bcc .right_visible
+	bcs .left_done
+.right_visible
+	lda ent_visible
+	ora #$02
+	sta ent_visible
+.left_done
+	lda ent_visible
+	beq .collision_done
+	and #$03
+	cmp #$03
+	beq .collision_full
+.check_left
+	cmp #$01
+	bne .check_right
+	sec
+	lda #$ff
+	sbc collision_0_x
+	sta collision_0_w
+	lda #$08
+	sta collision_0_h
+	rts
+.check_right
+	clc
+	lda collision_0_x
+	adc #$10
+	sta collision_0_w
+	lda #$08
+	sta collision_0_h
+	rts
+.collision_full
+	; XXX not checking for y off screen
+	lda #$10
+	sta collision_0_w
+	sta collision_0_h
+.collision_done
+	rts
+
+
+ent_render_generic: subroutine
+	; temp00 sprite base id
+	; temp01 attribute value
+	; needs to check for y
+ent_render_generic_left:
+.left
+	lda ent_visible
+	and #$01
+	beq .left_done
+.left_x
+	lda collision_0_x
+	sta spr_x+$00,y
+	sta spr_x+$04,y
+.left_y
+	lda collision_0_y
+	sta spr_y+$00,y
+	clc
+	adc #$08
+	sta spr_y+$04,y
+	; sprite mirror check
+	lda temp01
+	and #$40
+	bne .left_pite_mirror
+.left_pite
+	lda temp00
+	sta spr_p+$00,y
+	clc
+	adc #$10
+	sta spr_p+$04,y
+	jmp .left_pite_done
+.left_pite_mirror
+	lda temp00
+	clc
+	adc #$01
+	sta spr_p+$00,y
+	clc
+	adc #$10
+	sta spr_p+$04,y
+.left_pite_done
+.left_aribute
+	lda temp01
+	sta spr_a+$00,y
+	sta spr_a+$04,y
+.left_increment_p_ptr
+	tya
+	clc
+	adc #$08
+	tay
+.left_done
+.right
+	lda ent_visible
+	and #$02
+	beq .done
+.right_x
+	lda collision_0_x
+	clc
+	adc #$08
+	sta spr_x+$00,y
+	sta spr_x+$04,y
+.right_y
+	lda collision_0_y
+	sta spr_y+$00,y
+	clc
+	adc #$08
+	sta spr_y+$04,y
+	; sprite mirror check
+	lda temp01
+	and #%01000000
+	bne .right_pite_mirror
+.right_pite
+	lda temp00
+	clc
+	adc #$01
+	sta spr_p+$00,y
+	adc #$10
+	sta spr_p+$04,y
+	jmp .right_pite_done
+.right_pite_mirror
+	lda temp00
+	sta spr_p+$00,y
+	adc #$10
+	sta spr_p+$04,y
+.right_pite_done
+.right_aribute
+	lda temp01
+	sta spr_a+$00,y
+	sta spr_a+$04,y
+.right_increment_p_ptr
+	tya
+	clc
+	adc #$08
+	tay
+.done
+	rts
