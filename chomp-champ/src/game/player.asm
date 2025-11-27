@@ -29,7 +29,7 @@ player_update: subroutine
 	lda player_x_hi
 	beq .go_done
 	lda player_x
-	cmp #$ec
+	cmp #$e2
 	bcc .go_done
 	lda #$ff
 	sta state00
@@ -45,7 +45,7 @@ player_update: subroutine
 	lda player_x_hi
 	bne .go_done
 	lda player_x
-	cmp #$04
+	cmp #$0e
 	bcs .go_done
 	lda #$00
 	sta state00

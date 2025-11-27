@@ -6,23 +6,23 @@ state_game_update: subroutine
 	lda player_x_hi
 	bne .not_left
 	lda player_x
-	cmp #$80
+	cmp #$7f
 	bcs .not_far_end
 	; handle far left
-	lda #$00
+	lda #$ff
 	sta scroll_x
+	lda #$ff
 	sta scroll_x_hi
 	jmp .cam_done
 .not_left
 	lda player_x_hi
 	beq .not_right
 	lda player_x
-	cmp #$80
+	cmp #$81
 	bcc .not_far_end
 	; handle far right
-	lda #$00
-	sta scroll_x
 	lda #$01
+	sta scroll_x
 	sta scroll_x_hi
 	jmp .cam_done
 .not_right
