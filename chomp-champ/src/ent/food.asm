@@ -3,8 +3,8 @@
 
 ent_food_spawn: subroutine
 	jsr ent_find_slot
-	lda #ent_food_id
 	bmi .done
+	lda #ent_food_id
 	sta ent_type,x
 .done
 	rts

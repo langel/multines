@@ -9,6 +9,6 @@ fi
 echo "WATCHING $1"
 
 # setup watch
-onchange -v -p 250 "./$1/**/*.asm" "./$1/**/*.chr" "./$1/**/*.bin" -- sh -c "echo compiling && dasm $1/main.asm -I$1 -o$1/rom.nes -f3 -v2 -l$1/listing.txt && echo launching && cmd.exe /C start $1/rom.nes"
+onchange -v -p 250 "./_common/**/*.asm" "./$1/**/*.asm" "./$1/**/*.chr" "./$1/**/*.bin" -- sh -c "echo compiling && dasm $1/main.asm -I$1 -o$1/rom.nes -f3 -v2 -l$1/listing.txt && echo launching && cmd.exe /C start $1/rom.nes"
 # dasm -sromsym.txt will export symbol file
 # https://www.npmjs.com/package/onchange

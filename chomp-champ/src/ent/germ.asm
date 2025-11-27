@@ -1,11 +1,14 @@
 
+; ent_r0 animation counter
+; ent_r1 frame counter
+; ent_r2 poop clock
 
 
 
 ent_germ_spawn: subroutine
 	jsr ent_find_slot
-	lda #ent_germ_id
 	bmi .done
+	lda #ent_germ_id
 	sta ent_type,x
 .done
 	jsr rng_update
@@ -13,9 +16,20 @@ ent_germ_spawn: subroutine
 	sta ent_x,x
 	lda rng_val1
 	sta ent_y,x
+	; setup ppo clock
+	jsr rng_update
+	lda rng_val0
+	sta ent_r2,x
 	rts
 
 ent_germ_update: subroutine
+
+	; spawn poop?
+	lda ent_r2,x
+	cmp wtf
+	bne .no_poop
+	jsr ent_poop_from_germ
+.no_poop
 
 	; update animation frame
 	inc ent_r0,x

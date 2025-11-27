@@ -4,7 +4,6 @@ ent_food_id        eqm #$02
 ent_germ_id        eqm #$03
 ent_poop_id        eqm #$04
 
-ents_max  eqm #$1f
 
 ent_update_lo:
 	byte <do_nothing

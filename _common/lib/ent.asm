@@ -1,4 +1,6 @@
 
+ents_max   eqm #$1f
+
 ent_type   eqm $0400
 ent_hp     eqm $0420
 ent_x_hi   eqm $0440
@@ -25,7 +27,7 @@ ent_find_slot: subroutine
 	lda ent_type,x
 	beq .slot_found
 	inx
-	cpx #ents_max
+	cpx #ents_max+1
 	bne .loop
 	ldx #$ff
 .slot_found

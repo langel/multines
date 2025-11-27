@@ -2,8 +2,8 @@
 
 ent__template_spawn: subroutine
 	jsr ent_find_slot
-	lda #ent__template_id
 	bmi .done
+	lda #ent__template_id
 	sta ent_type,x
 .done
 	rts
