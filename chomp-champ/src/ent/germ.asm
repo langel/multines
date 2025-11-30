@@ -76,16 +76,20 @@ ent_germ_update: subroutine
 .bound_x_done
 
 	; bound y
-	lda ent_y,y
-	cmp #$34
-	bcs .turn_y
-	cmp #$b0
-	bcc .bound_y_done
-.turn_y
+	lda ent_y,x
+	cmp #$40
+	bcs .y_high_enough
 	lda ent_r3,x
-	eor #%00000001
+	ora #%00000001
 	sta ent_r3,x
-.bound_y_done
+	jmp .y_low_enough
+.y_high_enough
+	cmp #$b0
+	bcc .y_low_enough
+	lda ent_r3,x
+	and #%11111110
+	sta ent_r3,x
+.y_low_enough
 
 	; update animation frame
 	inc ent_r0,x
