@@ -2,7 +2,9 @@
 ; ent_r0 animation counter
 ; ent_r1 frame counter
 ; ent_r2 poop clock
-
+; ent_r3 direction
+;	000000x0 left/right
+;	0000000x up/down
 
 
 ent_germ_spawn: subroutine
@@ -15,6 +17,10 @@ ent_germ_spawn: subroutine
 	jsr rng_update
 	lda rng_val0
 	sta ent_r2,x
+	; set direction
+	lda rng_val0
+	and #$03
+	sta ent_r3,x
 .done
 	rts
 
@@ -26,6 +32,60 @@ ent_germ_update: subroutine
 	bne .no_poop
 	;jsr ent_poop_from_germ
 .no_poop
+
+	; movement left/right
+	lda ent_r3,x
+	and #$02
+	beq .move_left
+.move_right
+	inc ent_x,x
+	bne .no_right_carry
+	inc ent_x_hi,x
+.no_right_carry
+	jmp .right_left_done
+.move_left
+	lda ent_x,x
+	sec
+	sbc #$01
+	sta ent_x,x
+	lda ent_x_hi,x
+	sbc #$00
+	sta ent_x_hi,x
+.right_left_done
+	; movement up/down
+	lda ent_r3,x
+	and #$01
+	beq .move_up
+.move_down
+	inc ent_y,x
+	jmp .down_up_done
+.move_up
+	dec ent_y,x
+.down_up_done
+
+	; bound x
+	lda ent_x,x
+	cmp #$34
+	bcs .turn_x
+	cmp #$b0
+	bcc .bound_x_done
+.turn_x
+	lda ent_r3,x
+	eor #%00000010
+	sta ent_r3,x
+.bound_x_done
+
+	; bound y
+	lda ent_y,y
+	cmp #$34
+	bcs .turn_y
+	cmp #$b0
+	bcc .bound_y_done
+.turn_y
+	lda ent_r3,x
+	eor #%00000001
+	sta ent_r3,x
+.bound_y_done
 
 	; update animation frame
 	inc ent_r0,x
