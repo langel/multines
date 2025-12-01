@@ -38,8 +38,4 @@ state_game_update: subroutine
 
 	jsr ent_z_update
 
-	; maybe render last and 
-	; update before ents?
-	jsr player_update
-
 	jmp nmi_update_done

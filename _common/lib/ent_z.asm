@@ -5,8 +5,8 @@ ent_z_sortdown  eqm $00c0
 
 
 ent_z_init: subroutine
+	ldx #$00
 	ldy #$00
-	tax
 .loop
 	stx ent_z_sortup,y
 	stx ent_z_sortdown,y
@@ -42,6 +42,7 @@ ent_z_update_return:
 	inx
 	cpx #ents_max+1
 	bne .ent_update_loop
+
 	; sortup
 	ldy #$00
 .sortup_loop
@@ -66,6 +67,7 @@ ent_z_update_return:
 	iny
 	cpy #ents_max
 	bne .sortup_loop
+
 	; sortdown
 	ldy #$00
 .sortdown_loop
@@ -124,7 +126,7 @@ ent_z_render_return:
 .ent_render_next
 	inc ent_z_slot
 	ldy ent_z_slot
-	cpy #ents_max
+	cpy #ents_max+1
 	bne .ent_render_loop
 
 	; clear remaining sprites

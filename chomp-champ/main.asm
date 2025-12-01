@@ -35,6 +35,7 @@ cart_start: subroutine
 	include "src/ent/big_teef.asm"
 	include "src/ent/food.asm"
 	include "src/ent/germ.asm"
+	include "src/ent/player.asm"
 	include "src/ent/poop.asm"
 	include "src/palette.asm"
 
