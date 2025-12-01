@@ -33,6 +33,7 @@ ent_food_spawn: subroutine
 .done
 	rts
 
+
 ent_food_update: subroutine
 	; update logic
 
@@ -41,7 +42,11 @@ ent_food_update: subroutine
 	clc
 	adc #$10
 	ent_z_calc_sort_vals
+	
+	jmp ent_z_update_return
 
+
+ent_food_render: subroutine
 	; RENDER
 	jsr ent_calc_position
 	lda ent_r0,x
@@ -53,5 +58,4 @@ ent_food_update: subroutine
 	ldy ent_spr_ptr
 	jsr ent_render_generic
 
-	jmp ent_z_update_return
-	rts
+	jmp ent_z_render_return

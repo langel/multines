@@ -18,8 +18,6 @@ ent_z_clear_sorts: subroutine
 ent_z_update: subroutine
 	; ents update
 	ldx #$00
-	ldy #$00
-	sta ent_spr_ptr
 .ent_update_loop
 	stx ent_slot
 	lda ent_type,x
@@ -29,17 +27,49 @@ ent_z_update: subroutine
 	sta temp00
 	lda ent_update_hi,y
 	sta temp01
+	ldy ent_spr_ptr
 	jmp (temp00)
 ent_z_update_return:
-	sty ent_spr_ptr
 .ent_update_next
 	inx
 	cpx #ents_max
 	bne .ent_update_loop
-	; check for despawn in update
+	; sortup
+	; sortdown
+	; ents render
+	ldx #$00
+	ldy #$00
+	sty ent_spr_ptr
+.ent_render_loop
+	stx ent_slot
 	lda ent_type,x
-;	beq .ent_update_next
-.ent_update_sort
+	beq .ent_render_next
+	tay
+	lda ent_render_lo,y
+	sta temp00
+	lda ent_render_hi,y
+	sta temp01
+	ldy ent_spr_ptr
+	jmp (temp00)
+ent_z_render_return:
+	sty ent_spr_ptr
+.ent_render_next
+	ldx ent_slot
+	inx
+	cpx #ents_max
+	bne .ent_render_loop
+
+
+
+	; clear remaining sprites
+	lda #$ff
+.sprite_clear_loop
+	cpy #$00
+	beq .sprite_clear_done
+	sta OAM_RAM,y
+	inc_y 4
+	jmp .sprite_clear_loop
+.sprite_clear_done
 	rts
 
 

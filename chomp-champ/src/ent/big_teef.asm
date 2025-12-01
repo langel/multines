@@ -28,6 +28,7 @@ ent_big_teef_spawn: subroutine
 .done
 	rts
 
+
 ent_big_teef_update: subroutine
 
 	inc $3e0
@@ -145,4 +146,9 @@ ent_big_teef_update: subroutine
 	inc state04
 	inc state04
 	inc state04
-	rts
+
+	jmp ent_z_update_return
+	
+
+ent_big_teef_render: subroutine
+	jmp ent_z_render_return

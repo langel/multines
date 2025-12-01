@@ -8,6 +8,7 @@ ent_poop_spawn: subroutine
 .done
 	rts
 
+
 ent_poop_from_germ: subroutine
 	jsr ent_find_slot
 	bmi .done
@@ -33,6 +34,7 @@ ent_poop_from_germ: subroutine
 	ldy ent_spr_ptr
 	rts
 
+
 ent_poop_update: subroutine
 	; update logic
 	dec ent_x,x
@@ -42,13 +44,18 @@ ent_poop_update: subroutine
 	ent_despawn
 	rts
 .dont_despawn
-	; render (reload y?)
 
+	jmp ent_z_update_return
+
+
+ent_poop_render: subroutine
+	; render (reload y?)
 	jsr ent_calc_position
 	lda #$64
 	sta temp00
 	lda #$02
 	sta temp01
 	jsr ent_render_generic
-	rts
+
+	jmp ent_z_render_return
 

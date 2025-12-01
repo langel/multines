@@ -111,7 +111,11 @@ ent_germ_update: subroutine
 	and #$01
 	sta ent_r1,x
 .not_next_frame
+	
+	jmp ent_z_update_return
 
+
+ent_germ_render: subroutine
 	; RENDER
 	jsr ent_calc_position
 	lda ent_r1,x
@@ -123,6 +127,5 @@ ent_germ_update: subroutine
 	sta temp01
 	jsr ent_render_generic
 
-	jmp ent_z_update_return
-	rts
+	jmp ent_z_render_return
 

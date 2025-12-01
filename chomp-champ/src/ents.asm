@@ -18,6 +18,19 @@ ent_update_hi:
 	byte >ent_germ_update
 	byte >ent_poop_update
 
+ent_render_lo:
+	byte <do_nothing
+	byte <ent_big_teef_render
+	byte <ent_food_render
+	byte <ent_germ_render
+	byte <ent_poop_render
+ent_render_hi:
+	byte >do_nothing
+	byte >ent_big_teef_render
+	byte >ent_food_render
+	byte >ent_germ_render
+	byte >ent_poop_render
+
 
 ent_random_spawn_pos: subroutine
 .reroll
