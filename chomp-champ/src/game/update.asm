@@ -36,7 +36,7 @@ state_game_update: subroutine
 	sta scroll_x_hi
 .cam_done
 
-	jsr ents_update
+	jsr ent_z_update
 
 	; maybe render last and 
 	; update before ents?

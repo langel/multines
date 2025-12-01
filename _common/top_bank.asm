@@ -10,6 +10,7 @@
 
 	include "./_common/lib/state.asm"
 	include "./_common/lib/ent.asm"
+	include "./_common/lib/ent_z.asm"
 	include "./_common/lib/score.asm"
 	include "./_common/lib/sprite.asm"
 	include "./_common/lib/collision.asm"

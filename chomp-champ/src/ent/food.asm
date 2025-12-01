@@ -8,6 +8,8 @@
 ; germs can eat it too
 
 ; ent_r0 is subtype
+; ent_r6 z pos sort up
+; ent_r7 z pos sort down
 
 ent_food_sprite:
 	hex 00 02 04 06
@@ -33,6 +35,13 @@ ent_food_spawn: subroutine
 
 ent_food_update: subroutine
 	; update logic
+
+	; set z position
+	lda ent_y,x
+	clc
+	adc #$10
+	ent_z_calc_sort_vals
+
 	; RENDER
 	jsr ent_calc_position
 	lda ent_r0,x
@@ -43,4 +52,6 @@ ent_food_update: subroutine
 	sta temp01
 	ldy ent_spr_ptr
 	jsr ent_render_generic
+
+	jmp ent_z_update_return
 	rts

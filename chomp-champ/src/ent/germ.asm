@@ -5,6 +5,8 @@
 ; ent_r3 direction
 ;	000000x0 left/right
 ;	0000000x up/down
+; ent_r6 z pos sort up
+; ent_r7 z pos sort down
 
 
 ent_germ_spawn: subroutine
@@ -91,6 +93,12 @@ ent_germ_update: subroutine
 	sta ent_r3,x
 .y_low_enough
 
+	; set z position
+	lda ent_y,x
+	clc
+	adc #$10
+	ent_z_calc_sort_vals
+
 	; update animation frame
 	inc ent_r0,x
 	lda ent_r0,x
@@ -114,5 +122,7 @@ ent_germ_update: subroutine
 	lda #$01
 	sta temp01
 	jsr ent_render_generic
+
+	jmp ent_z_update_return
 	rts
 
