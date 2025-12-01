@@ -59,6 +59,9 @@ ent_spr_ptr      byte
 ent_slot         byte
 ent_slot_start   byte
 ent_visible      byte
+ent_z_slot       byte
+ent_z_ptr_lo     byte
+ent_z_ptr_hi     byte
 
 scroll_nm        byte
 scroll_x_hi      byte
