@@ -29,7 +29,7 @@ cart_start: subroutine
 	include "src/states.asm"
 	include "src/state_title.asm"
 	include "src/game/init.asm"
-	include "src/game/player.asm"
+	include "src/game/lib.asm"
 	include "src/game/update.asm"
 	include "src/ents.asm"
 	include "src/ent/big_teef.asm"

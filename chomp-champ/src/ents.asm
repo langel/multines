@@ -36,23 +36,3 @@ ent_render_hi:
 	byte >ent_player_render
 	byte >ent_poop_render
 
-
-ent_random_spawn_pos: subroutine
-.reroll
-	jsr rng_update
-	lda rng_val0
-	rol
-	sta ent_x,x
-	bcc .not_nm2
-	cmp #$f0
-	bcs .reroll
-	lda #$01
-	sta ent_x_hi,x
-.not_nm2
-	lda rng_val1
-	cmp #$d0
-	bcs .reroll
-	cmp #$30
-	bcc .reroll
-	sta ent_y,x
-	rts
