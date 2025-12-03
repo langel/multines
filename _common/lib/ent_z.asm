@@ -21,8 +21,8 @@ ent_z_update: subroutine
 	; debug visualization on
 	;lda #%00011111 ; b/w
 	;lda #%11111110 ; emph
-	lda #%00011000 ; diable left 8 pixels row
-	sta PPU_MASK
+	;lda #%00011000 ; diable left 8 pixels row
+	;sta PPU_MASK
 
 	; ents update
 	ldx #$00
@@ -93,6 +93,20 @@ ent_z_update_return:
 	cpy #ents_max
 	bne .sortdown_loop
 
+	; clear sprite data
+	lda #$ff
+	ldy #$00
+.sprite_clear_loop
+	sta OAM_RAM,y
+	iny
+	sta OAM_RAM,y
+	iny
+	iny
+	iny
+	beq .sprite_clear_done
+	jmp .sprite_clear_loop
+.sprite_clear_done
+
 	; ents render
 	ldx #$00
 	stx ent_z_slot
@@ -129,25 +143,10 @@ ent_z_render_return:
 	cpy #ents_max+1
 	bne .ent_render_loop
 
-	; clear remaining sprites
-	lda #$ff
-	ldy ent_spr_ptr
-.sprite_clear_loop
-	cpy #$04
-	bcc .sprite_clear_done
-	sta OAM_RAM,y
-	iny
-	sta OAM_RAM,y
-	iny
-	iny
-	iny
-	jmp .sprite_clear_loop
-.sprite_clear_done
-
 .updates_done
 	; debug visualization off
-	lda #%00011110
-	sta PPU_MASK
+	;lda #%00011110
+	;sta PPU_MASK
 	rts
 
 
