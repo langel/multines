@@ -66,10 +66,16 @@ ent_germ_update: subroutine
 .down_up_done
 
 	; bound x
+	lda ent_x_hi,x
+	bne .bound_x_far_right
+.bound_x_far_left
 	lda ent_x,x
-	cmp #$34
-	bcs .turn_x
-	cmp #$b0
+	cmp #$02
+	bcc .turn_x
+	jmp .bound_x_done
+.bound_x_far_right
+	lda ent_x,x
+	cmp #$ee
 	bcc .bound_x_done
 .turn_x
 	lda ent_r3,x

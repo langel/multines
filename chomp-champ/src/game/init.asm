@@ -43,15 +43,6 @@ state_game_init: subroutine
 	jsr ent_germ_spawn
 	jsr ent_germ_spawn
 	jsr ent_germ_spawn
-	jsr ent_germ_spawn
-	jsr ent_germ_spawn
-	jsr ent_germ_spawn
-	jsr ent_germ_spawn
-	jsr ent_germ_spawn
-	jsr ent_germ_spawn
-	jsr ent_germ_spawn
-	jsr ent_germ_spawn
-	jsr ent_germ_spawn
 	jsr ent_food_spawn
 	jsr ent_food_spawn
 	jsr ent_food_spawn
