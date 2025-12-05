@@ -25,7 +25,19 @@ ent_food_spawn: subroutine
 	bmi .done
 	lda #ent_food_id
 	sta ent_type,x
+	stx ent_slot
 	jsr ent_random_spawn_pos
+	lda ent_slot
+	and #$0f
+	sta temp00
+	lda #$07
+	sta temp01
+	jsr shift_multiply
+	lda temp00
+	clc
+	adc #$40
+	ldx ent_slot
+	sta ent_y,x
 	; set subtype
 	txa
 	and #$07
