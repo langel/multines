@@ -336,7 +336,7 @@ ent_render_generic_8x16: subroutine
 .left_sprite_mirror
 	lda temp00
 	clc
-	adc #$01
+	adc #$02
 	sta spr_p,y
 .left_sprite_done
 .left_aribute

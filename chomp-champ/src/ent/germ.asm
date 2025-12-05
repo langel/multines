@@ -1,6 +1,6 @@
 
 ; ent_r0 animation counter
-; ent_r1 frame counter
+; ent_r1 animation frame
 ; ent_r2 poop clock
 ; ent_r3 direction
 ;	000000x0 left/right
@@ -108,29 +108,46 @@ ent_germ_update: subroutine
 	; update animation frame
 	inc ent_r0,x
 	lda ent_r0,x
-	cmp #$0b
+	cmp #$05
 	bne .not_next_frame
 	lda #$00
 	sta ent_r0,x
 	inc ent_r1,x
 	lda ent_r1,x
-	and #$01
+	and #$03
 	sta ent_r1,x
 .not_next_frame
 	
 	jmp ent_z_update_return
 
+ent_germ_frame_table:
+	hex 4c 50 4c 54
+	hex 64 68 64 6c
+	hex 4c 50 4c 54
+	hex 64 68 64 6c
 
 ent_germ_render: subroutine
 	; RENDER
 	jsr ent_calc_position
+	; metasprite
+	ldx ent_slot
 	lda ent_r1,x
-	asl
-	asl
-	clc
-	adc #$60
 	sta temp00
-	lda #$01
+	lda ent_r3,x
+	and #%00000001
+	shift_l 2
+	clc
+	adc temp00
+	tax
+	lda ent_germ_frame_table,x
+	sta temp00
+	; attr
+	ldx ent_slot
+	lda ent_r3,x
+	and #%00000010
+	eor #%00000010
+	shift_l 5
+	ora #$01
 	sta temp01
 	jsr ent_render_generic_8x16
 
