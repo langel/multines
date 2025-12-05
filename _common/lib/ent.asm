@@ -309,3 +309,72 @@ ent_render_generic_left:
 	tay
 .done
 	rts
+
+
+ent_render_generic_8x16: subroutine
+	; temp00 sprite base id
+	; temp01 attribute value
+	; needs to check for y
+.left
+	lda ent_visible
+	and #$01
+	beq .left_done
+.left_x
+	lda collision_0_x
+	sta spr_x,y
+.left_y
+	lda collision_0_y
+	sta spr_y,y
+	; sprite mirror check
+	lda temp01
+	and #$40
+	bne .left_sprite_mirror
+.left_sprite
+	lda temp00
+	sta spr_p,y
+	jmp .left_sprite_done
+.left_sprite_mirror
+	lda temp00
+	clc
+	adc #$01
+	sta spr_p,y
+.left_sprite_done
+.left_aribute
+	lda temp01
+	sta spr_a+$00,y
+.left_increment_p_ptr
+	inc_y 4
+.left_done
+.right
+	lda ent_visible
+	and #$02
+	beq .done
+.right_x
+	lda collision_0_x
+	clc
+	adc #$08
+	sta spr_x,y
+.right_y
+	lda collision_0_y
+	sta spr_y,y
+	; sprite mirror check
+	lda temp01
+	and #%01000000
+	bne .right_sprite_mirror
+.right_sprite
+	lda temp00
+	clc
+	adc #$02
+	sta spr_p,y
+	jmp .right_sprite_done
+.right_sprite_mirror
+	lda temp00
+	sta spr_p,y
+.right_sprite_done
+.right_aribute
+	lda temp01
+	sta spr_a,y
+.right_increment_p_ptr
+	inc_y 4
+.done
+	rts

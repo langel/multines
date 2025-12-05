@@ -14,7 +14,7 @@ rng_val1         byte
 
 
 ppu_mask_emph    byte
-ppu_huh_holder   byte ; XXX replace
+ppu_ctrl_ora     byte
 
 state00          byte
 state01          byte

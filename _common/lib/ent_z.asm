@@ -94,7 +94,7 @@ ent_z_update_return:
 	bne .sortdown_loop
 
 	; clear sprite data
-	lda #$ff
+	lda #$fe
 	ldy #$00
 .sprite_clear_loop
 	sta OAM_RAM,y
