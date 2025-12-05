@@ -27,6 +27,8 @@ tooth_row_lower_bottom:
 
 state_game_init: subroutine
 
+	lda #CTRL_8x16
+	sta ppu_ctrl_ora
 	jsr render_disable
 	
 	ldx #state_game_update_id

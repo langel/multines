@@ -5,6 +5,8 @@ title_copy_line:
 
 state_title_init: subroutine
 
+	lda #CTRL_8x8
+	sta ppu_ctrl_ora
 	jsr ent_big_teef_spawn
 
 	lda #$08

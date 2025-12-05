@@ -77,29 +77,23 @@ ent_player_render:
 	asl
 	sta temp00
 	asl
+	asl
 	clc
 	adc #$80
 	sta spr_p,y
-	adc #$01
+	adc #$02
 	sta spr_p+4,y
-	adc #$0f
-	sta spr_p+8,y
-	adc #$01
-	sta spr_p+12,y
 	; (brush)
-	adc #$01
-	sta spr_p+32,y
-	adc #$01
-	sta spr_p+36,y
-	adc #$0d
+	adc #$02
+	sta spr_p+8,y
+	adc #$02
+	sta spr_p+12,y
+	; 2nd row
+	adc #$1a
 	;adc #$0f
 	sta spr_p+16,y
-	adc #$01
+	adc #$02
 	sta spr_p+20,y
-	adc #$0f
-	sta spr_p+24,y
-	adc #$01
-	sta spr_p+28,y
 	; attr
 	lda #$00
 	sta spr_a,y
@@ -108,11 +102,6 @@ ent_player_render:
 	sta spr_a+12,y
 	sta spr_a+16,y
 	sta spr_a+20,y
-	sta spr_a+24,y
-	sta spr_a+28,y
-	; (brush)
-	sta spr_a+32,y
-	sta spr_a+36,y
 	; x
 	sec
 	lda player_x
@@ -120,38 +109,28 @@ ent_player_render:
 	sta spr_x,y
 	sta spr_x+8,y
 	sta spr_x+16,y
-	sta spr_x+24,y
 	clc
 	adc #$08
 	sta spr_x+4,y
-	sta spr_x+12,y
 	sta spr_x+20,y
-	sta spr_x+28,y
 	adc #$08
-	sta spr_x+32,y
+	sta spr_x+8,y
 	adc #$08
-	sta spr_x+36,y
+	sta spr_x+12,y
 	; y
 	lda player_y
 	sta spr_y,y
 	sta spr_y+4,y
 	clc
-	adc #$08
-	sta spr_y+8,y
-	sta spr_y+12,y
-	adc #$08
+	adc #$10
 	sta spr_y+16,y
 	sta spr_y+20,y
-	adc #$08
-	sta spr_y+24,y
-	sta spr_y+28,y
 	; (y brush)
 	lda player_y
 	clc
-	adc #$08
 	adc temp00
-	sta spr_y+32,y
-	sta spr_y+36,y
+	sta spr_y+8,y
+	sta spr_y+12,y
 
 	tya
 	clc

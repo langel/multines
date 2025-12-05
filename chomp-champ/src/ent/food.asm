@@ -12,8 +12,8 @@
 ; ent_r7 z pos sort down
 
 ent_food_sprite:
-	hex 00 02 04 06
-	hex 20 22 24 26
+	hex 00 04 08 0c
+	hex 20 24 28 2c
 
 ent_food_attr:
 	hex 02 01 01 00
@@ -56,6 +56,6 @@ ent_food_render: subroutine
 	lda ent_food_attr,y
 	sta temp01
 	ldy ent_spr_ptr
-	jsr ent_render_generic
+	jsr ent_render_generic_8x16
 
 	jmp ent_z_render_return

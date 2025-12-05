@@ -55,7 +55,7 @@ ent_poop_render: subroutine
 	sta temp00
 	lda #$02
 	sta temp01
-	jsr ent_render_generic
+	jsr ent_render_generic_8x16
 
 	jmp ent_z_render_return
 

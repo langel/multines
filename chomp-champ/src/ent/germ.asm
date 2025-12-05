@@ -126,12 +126,13 @@ ent_germ_render: subroutine
 	jsr ent_calc_position
 	lda ent_r1,x
 	asl
+	asl
 	clc
 	adc #$60
 	sta temp00
 	lda #$01
 	sta temp01
-	jsr ent_render_generic
+	jsr ent_render_generic_8x16
 
 	jmp ent_z_render_return
 

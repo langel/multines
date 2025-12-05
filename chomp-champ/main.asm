@@ -56,4 +56,5 @@ title_screen_nam:
 
 	seg GRAPHICS
 	org $010000
-	incbin "assets/main.chr"
+	incbin "assets/sprites.chr"
+	incbin "assets/tiles.chr"
