@@ -108,7 +108,7 @@ ent_germ_update: subroutine
 	; update animation frame
 	inc ent_r0,x
 	lda ent_r0,x
-	cmp #$05
+	cmp #$06
 	bne .not_next_frame
 	lda #$00
 	sta ent_r0,x

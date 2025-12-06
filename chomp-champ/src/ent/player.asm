@@ -68,8 +68,6 @@ ent_player_update: subroutine
 
 
 ent_player_render:
-	; render
-	ldy ent_spr_ptr
 	; pattern
 	lda wtf
 	shift_r 3
@@ -134,7 +132,7 @@ ent_player_render:
 
 	tya
 	clc
-	adc #$28
+	adc #24
 	tay
 
 	jmp ent_z_render_return
