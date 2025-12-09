@@ -41,7 +41,11 @@ state_game_update: subroutine
 	;lda #%11111110 ; emph
 	lda #%00011000 ; diable left 8 pixels row
 	sta PPU_MASK
+
 	jsr ent_z_update
+
+	jsr tooth_update
+
 	; debug visualization off
 	lda #%00011110
 	sta PPU_MASK

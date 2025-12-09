@@ -121,6 +121,7 @@ ent_germ_update: subroutine
 	clc
 	adc temp00
 	sta ent_r5,x
+	; increase tooth damage
 	tax
 	inc $600,x
 	ldx ent_slot

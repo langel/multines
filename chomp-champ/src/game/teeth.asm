@@ -1,0 +1,145 @@
+
+teeth_update: subroutine
+	; temp00 = accumulator
+	; temp01 = tooth countere
+
+	ldx #$00
+	stx temp01
+.tooth_loop
+	clc
+	lda #$00
+	sta temp00
+	lda tooth_0_table,x
+	tay
+	lda $600,y
+	adc temp00
+	sta temp00
+	inx
+	txa
+	and #$0f
+	bne .tooth_loop
+	lda temp00
+	ldy temp01
+	sta tooth_health_0,y
+	iny
+	sty temp01
+	cpy #$10
+	bne .tooth_loop
+
+	rts
+
+
+tooth_update: subroutine
+	; temp00 = accumulator
+	; temp01 = tooth id
+	; temp02 = eol
+	lda wtf
+	and #$0f
+	sta temp01
+	shift_l 4
+	tax
+	clc
+	adc #$10
+	sta temp02
+	clc
+	lda #$00
+	sta temp00
+.tooth_loop
+	lda tooth_tables,x
+	tay
+	lda $600,y
+	adc temp00
+	sta temp00
+	inx
+	cpx temp02
+	bne .tooth_loop
+	ldx temp01
+	sta tooth_health_0,x
+	rts
+
+
+; lookup tables for tooth health
+tooth_tables:
+; top row
+tooth_0_table:
+	hex 00 01 02 03
+	hex 20 21 22 23
+	hex 40 41 42 43
+	hex 60 61 62 63
+tooth_1_table:
+	hex 04 05 06 07
+	hex 24 25 26 27
+	hex 44 45 46 47
+	hex 64 65 66 67
+tooth_2_table:
+	hex 08 09 0a 0b
+	hex 28 29 2a 2b
+	hex 48 49 4a 4b
+	hex 68 69 6a 6b
+tooth_3_table:
+	hex 0c 0d 0e 0f
+	hex 2c 2d 2e 2f
+	hex 4c 4d 4e 4f
+	hex 6c 6d 6e 6f
+tooth_4_table:
+	hex 10 11 12 13
+	hex 30 31 32 33
+	hex 50 51 52 53
+	hex 70 71 72 73
+tooth_5_table:
+	hex 14 15 16 17
+	hex 34 35 36 37
+	hex 54 55 56 57
+	hex 74 75 76 77
+tooth_6_table:
+	hex 18 19 1a 1b
+	hex 38 39 3a 3b
+	hex 58 59 5a 5b
+	hex 78 79 7a 7b
+tooth_7_table:
+	hex 1c 1d 1e 1f
+	hex 3c 3d 3e 3f
+	hex 5c 5d 5e 5f
+	hex 7c 7d 7e 7f
+
+; bottom row
+tooth_8_table:
+	hex 80 81 82 83
+	hex a0 a1 a2 a3
+	hex c0 c1 c2 c3
+	hex e0 e1 e2 e3
+tooth_9_table:
+	hex 84 85 86 87
+	hex a4 a5 a6 a7
+	hex c4 c5 c6 c7
+	hex e4 e5 e6 e7
+tooth_a_table:
+	hex 88 89 8a 8b
+	hex a8 a9 aa ab
+	hex c8 c9 ca cb
+	hex e8 e9 ea eb
+tooth_b_table:
+	hex 8c 8d 8e 8f
+	hex ac ad ae af
+	hex cc cd ce cf
+	hex ec ed ee ef
+tooth_c_table:
+	hex 90 91 92 93
+	hex b0 b1 b2 b3
+	hex d0 d1 d2 d3
+	hex f0 f1 f2 f3
+tooth_d_table:
+	hex 94 95 96 97
+	hex b4 b5 b6 b7
+	hex d4 d5 d6 d7
+	hex f4 f5 f6 f7
+tooth_e_table:
+	hex 98 99 9a 9b
+	hex b8 b9 ba bb
+	hex d8 d9 da db
+	hex f8 f9 fa fb
+tooth_f_table:
+	hex 9c 9d 9e 9f
+	hex bc bd be bf
+	hex dc dd de df
+	hex fc fd fe ff
