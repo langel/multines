@@ -105,6 +105,26 @@ ent_germ_update: subroutine
 	adc #$10
 	ent_z_calc_sort_vals
 
+	; calc tooth position
+	lda ent_x_hi,x
+	lsr
+	lda ent_x,x
+	ror
+	clc
+	adc #$04
+	and #$f8
+	sta temp00
+	lda ent_y,x
+	sec
+	sbc #$38
+	shift_r 4
+	clc
+	adc temp00
+	sta ent_r5,x
+	tax
+	inc $600,x
+	ldx ent_slot
+
 	; update animation frame
 	inc ent_r0,x
 	lda ent_r0,x
