@@ -1,65 +1,6 @@
 
-teeth_update: subroutine
-	; temp00 = accumulator
-	; temp01 = tooth countere
-
-	ldx #$00
-	stx temp01
-.tooth_loop
-	clc
-	lda #$00
-	sta temp00
-	lda tooth_0_table,x
-	tay
-	lda $600,y
-	adc temp00
-	sta temp00
-	inx
-	txa
-	and #$0f
-	bne .tooth_loop
-	lda temp00
-	ldy temp01
-	sta tooth_health_0,y
-	iny
-	sty temp01
-	cpy #$10
-	bne .tooth_loop
-
-	rts
-
-
-tooth_update: subroutine
-	; temp00 = accumulator
-	; temp01 = tooth id
-	; temp02 = eol
-	lda wtf
-	and #$0f
-	sta temp01
-	shift_l 4
-	tax
-	clc
-	adc #$10
-	sta temp02
-	clc
-	lda #$00
-	sta temp00
-.tooth_loop
-	lda tooth_tables,x
-	tay
-	lda $600,y
-	adc temp00
-	sta temp00
-	inx
-	cpx temp02
-	bne .tooth_loop
-	ldx temp01
-	sta tooth_health_0,x
-	rts
-
-
 ; lookup tables for tooth health
-tooth_tables:
+tooth_cell_tables:
 ; top row
 tooth_0_table:
 	hex 00 01 02 03
