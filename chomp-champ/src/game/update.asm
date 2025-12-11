@@ -3,6 +3,7 @@ state_game_update: subroutine
 
 	jsr render_enable
 
+	; camera
 	lda player_x_hi
 	bne .not_left
 	lda player_x
@@ -13,6 +14,8 @@ state_game_update: subroutine
 	sta scroll_x
 	lda #$ff
 	sta scroll_x_hi
+	and #$01
+	sta scroll_nm
 	jmp .cam_done
 .not_left
 	lda player_x_hi
@@ -24,6 +27,7 @@ state_game_update: subroutine
 	lda #$01
 	sta scroll_x
 	sta scroll_x_hi
+	sta scroll_nm
 	jmp .cam_done
 .not_right
 .not_far_end
@@ -34,6 +38,8 @@ state_game_update: subroutine
 	lda player_x_hi
 	sbc #$00
 	sta scroll_x_hi
+	and #$01
+	sta scroll_nm
 .cam_done
 
 	; debug visualization on

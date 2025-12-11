@@ -32,7 +32,6 @@ state_game_init: subroutine
 	jsr render_disable
 	
 	ldx #state_game_update_id
-	sta $80
 	jsr state_set_update_routine
 
 	jsr ent_z_init
@@ -89,7 +88,7 @@ state_game_init: subroutine
 	lda #$00
 	sta PPU_ADDR
 	; clear head
-	lda #$08
+	lda #$0a
 	ldx #$c0
 .head_clear
 	sta PPU_DATA
@@ -188,7 +187,7 @@ state_game_init: subroutine
 	dex
 	bne .loop_gumline_bottom
 	; clear butt
-	lda #$08
+	lda #$0a
 	ldx #$80
 .butt_clear
 	sta PPU_DATA
@@ -204,6 +203,38 @@ state_game_init: subroutine
 	sta temp00
 	jmp .nametable_loop
 .done_nametabling
+
+
+	; tooth rot
+	jsr rng_update
+	lda #$21
+	sta PPU_ADDR
+	lda rng_val0
+	sta PPU_ADDR
+	lda #$a8
+	sta PPU_DATA
+	lda #$22
+	sta PPU_ADDR
+	lda rng_val1
+	sta PPU_ADDR
+	lda #$b8
+	sta PPU_DATA
+
+	jsr rng_update
+	lda #$25
+	sta PPU_ADDR
+	lda rng_val0
+	sta PPU_ADDR
+	lda #$a8
+	sta PPU_DATA
+	lda #$26
+	sta PPU_ADDR
+	lda rng_val1
+	sta PPU_ADDR
+	lda #$b8
+	sta PPU_DATA
+
+
 	
 	jsr render_enable
 	
