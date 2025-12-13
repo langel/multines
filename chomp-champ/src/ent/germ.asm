@@ -106,6 +106,11 @@ ent_germ_update: subroutine
 	ent_z_calc_sort_vals
 
 	; calc tooth position
+	lda wtf
+	and #$0f
+	sta temp00
+	cpx temp00
+	bne .skip_tooth_dmg
 	lda ent_x_hi,x
 	lsr
 	lda ent_x,x
@@ -125,6 +130,7 @@ ent_germ_update: subroutine
 	tax
 	inc $600,x
 	ldx ent_slot
+.skip_tooth_dmg
 
 	; update animation frame
 	inc ent_r0,x

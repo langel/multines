@@ -50,7 +50,7 @@ state_game_update: subroutine
 
 	jsr ent_z_update
 
-	jsr tooth_update
+	jsr teeth_update
 
 	; debug visualization off
 	lda #%00011110

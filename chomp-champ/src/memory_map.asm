@@ -18,6 +18,8 @@
 
 
 */
+tooth_cell_dmg    eqm $6ee
+tooth_total_dmg   eqm $7ee
 
 
 ; xxx probably delete these

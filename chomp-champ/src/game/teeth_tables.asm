@@ -1,6 +1,6 @@
 
 ; lookup tables for tooth health
-tooth_cell_tables:
+teeth_cell_tables:
 ; top row
 tooth_0_table:
 	hex 00 01 02 03
