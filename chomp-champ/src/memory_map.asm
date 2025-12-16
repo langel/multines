@@ -18,9 +18,11 @@
 
 
 */
-tooth_cell_dmg    eqm $6ee
-tooth_total_dmg   eqm $7ee
+tooth_cell_dmg      eqm $600
+tooth_total_dmg     eqm $700
+tooth_needs_update  eqm $720
 
+tooth_update_queue_size byte
 
 ; xxx probably delete these
 player_x_hi   byte
@@ -35,21 +37,3 @@ player_hit_y    byte
 brush_hit_x     byte
 brush_hit_y     byte
 
-; tooth health top row
-tooth_health_0  byte
-tooth_health_1  byte
-tooth_health_2  byte
-tooth_health_3  byte
-tooth_health_4  byte
-tooth_health_5  byte
-tooth_health_6  byte
-tooth_health_7  byte
-; tooth health bottom row
-tooth_health_8  byte
-tooth_health_9  byte
-tooth_health_a  byte
-tooth_health_b  byte
-tooth_health_c  byte
-tooth_health_d  byte
-tooth_health_e  byte
-tooth_health_f  byte

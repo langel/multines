@@ -5,6 +5,7 @@
 ; ent_r3 direction
 ;	000000x0 left/right
 ;	0000000x up/down
+; ?? ent_r5 temp tooth cell id?
 ; ent_r6 z pos sort up
 ; ent_r7 z pos sort down
 
@@ -125,11 +126,17 @@ ent_germ_update: subroutine
 	shift_r 4
 	clc
 	adc temp00
-	sta ent_r5,x
+	sta ent_r5,x ;??
+	sta temp01
 	; increase tooth damage
 	tax
 	inc $600,x
+	; add tooth cell to update queue
+	ldx tooth_update_queue_size
+	inc tooth_needs_update,x
+	inc tooth_update_queue_size
 	ldx ent_slot
+	; log tooth change
 .skip_tooth_dmg
 
 	; update animation frame

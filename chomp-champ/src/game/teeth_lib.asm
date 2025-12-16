@@ -31,7 +31,7 @@ teeth_update: subroutine
 	cpx temp02
 	bne .tooth_loop
 	ldx temp01
-	sta tooth_health_0,x
+	sta tooth_total_dmg,x
 	rts
 
 
