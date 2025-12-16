@@ -5,6 +5,7 @@ render_do_nothing_id           eqm $00
 update_do_nothing_id           eqm $01
 state_title_update_id          eqm $02
 state_game_update_id           eqm $03
+state_game_render_id           eqm $04
 
 	org $8080
 state_table_lo:
@@ -12,6 +13,7 @@ state_table_lo:
 	byte <#update_do_nothing
 	byte <#state_title_update
 	byte <#state_game_update
+	byte <#state_game_render
 
 	org $80c0
 state_table_hi:
@@ -19,6 +21,7 @@ state_table_hi:
 	byte >#update_do_nothing
 	byte >#state_title_update
 	byte >#state_game_update
+	byte >#state_game_render
 
 
 	org $8100

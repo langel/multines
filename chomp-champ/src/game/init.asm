@@ -31,6 +31,8 @@ state_game_init: subroutine
 	sta ppu_ctrl_ora
 	jsr render_disable
 	
+	ldx #state_game_render_id
+	jsr state_set_render_routine
 	ldx #state_game_update_id
 	jsr state_set_update_routine
 

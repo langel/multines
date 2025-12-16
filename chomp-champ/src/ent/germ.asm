@@ -133,7 +133,7 @@ ent_germ_update: subroutine
 	inc $600,x
 	; add tooth cell to update queue
 	ldx tooth_update_queue_size
-	inc tooth_needs_update,x
+	sta tooth_needs_update,x
 	inc tooth_update_queue_size
 	ldx ent_slot
 	; log tooth change

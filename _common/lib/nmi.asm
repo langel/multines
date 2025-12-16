@@ -29,15 +29,15 @@ palette_loop
 	sta PPU_DATA
 	dey
 	bne palette_loop
+	; STATE RENDER     ?? cycles
+	jmp (state_render_lo)
+nmi_render_done
 	; SCROLL POS	    17 cycles
 	bit PPU_STATUS
 	lda scroll_x
 	sta PPU_SCROLL
 	lda scroll_y
 	sta PPU_SCROLL
-	; STATE RENDER     ?? cycles
-	jmp (state_render_lo)
-nmi_render_done
 	; hope everything above was under
 	; ~2250 cycles!
 	jmp (state_update_lo)
