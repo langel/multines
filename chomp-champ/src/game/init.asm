@@ -40,6 +40,7 @@ state_game_init: subroutine
 
 	jsr ent_player_init
 
+/*
 	jsr ent_germ_spawn
 	jsr ent_germ_spawn
 	jsr ent_germ_spawn
@@ -52,6 +53,7 @@ state_game_init: subroutine
 	jsr ent_germ_spawn
 	jsr ent_germ_spawn
 	jsr ent_germ_spawn
+ */
 	jsr ent_germ_spawn
 	jsr ent_germ_spawn
 	jsr ent_germ_spawn

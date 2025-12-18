@@ -86,14 +86,14 @@ ent_germ_update: subroutine
 
 	; bound y
 	lda ent_y,x
-	cmp #$40
+	cmp #$39
 	bcs .y_high_enough
 	lda ent_r3,x
 	ora #%00000001
 	sta ent_r3,x
 	jmp .y_low_enough
 .y_high_enough
-	cmp #$b0
+	cmp #$b5
 	bcc .y_low_enough
 	lda ent_r3,x
 	and #%11111110
@@ -112,32 +112,41 @@ ent_germ_update: subroutine
 	sta temp00
 	cpx temp00
 	bne .skip_tooth_dmg
+	; (germ_x / 16) 
+	; +
+	; ((germ_y / 16) * 32)
 	lda ent_x_hi,x
 	lsr
 	lda ent_x,x
 	ror
 	clc
 	adc #$04
-	and #$f8
+	shift_r 3
 	sta temp00
 	lda ent_y,x
 	sec
-	sbc #$38
+	sbc #$37
 	shift_r 4
+	shift_l 5
 	clc
 	adc temp00
 	sta ent_r5,x ;??
 	sta temp01
 	; increase tooth damage
+	; but it maxes it
 	tax
+	lda $600,x
+	cmp #$0f
+	beq .skip_tooth_dmg
 	inc $600,x
 	; add tooth cell to update queue
+	txa
 	ldx tooth_update_queue_size
 	sta tooth_needs_update,x
 	inc tooth_update_queue_size
-	ldx ent_slot
 	; log tooth change
 .skip_tooth_dmg
+	ldx ent_slot
 
 	; update animation frame
 	inc ent_r0,x

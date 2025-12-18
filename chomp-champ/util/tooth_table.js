@@ -15,12 +15,18 @@ for (let i = 0; i < 256; i++) {
 	}
 	// calc position
 	let x = i & 0x1f;
-	let y = i >> 4;
-	tooth_cell2nm_lo += tohex(x << 1);
-	tooth_cell2nm_hi += tohex(0x20 + (y >> 1));
+	let y = i >> 5;
+	let lo = (x << 1) & 0x1f;
+	lo += y << 6;
+	lo = lo & 0xff;
+	let hi = 0x21;
+	if (x >= 16) hi += 4;
+	if (y >= 4) hi += 1;
+	tooth_cell2nm_lo += tohex(lo);
+	tooth_cell2nm_hi += tohex(hi);
 }
 
 
 const out = tooth_cell2nm_lo + '\n\n' + tooth_cell2nm_hi;
 
-fs.writeFileSync('tooth_tables_2.asm', out);
+fs.writeFileSync('src/game/tooth_tables_2.asm', out);
