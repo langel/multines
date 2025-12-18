@@ -27,7 +27,7 @@ state_game_render: subroutine
 	lda tooth_cell_dmg,y
 	sta temp01
 	tya
-	adc wtf
+	adc rng_val0
 	sta temp00
 	; cell quadrant 0
 	and #$03
@@ -89,6 +89,25 @@ state_game_render: subroutine
 	sta tooth_tile_cache+1
 	sta tooth_tile_cache+3
 .not_right_edge
+	; check bottom edge of top teeth
+	tya
+	and #$e0
+	cmp #$60
+	bne .top_edge_check_done
+	lda temp01
+	tya
+	and #$03
+	bne .not_top_tooth_bottom_left
+	lda #$35
+	sta tooth_tile_cache+2
+	jmp .edge_check_done
+.not_top_tooth_bottom_left
+	cmp #$03
+	bne .not_top_tooth_bottom_right
+	lda #$45
+	sta tooth_tile_cache+3
+.not_top_tooth_bottom_right
+.top_edge_check_done
 	; check top edge of bottom teeth
 	tya
 	and #$e0
