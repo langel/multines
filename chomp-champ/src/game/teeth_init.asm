@@ -16,7 +16,7 @@ teeth_init_playfield: subroutine
 	lda #$00
 	sta PPU_ADDR
 	; clear head
-	lda #$0a
+	lda #$08
 	ldx #$c0
 .head_clear
 	sta PPU_DATA
@@ -114,8 +114,9 @@ teeth_init_playfield: subroutine
 	sta PPU_DATA
 	dex
 	bne .loop_gumline_bottom
+
 	; clear butt
-	lda #$0a
+	lda #$08
 	ldx #$80
 .butt_clear
 	sta PPU_DATA
@@ -131,38 +132,6 @@ teeth_init_playfield: subroutine
 	sta temp00
 	jmp .nametable_loop
 .done_nametabling
-
-
-; random dirt
-	; tooth rot
-	jsr rng_update
-	lda #$21
-	sta PPU_ADDR
-	lda rng_val0
-	sta PPU_ADDR
-	lda #$a8
-	sta PPU_DATA
-	lda #$22
-	sta PPU_ADDR
-	lda rng_val1
-	sta PPU_ADDR
-	lda #$b8
-	sta PPU_DATA
-
-	jsr rng_update
-	lda #$25
-	sta PPU_ADDR
-	lda rng_val0
-	sta PPU_ADDR
-	lda #$a8
-	sta PPU_DATA
-	lda #$26
-	sta PPU_ADDR
-	lda rng_val1
-	sta PPU_ADDR
-	lda #$b8
-	sta PPU_DATA
-
 
 
 	rts

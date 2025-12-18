@@ -1,16 +1,33 @@
 
+gumline_nm_addr_lo:
+	hex e0 e8 f0 f8
+	hex e0 e8 f0 f8
+	hex 00 08 10 18
+	hex 00 08 10 18
+gumline_nm_addr_hi:
+	hex 20 20 20 20
+	hex 24 24 24 24
+	hex 23 23 23 23
+	hex 27 27 27 27
+gumline_top_row_tile_id:
+	hex 18 28 38 48
+gumline_bottom_row_tile_id:
+	hex 80 88 90 98
+
 state_game_render: subroutine
 
 	ldx tooth_update_queue_size
 	bne .queue_loop
-	jmp .done
+	jmp .tooth_cells_done
 .queue_loop
+	dex
 	; precalc the 4 tiles
 	lda tooth_needs_update,x
 	tay
 	lda tooth_cell_dmg,y
 	sta temp01
 	tya
+	adc wtf
 	sta temp00
 	; cell quadrant 0
 	and #$03
@@ -59,7 +76,7 @@ state_game_render: subroutine
 	adc #$16
 	sta tooth_tile_cache+0
 	sta tooth_tile_cache+2
-	jmp .edge_check_done
+	jmp .not_right_edge
 .not_left_edge
 	cmp #$03
 	bne .not_right_edge
@@ -72,6 +89,29 @@ state_game_render: subroutine
 	sta tooth_tile_cache+1
 	sta tooth_tile_cache+3
 .not_right_edge
+	; check top edge of bottom teeth
+	tya
+	and #$e0
+	cmp #$80
+	bne .edge_check_done
+	lda temp01
+	shift_r 2
+	clc
+	adc #$7c
+	sta tooth_tile_cache+0
+	sta tooth_tile_cache+1
+	tya
+	and #$03
+	bne .not_bottom_tooth_top_left
+	lda #$06
+	sta tooth_tile_cache+0
+	jmp .edge_check_done
+.not_bottom_tooth_top_left
+	cmp #$03
+	bne .not_bottom_tooth_top_right
+	lda #$07
+	sta tooth_tile_cache+1
+.not_bottom_tooth_top_right
 .edge_check_done
 	; top row of cell
 	lda tooth_needs_update,x
@@ -98,14 +138,64 @@ state_game_render: subroutine
 	lda tooth_tile_cache+3
 	sta PPU_DATA
 	; next cell
-	dex
-	bpl .do_loop
+	txa
+	bne .do_loop
 	; loop done
 	ldx #$00
 	stx tooth_update_queue_size
-	jmp .done
+	jmp .tooth_cells_done
 .do_loop
 	jmp .queue_loop
+.tooth_cells_done
+
+
+	; update gumline tiles
+	lda wtf
+	and #$0f
+	sta temp00
+	tax
+	lda tooth_total_dmg,x
+	shift_r 5
+	cmp #$03
+	bcc .dont_threshold
+	lda #$03
+.dont_threshold
+	sta temp01 ; tile dmg group value
+	ldx temp00
+	lda gumline_nm_addr_hi,x
+	sta PPU_ADDR
+	lda gumline_nm_addr_lo,x
+	sta PPU_ADDR
+	; which row?
+	lda temp00
+	and #$08
+	bne .gumline_bottom_row
+.gumline_top_row
+	ldx temp01
+	lda gumline_top_row_tile_id,x
+	jmp .gumline_tile_ready
+.gumline_bottom_row
+	ldx temp01
+	lda gumline_bottom_row_tile_id,x
+.gumline_tile_ready
+	tax
+	stx PPU_DATA
+	inx
+	stx PPU_DATA
+	inx
+	stx PPU_DATA
+	inx
+	stx PPU_DATA
+	inx
+	stx PPU_DATA
+	inx
+	stx PPU_DATA
+	inx
+	stx PPU_DATA
+	inx
+	stx PPU_DATA
+.gumline_done
+
 
 .done
 	jmp nmi_render_done
