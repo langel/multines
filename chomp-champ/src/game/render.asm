@@ -216,5 +216,38 @@ state_game_render: subroutine
 .gumline_done
 
 
+	; lets dick around with attributes
+	lda wtf
+	shift_r 4
+	and #$03
+	sta temp00
+	shift_l 2
+	ora temp00
+	shift_l 2
+	ora temp00
+	shift_l 2
+	ora temp00
+	tay
+	ldx #$08
+	lda tooth_attr_hi,x
+	sta PPU_ADDR
+	lda tooth_root_attr_lo,x
+	sta PPU_ADDR
+	sty PPU_DATA
+	sty PPU_DATA
+	lda tooth_attr_hi,x
+	sta PPU_ADDR
+	lda tooth_main_attr_top_lo,x
+	sta PPU_ADDR
+	sty PPU_DATA
+	sty PPU_DATA
+	lda tooth_attr_hi,x
+	sta PPU_ADDR
+	lda tooth_main_attr_bottom_lo,x
+	sta PPU_ADDR
+	sty PPU_DATA
+	sty PPU_DATA
+
+
 .done
 	jmp nmi_render_done

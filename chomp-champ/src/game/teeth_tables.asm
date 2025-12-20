@@ -86,3 +86,24 @@ tooth_f_table:
 	hex fc fd fe ff
 
 
+	; attribute tables
+tooth_attr_hi:
+	hex 23 23 23 23
+	hex 27 27 27 27
+	hex 23 23 23 23
+	hex 27 27 27 27
+tooth_root_attr_lo:
+	hex c8 ca cc ce
+	hex c8 ca cc ce
+	hex f0 f2 f4 f6
+	hex f0 f2 f4 f6
+tooth_main_attr_top_lo:
+	hex d0 d2 d4 d6
+	hex d0 d2 d4 d6
+	hex e0 e2 e4 e6
+	hex e0 e2 e4 e6
+tooth_main_attr_bottom_lo:
+	hex d8 da dc de
+	hex d8 da dc de
+	hex e8 ea ec ee
+	hex e8 ea ec ee
