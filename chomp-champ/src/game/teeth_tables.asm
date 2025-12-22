@@ -1,4 +1,34 @@
 
+gumline_nm_addr_lo:
+	hex e0 e8 f0 f8
+	hex e0 e8 f0 f8
+	hex 00 08 10 18
+	hex 00 08 10 18
+gumline_nm_addr_hi:
+	hex 20 20 20 20
+	hex 24 24 24 24
+	hex 23 23 23 23
+	hex 27 27 27 27
+gumline_top_row_tile_id:
+	hex 18 28 38 48
+gumline_bottom_row_tile_id:
+	hex 80 88 90 98
+gumline_top_white_tile_pattern:
+	hex e0 e1 e2 0b 0b e3 e4 e5
+gumline_top_empty_tile_pattern:
+	hex ea eb ec 08 08 ed ee ef
+gumline_bottom_white_tile_pattern:
+	hex f0 f1 f2 0b 0b f3 f4 f5
+gumline_bottom_empty_tile_pattern:
+	hex fa fb fc 08 08 fd fe ff
+
+tooth_main_white_tile_pattern:
+	hex e6 0b 0b 0b 0b 0b 0b e7
+tooth_top_edge_white_tile_pattern:
+	hex e8 0b 0b 0b 0b 0b 0b e9
+tooth_bottom_edge_white_tile_pattern:
+	hex f6 f7 f7 f7 f7 f7 f7 f8
+
 ; lookup tables for tooth health
 teeth_cell_tables:
 ; top row

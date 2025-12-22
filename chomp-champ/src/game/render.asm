@@ -1,19 +1,4 @@
 
-gumline_nm_addr_lo:
-	hex e0 e8 f0 f8
-	hex e0 e8 f0 f8
-	hex 00 08 10 18
-	hex 00 08 10 18
-gumline_nm_addr_hi:
-	hex 20 20 20 20
-	hex 24 24 24 24
-	hex 23 23 23 23
-	hex 27 27 27 27
-gumline_top_row_tile_id:
-	hex 18 28 38 48
-gumline_bottom_row_tile_id:
-	hex 80 88 90 98
-
 state_game_render: subroutine
 
 	ldx tooth_update_queue_size
@@ -218,7 +203,7 @@ state_game_render: subroutine
 
 	; lets dick around with attributes
 	lda wtf
-	shift_r 4
+	shift_r 6
 	and #$03
 	sta temp00
 	shift_l 2
@@ -228,7 +213,7 @@ state_game_render: subroutine
 	shift_l 2
 	ora temp00
 	tay
-	ldx #$08
+	ldx #$0b
 	lda tooth_attr_hi,x
 	sta PPU_ADDR
 	lda tooth_root_attr_lo,x
@@ -248,6 +233,163 @@ state_game_render: subroutine
 	sty PPU_DATA
 	sty PPU_DATA
 
+	; can we blank a whole tooth?
+	lda wtf 
+	shift_r 5
+	beq .do_blackout
+	jmp .skip_black_out
+.do_blackout
+	; gumline
+	ldx #$00
+	lda gumline_nm_addr_hi,x
+	sta PPU_ADDR
+	lda gumline_nm_addr_lo,x
+	sta PPU_ADDR
+	ldy #$00
+	lda gumline_top_empty_tile_pattern,y
+	sta PPU_DATA
+	iny
+	lda gumline_top_empty_tile_pattern,y
+	sta PPU_DATA
+	iny
+	lda gumline_top_empty_tile_pattern,y
+	sta PPU_DATA
+	iny
+	lda gumline_top_empty_tile_pattern,y
+	sta PPU_DATA
+	iny
+	lda gumline_top_empty_tile_pattern,y
+	sta PPU_DATA
+	iny
+	lda gumline_top_empty_tile_pattern,y
+	sta PPU_DATA
+	iny
+	lda gumline_top_empty_tile_pattern,y
+	sta PPU_DATA
+	iny
+	lda gumline_top_empty_tile_pattern,y
+	sta PPU_DATA
+	; main row 0
+	ldx #$00
+	lda tooth_tile_rows_hi,x
+	sta PPU_ADDR
+	lda tooth_tile_rows_lo,x
+	sta PPU_ADDR
+	lda #$08
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	; main row 1
+	inx
+	lda tooth_tile_rows_hi,x
+	sta PPU_ADDR
+	lda tooth_tile_rows_lo,x
+	sta PPU_ADDR
+	lda #$08
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	; main row 2
+	inx
+	lda tooth_tile_rows_hi,x
+	sta PPU_ADDR
+	lda tooth_tile_rows_lo,x
+	sta PPU_ADDR
+	lda #$08
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	; main row 3
+	inx
+	lda tooth_tile_rows_hi,x
+	sta PPU_ADDR
+	lda tooth_tile_rows_lo,x
+	sta PPU_ADDR
+	lda #$08
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	; main row 4
+	inx
+	lda tooth_tile_rows_hi,x
+	sta PPU_ADDR
+	lda tooth_tile_rows_lo,x
+	sta PPU_ADDR
+	lda #$08
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	; main row 5
+	inx
+	lda tooth_tile_rows_hi,x
+	sta PPU_ADDR
+	lda tooth_tile_rows_lo,x
+	sta PPU_ADDR
+	lda #$08
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	; main row 6
+	inx
+	lda tooth_tile_rows_hi,x
+	sta PPU_ADDR
+	lda tooth_tile_rows_lo,x
+	sta PPU_ADDR
+	lda #$08
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	; main row 7
+	inx
+	lda tooth_tile_rows_hi,x
+	sta PPU_ADDR
+	lda tooth_tile_rows_lo,x
+	sta PPU_ADDR
+	lda #$08
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+.skip_black_out
 
 .done
 	jmp nmi_render_done
