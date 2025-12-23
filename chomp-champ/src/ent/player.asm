@@ -27,9 +27,11 @@ ent_player_update: subroutine
 	lda player_x
 	adc #player_speed
 	sta player_x
+	sta ent_x,x
 	lda player_x_hi
 	adc #$00
 	sta player_x_hi
+	sta ent_x_hi,x
 	; check right boundary
 	lda player_x_hi
 	beq .go_done
@@ -43,9 +45,11 @@ ent_player_update: subroutine
 	lda player_x
 	sbc #player_speed
 	sta player_x
+	sta ent_x,x
 	lda player_x_hi
 	sbc #$00
 	sta player_x_hi
+	sta ent_x_hi,x
 	; check right boundary
 	lda player_x_hi
 	bne .go_done
@@ -63,6 +67,47 @@ ent_player_update: subroutine
 	clc
 	adc #$20
 	ent_z_calc_sort_vals
+
+	; calc tooth position
+	; (player_x / 16) 
+	; +
+	; ((player_y / 16) * 32)
+	lda ent_x_hi,x
+	lsr
+	lda ent_x,x
+	ror
+	clc
+	adc #$10
+	shift_r 3
+	sta temp00
+	sta $120
+	lda ent_y,x
+	sec
+	sbc #$37
+	clc
+	adc #$18
+	shift_r 4
+	shift_l 5
+	clc
+	adc temp00
+	sta $121
+	sta ent_r5,x ;??
+	sta temp01
+	; decrease tooth damage
+	; but not less than 0
+	tax
+	lda $600,x
+	;cmp #$0f
+	beq .skip_tooth_clean
+	dec $600,x
+	; add tooth cell to update queue
+	txa
+	ldx tooth_update_queue_size
+	sta tooth_needs_update,x
+	inc tooth_update_queue_size
+	; log tooth change
+.skip_tooth_clean
+	ldx ent_slot
 
 	jmp ent_z_update_return
 
