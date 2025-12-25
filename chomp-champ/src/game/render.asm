@@ -10,6 +10,9 @@ state_game_render: subroutine
 	lda tooth_needs_update,x
 	tay
 	lda tooth_cell_dmg,y
+	bne .render_dirt
+	jmp .render_clean
+.render_dirt
 	sta temp01
 	tya
 	adc rng_val0
@@ -117,6 +120,72 @@ state_game_render: subroutine
 	sta tooth_tile_cache+1
 .not_bottom_tooth_top_right
 .edge_check_done
+	jmp .plot_render
+
+.render_clean
+	; empty cell of dirt
+	lda #$0b
+	sta tooth_tile_cache+0
+	sta tooth_tile_cache+1
+	sta tooth_tile_cache+2
+	sta tooth_tile_cache+3
+	; check tooth side edges
+	tya
+	and #$03
+	bne .not_clean_left_edge
+	lda #$e6
+	sta tooth_tile_cache+0
+	sta tooth_tile_cache+2
+	jmp .not_clean_right_edge
+.not_clean_left_edge
+	cmp #$03
+	bne .not_clean_right_edge
+	lda #$e7
+	sta tooth_tile_cache+1
+	sta tooth_tile_cache+3
+.not_clean_right_edge
+	; check bottom edge of top teeth
+	tya
+	and #$e0
+	cmp #$60
+	bne .top_edge_clean_check_done
+	lda temp01
+	tya
+	and #$03
+	bne .not_top_tooth_bottom_left_clean
+	lda #$e8
+	sta tooth_tile_cache+2
+	jmp .edge_check_clean_done
+.not_top_tooth_bottom_left_clean
+	cmp #$03
+	bne .not_top_tooth_bottom_right_clean
+	lda #$e9
+	sta tooth_tile_cache+3
+.not_top_tooth_bottom_right_clean
+.top_edge_clean_check_done
+	; check top edge of bottom teeth
+	tya
+	and #$e0
+	cmp #$80
+	bne .edge_check_clean_done
+	lda #$f7
+	sta tooth_tile_cache+0
+	sta tooth_tile_cache+1
+	tya
+	and #$03
+	bne .not_bottom_tooth_top_left_clean
+	lda #$f6
+	sta tooth_tile_cache+0
+	jmp .edge_check_clean_done
+.not_bottom_tooth_top_left_clean
+	cmp #$03
+	bne .not_bottom_tooth_top_right_clean
+	lda #$f8
+	sta tooth_tile_cache+1
+.not_bottom_tooth_top_right_clean
+.edge_check_clean_done
+
+.plot_render
 	; top row of cell
 	lda tooth_needs_update,x
 	tay
@@ -141,6 +210,9 @@ state_game_render: subroutine
 	sta PPU_DATA
 	lda tooth_tile_cache+3
 	sta PPU_DATA
+	jmp .render_cell_done
+
+.render_cell_done
 	; next cell
 	txa
 	bne .do_loop

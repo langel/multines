@@ -1,5 +1,6 @@
 
 ; ent_r3 direction
+; ent_r4 up/down dir
 player_speed    eqm #$01
 
 ent_player_init: subroutine
@@ -61,6 +62,28 @@ ent_player_update: subroutine
 .go_done
 	lda player_x
 	sta ent_x,x
+
+	; move up/down
+	lda ent_r4,x
+	bne .go_up
+.go_down
+	inc player_y
+	inc ent_y,x
+	jmp .updown_move_done
+.go_up
+	dec player_y
+	dec ent_y,x
+.updown_move_done
+	lda player_y
+	cmp #$30
+	bcc .updown_reverse
+	cmp #$b0
+	bcc .updown_checked
+.updown_reverse
+	lda ent_r4,x
+	eor #$01
+	sta ent_r4,x
+.updown_checked
 
 	; set z position
 	lda player_y
