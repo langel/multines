@@ -25,10 +25,10 @@ teeth_init_playfield: subroutine
 	; gumline
 	ldx #$20
 	lda #$09
-.loop_gumline_top
+.loop_gums_top
 	sta PPU_DATA
 	dex
-	bne .loop_gumline_top
+	bne .loop_gums_top
 	; upper_top
 	ldx #$00
 	ldy #$00
@@ -107,13 +107,13 @@ teeth_init_playfield: subroutine
 	iny
 	cpy #$20
 	bne .loop_lower_bottom
-	; gumline
+	; gums
 	ldx #$20
 	lda #$09
-.loop_gumline_bottom
+.loop_gums_bottom
 	sta PPU_DATA
 	dex
-	bne .loop_gumline_bottom
+	bne .loop_gums_bottom
 
 	; clear butt
 	lda #$08

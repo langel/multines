@@ -13,17 +13,6 @@ game_palette:
 	hex 06 17 28 ; poop / bird leg
 	hex 13 23 34 ; berries?
 
-tooth_row_generic:
-	hex e6 0b 0b 0b 0b 0b 0b e7
-tooth_row_upper_top:
-	hex e0 e1 e2 0b 0b e3 e4 e5
-tooth_row_upper_bottom:
-	hex e8 0b 0b 0b 0b 0b 0b e9
-tooth_row_lower_top:
-	hex f6 f7 f7 f7 f7 f7 f7 f8
-tooth_row_lower_bottom:
-	hex f0 f1 f2 0b 0b f3 f4 f5
-
 
 state_game_init: subroutine
 

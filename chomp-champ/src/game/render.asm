@@ -231,6 +231,9 @@ state_game_render: subroutine
 	sta temp00
 	tax
 	lda tooth_total_dmg,x
+	bne .gumline_has_dirt
+	jmp .gumline_is_clean
+.gumline_has_dirt
 	shift_r 5
 	cmp #$03
 	bcc .dont_threshold
@@ -270,6 +273,31 @@ state_game_render: subroutine
 	stx PPU_DATA
 	inx
 	stx PPU_DATA
+	jmp .gumline_done
+.gumline_is_clean
+	ldx temp00
+	lda gumline_nm_addr_hi,x
+	sta PPU_ADDR
+	lda gumline_nm_addr_lo,x
+	sta PPU_ADDR
+	; which row?
+	ldx #$00
+	lda temp00
+	and #$08
+	bne .gumline_clean_bottom
+.gumline_clean_top
+	lda tooth_row_upper_top,x
+	sta PPU_DATA
+	inx
+	cpx #$08
+	bne .gumline_clean_top
+	jmp .gumline_done
+.gumline_clean_bottom
+	lda tooth_row_lower_bottom,x
+	sta PPU_DATA
+	inx
+	cpx #$08
+	bne .gumline_clean_bottom
 .gumline_done
 
 
