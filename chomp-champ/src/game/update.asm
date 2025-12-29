@@ -55,5 +55,7 @@ state_game_update: subroutine
 	; debug visualization off
 ;	lda #%00011110
 ;	sta PPU_MASK
+	
+	jsr state_game_prerender
 
 	jmp nmi_update_done

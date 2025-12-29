@@ -1,10 +1,32 @@
 
 state_game_render: subroutine
-	ldy #$00
+	; uses popslide
+	; 1st byte : number of steps
+	;            0 = no more tasks
+	; 2nd byte : ppu addr hi
+	; 3rd byte : ppu addr lo
+	; then step bytes
+	tsx
+	stx temp00
+	ldx #$ff
+	txs
+.task_next
+	pla
+	beq .done
+	tay
+	pla
+	sta PPU_ADDR
+	pla 
+	sta PPU_ADDR
 .yloop
+	pla
+	sta PPU_DATA
 	dey
 	bne .yloop
+	jmp .task_next
 .done
+	ldx temp00
+	txs
 	lda #$00
 	sta tooth_update_queue_size
 	jmp nmi_render_done
@@ -12,6 +34,12 @@ state_game_render: subroutine
 
 
 state_game_prerender: subroutine
+
+	; reset render queue
+	; store in temp03
+	ldy #$00
+	sty $100
+	sty temp03
 
 	ldx tooth_update_queue_size
 	bne .queue_loop
@@ -199,29 +227,48 @@ state_game_prerender: subroutine
 
 .plot_render
 	; top row of cell
+	ldy temp03
+	lda #$02 ; number of render steps
+	sta $100,y
+	iny
 	lda tooth_needs_update,x
-	tay
-	lda tooth_cell2nm_hi,y
-	sta PPU_ADDR
-	lda tooth_cell2nm_lo,y
-	sta PPU_ADDR
+	stx temp00
+	tax
+	lda tooth_cell2nm_hi,x
+	sta $100,y
+	iny
+	lda tooth_cell2nm_lo,x
+	sta $100,y
+	iny
 	lda tooth_tile_cache+0
-	sta PPU_DATA
+	sta $100,y
+	iny
 	lda tooth_tile_cache+1
-	sta PPU_DATA
+	sta $100,y
+	iny
 	; bottom row of cell
+	lda #$02 ; number of render steps
+	sta $100,y
+	iny
+	ldx temp00
 	lda tooth_needs_update,x
-	tay
-	lda tooth_cell2nm_hi,y
-	sta PPU_ADDR
-	lda tooth_cell2nm_lo,y
+	tax
+	lda tooth_cell2nm_hi,x
+	sta $100,y
+	iny
+	lda tooth_cell2nm_lo,x
 	clc
 	adc #$20
-	sta PPU_ADDR
+	sta $100,y
+	iny
 	lda tooth_tile_cache+2
-	sta PPU_DATA
+	sta $100,y
+	iny
 	lda tooth_tile_cache+3
-	sta PPU_DATA
+	sta $100,y
+	iny
+	sty temp03
+	ldx temp00
 	jmp .render_cell_done
 
 .render_cell_done
@@ -235,9 +282,13 @@ state_game_prerender: subroutine
 .do_loop
 	jmp .queue_loop
 .tooth_cells_done
+	ldy temp03
 
 
 	; update gumline tiles
+	lda #$08 ; always update 8 tiles
+	sta $100,y
+	iny
 	lda wtf
 	and #$0f
 	sta temp00
@@ -254,9 +305,11 @@ state_game_prerender: subroutine
 	sta temp01 ; tile dmg group value
 	ldx temp00
 	lda gumline_nm_addr_hi,x
-	sta PPU_ADDR
+	sta $100,y
+	iny
 	lda gumline_nm_addr_lo,x
-	sta PPU_ADDR
+	sta $100,y
+	iny
 	; which row?
 	lda temp00
 	and #$08
@@ -270,28 +323,45 @@ state_game_prerender: subroutine
 	lda gumline_bottom_row_tile_id,x
 .gumline_tile_ready
 	tax
-	stx PPU_DATA
+	sta $100,y
+	iny
 	inx
-	stx PPU_DATA
+	txa
+	sta $100,y
+	iny
 	inx
-	stx PPU_DATA
+	txa
+	sta $100,y
+	iny
 	inx
-	stx PPU_DATA
+	txa
+	sta $100,y
+	iny
 	inx
-	stx PPU_DATA
+	txa
+	sta $100,y
+	iny
 	inx
-	stx PPU_DATA
+	txa
+	sta $100,y
+	iny
 	inx
-	stx PPU_DATA
+	txa
+	sta $100,y
+	iny
 	inx
-	stx PPU_DATA
+	txa
+	sta $100,y
+	iny
 	jmp .gumline_done
 .gumline_is_clean
 	ldx temp00
 	lda gumline_nm_addr_hi,x
-	sta PPU_ADDR
+	sta $100,y
+	iny
 	lda gumline_nm_addr_lo,x
-	sta PPU_ADDR
+	sta $100,y
+	iny
 	; which row?
 	ldx #$00
 	lda temp00
@@ -299,14 +369,16 @@ state_game_prerender: subroutine
 	bne .gumline_clean_bottom
 .gumline_clean_top
 	lda tooth_row_upper_top,x
-	sta PPU_DATA
+	sta $100,y
+	iny
 	inx
 	cpx #$08
 	bne .gumline_clean_top
 	jmp .gumline_done
 .gumline_clean_bottom
 	lda tooth_row_lower_bottom,x
-	sta PPU_DATA
+	sta $100,y
+	iny
 	inx
 	cpx #$08
 	bne .gumline_clean_bottom
@@ -324,26 +396,59 @@ state_game_prerender: subroutine
 	ora temp00
 	shift_l 2
 	ora temp00
-	tay
-	ldx #$0b
+	sta temp00 ; attr val
+	ldx #$0b ; tooth index
+	; tooth root row attr
+	lda #$02 ; render steps
+	sta $100,y
+	iny
 	lda tooth_attr_hi,x
-	sta PPU_ADDR
+	sta $100,y
+	iny
 	lda tooth_root_attr_lo,x
-	sta PPU_ADDR
-	sty PPU_DATA
-	sty PPU_DATA
+	sta $100,y
+	iny
+	lda temp00
+	sta $100,y
+	iny
+	sta $100,y
+	iny
+	; tooth top row attr
+	lda #$02 ; render steps
+	sta $100,y
+	iny
 	lda tooth_attr_hi,x
-	sta PPU_ADDR
+	sta $100,y
+	iny
 	lda tooth_main_attr_top_lo,x
-	sta PPU_ADDR
-	sty PPU_DATA
-	sty PPU_DATA
+	sta $100,y
+	iny
+	lda temp00
+	sta $100,y
+	iny
+	sta $100,y
+	iny
+	; tooth bottom row attr
+	lda #$02 ; render steps
+	sta $100,y
+	iny
 	lda tooth_attr_hi,x
-	sta PPU_ADDR
+	sta $100,y
+	iny
 	lda tooth_main_attr_bottom_lo,x
-	sta PPU_ADDR
-	sty PPU_DATA
-	sty PPU_DATA
+	sta $100,y
+	iny
+	lda temp00
+	sta $100,y
+	iny
+	sta $100,y
+	iny
+	
+
+	lda #$00
+	sta $100,y
+
+	rts
 
 	; can we blank a whole tooth?
 	lda wtf 
@@ -504,4 +609,5 @@ state_game_prerender: subroutine
 .skip_black_out
 
 .done
+	rts
 	jmp nmi_render_done
