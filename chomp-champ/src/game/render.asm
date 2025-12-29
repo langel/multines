@@ -1,5 +1,17 @@
 
 state_game_render: subroutine
+	ldy #$00
+.yloop
+	dey
+	bne .yloop
+.done
+	lda #$00
+	sta tooth_update_queue_size
+	jmp nmi_render_done
+
+
+
+state_game_prerender: subroutine
 
 	ldx tooth_update_queue_size
 	bne .queue_loop

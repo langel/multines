@@ -37,7 +37,7 @@ ent_player_update: subroutine
 	lda player_x_hi
 	beq .go_done
 	lda player_x
-	cmp #$e2
+	cmp #$e0
 	bcc .go_done
 	lda #$ff
 	sta ent_r3,x
@@ -75,9 +75,9 @@ ent_player_update: subroutine
 	dec ent_y,x
 .updown_move_done
 	lda player_y
-	cmp #$30
+	cmp #$36
 	bcc .updown_reverse
-	cmp #$b0
+	cmp #$ae
 	bcc .updown_checked
 .updown_reverse
 	lda ent_r4,x
@@ -103,7 +103,6 @@ ent_player_update: subroutine
 	adc #$10
 	shift_r 3
 	sta temp00
-	sta $120
 	lda ent_y,x
 	sec
 	sbc #$37
@@ -113,7 +112,6 @@ ent_player_update: subroutine
 	shift_l 5
 	clc
 	adc temp00
-	sta $121
 	sta ent_r5,x ;??
 	sta temp01
 	; decrease tooth damage
