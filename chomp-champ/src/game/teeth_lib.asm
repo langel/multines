@@ -12,7 +12,7 @@ teeth_update: subroutine
 	; destroys x+y
 	lda wtf
 	and #$0f
-	sta temp01
+	sta tooth_index
 	shift_l 4
 	tax
 	clc
@@ -30,7 +30,7 @@ teeth_update: subroutine
 	inx
 	cpx temp02
 	bne .tooth_loop
-	ldx temp01
+	ldx tooth_index
 	sta tooth_total_dmg,x
 	rts
 

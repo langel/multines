@@ -24,6 +24,7 @@ tooth_needs_update  eqm $720
 tooth_tile_cache    eqm $740
 
 tooth_update_queue_size byte
+tooth_index             byte
 
 ; xxx probably delete these
 player_x_hi   byte

@@ -386,9 +386,14 @@ state_game_prerender: subroutine
 
 
 	; lets dick around with attributes
-	lda wtf
-	shift_r 6
-	and #$03
+	ldx tooth_index
+	lda tooth_total_dmg,x
+	shift_r 4
+	sta temp00
+	cmp #$04
+	bcc .choose_palette
+	lda #$03
+.choose_palette
 	sta temp00
 	shift_l 2
 	ora temp00
@@ -397,7 +402,7 @@ state_game_prerender: subroutine
 	shift_l 2
 	ora temp00
 	sta temp00 ; attr val
-	ldx #$0b ; tooth index
+	ldx tooth_index
 	; tooth root row attr
 	lda #$02 ; render steps
 	sta $100,y
