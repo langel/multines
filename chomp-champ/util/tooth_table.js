@@ -26,6 +26,20 @@ for (let i = 0; i < 256; i++) {
 	tooth_cell2nm_hi += tohex(hi);
 }
 
+
+let tooth_cell2tooth = 'tooth_cell2tooth:';
+for (let i = 0; i < 256; i++) {
+	// setup newlines
+	if (i % 16 == 0) {
+		tooth_cell2tooth += '\n\thex ';
+	}
+	// calc tooth id
+	let x = (i >> 2) & 0x07;
+	let y = i >> 7;
+	tooth_cell2tooth += tohex(x + (y <<3));
+}
+
+
 let tooth_tile_rows_lo = 'tooth_tile_rows_lo:';
 let tooth_tile_rows_hi = 'tooth_tile_rows_hi:';
 
@@ -46,6 +60,6 @@ for (let i = 0; i < 16; i++) {
 }
 
 
-const out = tooth_cell2nm_lo + '\n\n' + tooth_cell2nm_hi + '\n\n' + tooth_tile_rows_lo + '\n\n' + tooth_tile_rows_hi;
+const out = tooth_cell2nm_lo + '\n\n' + tooth_cell2nm_hi + '\n\n' + tooth_tile_rows_lo + '\n\n' + tooth_tile_rows_hi + '\n\n' + tooth_cell2tooth;
 
 fs.writeFileSync('src/game/tooth_tables_2.asm', out);

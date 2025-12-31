@@ -244,6 +244,13 @@ NES_MIRR_QUAD	EQM 8
 	ENDM
 
 
+	MAC PUSHY
+	; set cache for PPU_POPSLIDE
+	sta $100,y
+	iny
+	ENDM
+
+
 	MAC SHIFT_L
 .COUNT SET {1}
 	REPEAT .COUNT

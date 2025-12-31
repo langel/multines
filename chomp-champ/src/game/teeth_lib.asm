@@ -13,6 +13,10 @@ teeth_update: subroutine
 	lda wtf
 	and #$0f
 	sta tooth_index
+	tax
+	lda tooth_total_dmg,x
+	bmi .tooth_lost
+	lda tooth_index
 	shift_l 4
 	tax
 	clc
@@ -32,6 +36,7 @@ teeth_update: subroutine
 	bne .tooth_loop
 	ldx tooth_index
 	sta tooth_total_dmg,x
+.tooth_lost
 	rts
 
 

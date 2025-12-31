@@ -41,6 +41,15 @@ state_game_prerender: subroutine
 	sty $100
 	sty temp03
 
+	; check for tooth blackout
+	ldx tooth_index
+	lda tooth_total_dmg,x
+	bmi .no_blackout
+	cmp #$40
+	bcc .no_blackout
+	jmp .do_blackout
+.no_blackout
+	; update cells
 	ldx tooth_update_queue_size
 	bne .queue_loop
 	jmp .tooth_cells_done
@@ -286,13 +295,14 @@ state_game_prerender: subroutine
 
 
 	; update gumline tiles
+	ldx tooth_index
+	lda tooth_total_dmg,x
+	bpl .gumline_update
+	jmp .gumline_done
+.gumline_update
 	lda #$08 ; always update 8 tiles
-	sta $100,y
-	iny
-	lda wtf
-	and #$0f
-	sta temp00
-	tax
+	PUSHY
+	ldx tooth_index
 	lda tooth_total_dmg,x
 	bne .gumline_has_dirt
 	jmp .gumline_is_clean
@@ -303,15 +313,13 @@ state_game_prerender: subroutine
 	lda #$03
 .dont_threshold
 	sta temp01 ; tile dmg group value
-	ldx temp00
+	ldx tooth_index
 	lda gumline_nm_addr_hi,x
-	sta $100,y
-	iny
+	PUSHY
 	lda gumline_nm_addr_lo,x
-	sta $100,y
-	iny
+	PUSHY
 	; which row?
-	lda temp00
+	lda tooth_index
 	and #$08
 	bne .gumline_bottom_row
 .gumline_top_row
@@ -323,62 +331,50 @@ state_game_prerender: subroutine
 	lda gumline_bottom_row_tile_id,x
 .gumline_tile_ready
 	tax
-	sta $100,y
-	iny
+	PUSHY
 	inx
 	txa
-	sta $100,y
-	iny
+	PUSHY
 	inx
 	txa
-	sta $100,y
-	iny
+	PUSHY
 	inx
 	txa
-	sta $100,y
-	iny
+	PUSHY
 	inx
 	txa
-	sta $100,y
-	iny
+	PUSHY
 	inx
 	txa
-	sta $100,y
-	iny
+	PUSHY
 	inx
 	txa
-	sta $100,y
-	iny
+	PUSHY
 	inx
 	txa
-	sta $100,y
-	iny
+	PUSHY
 	jmp .gumline_done
 .gumline_is_clean
-	ldx temp00
+	ldx tooth_index
 	lda gumline_nm_addr_hi,x
-	sta $100,y
-	iny
+	PUSHY
 	lda gumline_nm_addr_lo,x
-	sta $100,y
-	iny
+	PUSHY
 	; which row?
 	ldx #$00
-	lda temp00
+	lda tooth_index
 	and #$08
 	bne .gumline_clean_bottom
 .gumline_clean_top
 	lda tooth_row_upper_top,x
-	sta $100,y
-	iny
+	PUSHY
 	inx
 	cpx #$08
 	bne .gumline_clean_top
 	jmp .gumline_done
 .gumline_clean_bottom
 	lda tooth_row_lower_bottom,x
-	sta $100,y
-	iny
+	PUSHY
 	inx
 	cpx #$08
 	bne .gumline_clean_bottom
@@ -449,170 +445,198 @@ state_game_prerender: subroutine
 	sta $100,y
 	iny
 	
+	jmp .skip_black_out
 
+
+	; xxx check tooth for cleared
+.do_blackout
+	ora #$80
+	sta tooth_total_dmg,x
+	; gumline
+	lda #$08
+	PUSHY
+	lda gumline_nm_addr_hi,x
+	PUSHY
+	lda gumline_nm_addr_lo,x
+	PUSHY
+	lda tooth_index
+	and #$08
+	bne .gumline_empty_bottom
+.gumline_empty_top
+	ldx #$00
+	MAC GUMTOP_PRERENDER
+	lda gumline_top_empty_tile_pattern,x
+	PUSHY
+	inx
+	ENDM
+	GUMTOP_PRERENDER
+	GUMTOP_PRERENDER
+	GUMTOP_PRERENDER
+	GUMTOP_PRERENDER
+	GUMTOP_PRERENDER
+	GUMTOP_PRERENDER
+	GUMTOP_PRERENDER
+	GUMTOP_PRERENDER
+	jmp .gumline_empty_done
+.gumline_empty_bottom
+	ldx #$00
+	MAC GUMBOTTOM_PRERENDER
+	lda gumline_bottom_empty_tile_pattern,x
+	PUSHY
+	inx
+	ENDM
+	GUMBOTTOM_PRERENDER
+	GUMBOTTOM_PRERENDER
+	GUMBOTTOM_PRERENDER
+	GUMBOTTOM_PRERENDER
+	GUMBOTTOM_PRERENDER
+	GUMBOTTOM_PRERENDER
+	GUMBOTTOM_PRERENDER
+	GUMBOTTOM_PRERENDER
+.gumline_empty_done
+	; main row 0
+	lda #$08
+	PUSHY
+	lda tooth_index
+	shift_l 3
+	tax
+	lda tooth_tile_rows_hi,x
+	PUSHY
+	lda tooth_tile_rows_lo,x
+	PUSHY
+	lda #$08
+	PUSHY
+	PUSHY
+	PUSHY
+	PUSHY
+	PUSHY
+	PUSHY
+	PUSHY
+	PUSHY
+	; main row 1
+	inx
+	lda #$08
+	PUSHY
+	lda tooth_tile_rows_hi,x
+	PUSHY
+	lda tooth_tile_rows_lo,x
+	PUSHY
+	lda #$08
+	PUSHY
+	PUSHY
+	PUSHY
+	PUSHY
+	PUSHY
+	PUSHY
+	PUSHY
+	PUSHY
+	; main row 2
+	inx
+	lda #$08
+	PUSHY
+	lda tooth_tile_rows_hi,x
+	PUSHY
+	lda tooth_tile_rows_lo,x
+	PUSHY
+	lda #$08
+	PUSHY
+	PUSHY
+	PUSHY
+	PUSHY
+	PUSHY
+	PUSHY
+	PUSHY
+	PUSHY
+	; main row 3
+	inx
+	lda #$08
+	PUSHY
+	lda tooth_tile_rows_hi,x
+	PUSHY
+	lda tooth_tile_rows_lo,x
+	PUSHY
+	lda #$08
+	PUSHY
+	PUSHY
+	PUSHY
+	PUSHY
+	PUSHY
+	PUSHY
+	PUSHY
+	PUSHY
+	; main row 4
+	inx
+	lda #$08
+	PUSHY
+	lda tooth_tile_rows_hi,x
+	PUSHY
+	lda tooth_tile_rows_lo,x
+	PUSHY
+	lda #$08
+	PUSHY
+	PUSHY
+	PUSHY
+	PUSHY
+	PUSHY
+	PUSHY
+	PUSHY
+	PUSHY
+	; main row 5
+	inx
+	lda #$08
+	PUSHY
+	lda tooth_tile_rows_hi,x
+	PUSHY
+	lda tooth_tile_rows_lo,x
+	PUSHY
+	lda #$08
+	PUSHY
+	PUSHY
+	PUSHY
+	PUSHY
+	PUSHY
+	PUSHY
+	PUSHY
+	PUSHY
+	; main row 6
+	inx
+	lda #$08
+	PUSHY
+	lda tooth_tile_rows_hi,x
+	PUSHY
+	lda tooth_tile_rows_lo,x
+	PUSHY
+	lda #$08
+	PUSHY
+	PUSHY
+	PUSHY
+	PUSHY
+	PUSHY
+	PUSHY
+	PUSHY
+	PUSHY
+	; main row 7
+	inx
+	lda #$08
+	PUSHY
+	lda tooth_tile_rows_hi,x
+	PUSHY
+	lda tooth_tile_rows_lo,x
+	PUSHY
+	lda #$08
+	PUSHY
+	PUSHY
+	PUSHY
+	PUSHY
+	PUSHY
+	PUSHY
+	PUSHY
+	PUSHY
+.skip_black_out
+
+.done
 	lda #$00
 	sta $100,y
 
 	rts
 
-	; can we blank a whole tooth?
-	lda wtf 
-	shift_r 5
-	beq .do_blackout
-	jmp .skip_black_out
-.do_blackout
-	; gumline
-	ldx #$00
-	lda gumline_nm_addr_hi,x
-	sta PPU_ADDR
-	lda gumline_nm_addr_lo,x
-	sta PPU_ADDR
-	ldy #$00
-	lda gumline_top_empty_tile_pattern,y
-	sta PPU_DATA
-	iny
-	lda gumline_top_empty_tile_pattern,y
-	sta PPU_DATA
-	iny
-	lda gumline_top_empty_tile_pattern,y
-	sta PPU_DATA
-	iny
-	lda gumline_top_empty_tile_pattern,y
-	sta PPU_DATA
-	iny
-	lda gumline_top_empty_tile_pattern,y
-	sta PPU_DATA
-	iny
-	lda gumline_top_empty_tile_pattern,y
-	sta PPU_DATA
-	iny
-	lda gumline_top_empty_tile_pattern,y
-	sta PPU_DATA
-	iny
-	lda gumline_top_empty_tile_pattern,y
-	sta PPU_DATA
-	; main row 0
-	ldx #$00
-	lda tooth_tile_rows_hi,x
-	sta PPU_ADDR
-	lda tooth_tile_rows_lo,x
-	sta PPU_ADDR
-	lda #$08
-	sta PPU_DATA
-	sta PPU_DATA
-	sta PPU_DATA
-	sta PPU_DATA
-	sta PPU_DATA
-	sta PPU_DATA
-	sta PPU_DATA
-	sta PPU_DATA
-	; main row 1
-	inx
-	lda tooth_tile_rows_hi,x
-	sta PPU_ADDR
-	lda tooth_tile_rows_lo,x
-	sta PPU_ADDR
-	lda #$08
-	sta PPU_DATA
-	sta PPU_DATA
-	sta PPU_DATA
-	sta PPU_DATA
-	sta PPU_DATA
-	sta PPU_DATA
-	sta PPU_DATA
-	sta PPU_DATA
-	; main row 2
-	inx
-	lda tooth_tile_rows_hi,x
-	sta PPU_ADDR
-	lda tooth_tile_rows_lo,x
-	sta PPU_ADDR
-	lda #$08
-	sta PPU_DATA
-	sta PPU_DATA
-	sta PPU_DATA
-	sta PPU_DATA
-	sta PPU_DATA
-	sta PPU_DATA
-	sta PPU_DATA
-	sta PPU_DATA
-	; main row 3
-	inx
-	lda tooth_tile_rows_hi,x
-	sta PPU_ADDR
-	lda tooth_tile_rows_lo,x
-	sta PPU_ADDR
-	lda #$08
-	sta PPU_DATA
-	sta PPU_DATA
-	sta PPU_DATA
-	sta PPU_DATA
-	sta PPU_DATA
-	sta PPU_DATA
-	sta PPU_DATA
-	sta PPU_DATA
-	; main row 4
-	inx
-	lda tooth_tile_rows_hi,x
-	sta PPU_ADDR
-	lda tooth_tile_rows_lo,x
-	sta PPU_ADDR
-	lda #$08
-	sta PPU_DATA
-	sta PPU_DATA
-	sta PPU_DATA
-	sta PPU_DATA
-	sta PPU_DATA
-	sta PPU_DATA
-	sta PPU_DATA
-	sta PPU_DATA
-	; main row 5
-	inx
-	lda tooth_tile_rows_hi,x
-	sta PPU_ADDR
-	lda tooth_tile_rows_lo,x
-	sta PPU_ADDR
-	lda #$08
-	sta PPU_DATA
-	sta PPU_DATA
-	sta PPU_DATA
-	sta PPU_DATA
-	sta PPU_DATA
-	sta PPU_DATA
-	sta PPU_DATA
-	sta PPU_DATA
-	; main row 6
-	inx
-	lda tooth_tile_rows_hi,x
-	sta PPU_ADDR
-	lda tooth_tile_rows_lo,x
-	sta PPU_ADDR
-	lda #$08
-	sta PPU_DATA
-	sta PPU_DATA
-	sta PPU_DATA
-	sta PPU_DATA
-	sta PPU_DATA
-	sta PPU_DATA
-	sta PPU_DATA
-	sta PPU_DATA
-	; main row 7
-	inx
-	lda tooth_tile_rows_hi,x
-	sta PPU_ADDR
-	lda tooth_tile_rows_lo,x
-	sta PPU_ADDR
-	lda #$08
-	sta PPU_DATA
-	sta PPU_DATA
-	sta PPU_DATA
-	sta PPU_DATA
-	sta PPU_DATA
-	sta PPU_DATA
-	sta PPU_DATA
-	sta PPU_DATA
-.skip_black_out
-
-.done
-	rts
-	jmp nmi_render_done

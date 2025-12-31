@@ -1,6 +1,7 @@
 
 ; ent_r3 direction
 ; ent_r4 up/down dir
+; ent_r5 ?brush cell_id?
 player_speed    eqm #$01
 
 ent_player_init: subroutine
@@ -112,11 +113,17 @@ ent_player_update: subroutine
 	shift_l 5
 	clc
 	adc temp00
-	sta ent_r5,x ;??
+	sta ent_r5,x ; cell_id
 	sta temp01
+	; check tooth is present
+	tax
+	lda tooth_cell2tooth,x
+	tax
+	lda tooth_total_dmg,x
+	bmi .skip_tooth_clean
 	; decrease tooth damage
 	; but not less than 0
-	tax
+	ldx temp01
 	lda $600,x
 	;cmp #$0f
 	beq .skip_tooth_clean

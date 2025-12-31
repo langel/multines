@@ -5,7 +5,7 @@
 ; ent_r3 direction
 ;	000000x0 left/right
 ;	0000000x up/down
-; ?? ent_r5 temp tooth cell id?
+; ent_r5 temp tooth cell id
 ; ent_r6 z pos sort up
 ; ent_r7 z pos sort down
 
@@ -130,11 +130,18 @@ ent_germ_update: subroutine
 	shift_l 5
 	clc
 	adc temp00
-	sta ent_r5,x ;??
+	sta ent_r5,x ; cell_id
 	sta temp01
+	; check tooth is present
+	tax
+	lda tooth_cell2tooth,x
+	tax
+	lda tooth_total_dmg,x
+	bmi .skip_tooth_dmg
+	; xxx check tooth is cleared
 	; increase tooth damage
 	; but it maxes it
-	tax
+	ldx temp01
 	lda $600,x
 	cmp #$0f
 	beq .skip_tooth_dmg
