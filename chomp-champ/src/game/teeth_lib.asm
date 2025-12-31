@@ -1,22 +1,51 @@
 
 ; to do
-;	render system for dirt tiles
-;  queue system for render system
+;	update teeth dmg and dirt tiles when loading level
+
+teeth_init: subroutine
+	; called after fresh playfield is drawn
+	; requires dirt populated in cells
+	; adds up total_dmg for each tooth
+	; renders all dirt on playfield
+	ldx #$00
+	stx tooth_index
+.each_tooth
+	; total dmg and render cells
+	lda #$00
+	sta temp00 ; dmg
+
+	; render gumline
+
+	; next tooth
+	inc tooth_index
+	ldx tooth_index
+	cpx #$10
+	bne .each_tooth
+	rts
 
 
+; xxx need to check for:
+;	game over (all teeth gone)
+;  level complete (all teeth are clean or gone)
 teeth_update: subroutine
-	; adds up dirt value of all 16 cells of tooth_id based on frame counter
+	; adds up dirt value of all 16 cells of tooth_index based on frame counter
 	; temp00 = addend
-	; temp01 = tooth_id
 	; temp02 = eol
 	; destroys x+y
-	lda wtf
-	and #$0f
-	sta tooth_index
-	tax
+	ldx tooth_index
+.next_tooth
+	inx
+	cpx #$10
+	bne .dont_wrap
+	ldx #$00
+.dont_wrap
 	lda tooth_total_dmg,x
-	bmi .tooth_lost
-	lda tooth_index
+	; xxx this bricks
+	;beq .next_tooth
+	bmi .next_tooth
+	stx tooth_index
+	; update dmg count
+	txa
 	shift_l 4
 	tax
 	clc
@@ -40,6 +69,7 @@ teeth_update: subroutine
 	rts
 
 
+; xxx no longer in use
 tooth_health_update: subroutine
 	; a = tooth id
 	; temp00 = addend

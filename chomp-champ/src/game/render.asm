@@ -49,6 +49,7 @@ state_game_prerender: subroutine
 	bcc .no_blackout
 	jmp .do_blackout
 .no_blackout
+
 	; update cells
 	ldx tooth_update_queue_size
 	bne .queue_loop
@@ -238,44 +239,34 @@ state_game_prerender: subroutine
 	; top row of cell
 	ldy temp03
 	lda #$02 ; number of render steps
-	sta $100,y
-	iny
+	PUSHY
 	lda tooth_needs_update,x
 	stx temp00
 	tax
 	lda tooth_cell2nm_hi,x
-	sta $100,y
-	iny
+	PUSHY
 	lda tooth_cell2nm_lo,x
-	sta $100,y
-	iny
+	PUSHY
 	lda tooth_tile_cache+0
-	sta $100,y
-	iny
+	PUSHY
 	lda tooth_tile_cache+1
-	sta $100,y
-	iny
+	PUSHY
 	; bottom row of cell
 	lda #$02 ; number of render steps
-	sta $100,y
-	iny
+	PUSHY
 	ldx temp00
 	lda tooth_needs_update,x
 	tax
 	lda tooth_cell2nm_hi,x
-	sta $100,y
-	iny
+	PUSHY
 	lda tooth_cell2nm_lo,x
 	clc
 	adc #$20
-	sta $100,y
-	iny
+	PUSHY
 	lda tooth_tile_cache+2
-	sta $100,y
-	iny
+	PUSHY
 	lda tooth_tile_cache+3
-	sta $100,y
-	iny
+	PUSHY
 	sty temp03
 	ldx temp00
 	jmp .render_cell_done
