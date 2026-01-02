@@ -63,6 +63,20 @@ state_game_init: subroutine
 	jsr ent_food_spawn
 	jsr ent_food_spawn
 
+
+	; create some tooth dirt
+	lda #$00
+.dirt_loop
+	tax
+	inc $600,x
+	txa
+	clc
+	adc #$11
+	bcc .dirt_loop
+
+	jsr teeth_init
+
+
 	; load palette
 	ldx #$00
 .pal_loop

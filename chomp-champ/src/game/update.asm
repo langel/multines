@@ -48,6 +48,10 @@ state_game_update: subroutine
 ;	lda #%00011000 ; diable left 8 pixels row
 ;	sta PPU_MASK
 
+	; xxx need to check level status
+	; game over all teeth gone
+	; next level all teeth clean or gone
+
 	jsr ent_z_update
 
 	jsr teeth_update

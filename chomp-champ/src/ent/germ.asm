@@ -139,6 +139,7 @@ ent_germ_update: subroutine
 	lda tooth_total_dmg,x
 	bmi .skip_tooth_dmg
 	; xxx check tooth is cleared
+	beq .skip_tooth_dmg
 	; increase tooth damage
 	; but it maxes it
 	ldx temp01
