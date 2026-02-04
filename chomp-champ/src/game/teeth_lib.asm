@@ -18,10 +18,14 @@ teeth_init: subroutine
 	ldx #$10
 	ldy temp01
 .add_up_dmg
+	stx temp02
 	lda teeth_cell_tables,y
+	tax
+	lda $600,x
 	adc temp00
 	sta temp00
 	iny
+	ldx temp02
 	dex
 	bne .add_up_dmg
 	sty temp01

@@ -71,7 +71,7 @@ state_game_init: subroutine
 	inc $600,x
 	txa
 	clc
-	adc #$11
+	adc #$0b
 	bcc .dirt_loop
 
 	jsr teeth_init

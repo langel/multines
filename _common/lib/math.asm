@@ -1,4 +1,42 @@
 
+distance_calc: subroutine
+	; uses collision registers
+	; destroys temp00, temp01
+	; returns distance in a
+	sec
+	lda collision_0_x
+	sbc collision_1_x
+	bcs .x_done
+	eor #$ff ; abs()
+	adc #$01
+.x_done
+	sta temp00 ; x distance
+	sec
+	lda collision_0_y
+	sbc collision_1_y
+	bcs .y_done
+	eor #$ff ; abs()
+	adc #$01
+.y_done
+	sta temp01 ; y distance
+	; check which is larger
+	; then: max + min / 2
+	lda temp00
+	cmp temp01
+	bcs .y_smaller
+.x_smaller
+	lda temp00
+	lsr
+	clc
+	adc temp01
+	rts
+.y_smaller
+	lda temp01
+	lsr
+	clc
+	adc temp00
+	rts
+
 
 shift_divide_7_into_8: subroutine
 	; temp00 dividend
@@ -83,6 +121,43 @@ shift_divide_15_into_16: subroutine
 	dex
 	bne .loop	
 	rts
+
+
+shift_divide_16: subroutine
+	; kills x y
+	; temp00 = dividend lo
+	; temp01 = dividend hi
+	; temp02 = divisor lo
+	; temp03 = divisor hi
+	; RETURNS
+	; temp00 = result lo
+	; temp01 = result hi
+	; temp04 = remainder lo
+	; temp05 = remainder hi
+	lda #0
+	sta temp04
+	sta temp05
+	ldx #$10
+.shift
+	asl temp00
+	rol temp01
+	rol temp04
+	rol temp05
+	lda temp04
+	sec
+	sbc temp02
+	tay
+	lda temp05
+	sbc temp03
+	bcc .skip
+	sta temp05
+	sty temp04
+	inc temp00
+.skip
+	dex
+	bne .shift
+	rts
+
 
 
 shift_multiply: subroutine

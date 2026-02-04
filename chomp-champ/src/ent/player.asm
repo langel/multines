@@ -1,4 +1,6 @@
 
+; ent_r0 animation frame
+; ent_r1 animation counter
 ; ent_r3 direction
 ; ent_r4 up/down dir
 ; ent_r5 ?brush cell_id?
@@ -15,6 +17,8 @@ ent_player_init: subroutine
 	sta player_y
 	; player direction
 	lda #$00
+	sta ent_r0,x
+	sta ent_r1,x
 	sta ent_r3,x
 	rts
 
@@ -141,71 +145,165 @@ ent_player_update: subroutine
 
 
 ent_player_render:
-	; pattern
-	lda wtf
-	shift_r 3
-	and #$01
-	asl
-	sta temp00
-	asl
-	asl
-	clc
-	adc #$80
+	inc ent_r1,x
+	lda ent_r1,x
+	cmp #$05
+	bne .not_next_frame
+	lda #$00
+	sta ent_r1,x
+	inc ent_r0,x
+	lda ent_r0,x
+	cmp #$04
+	bne .not_next_frame
+	lda #$00
+	sta ent_r0,x
+.not_next_frame
+	; get direction
+	lda ent_r3,x
+	bpl .walking_right
+	jmp .walking_left
+.walking_right
+	lda ent_r0,x
+	shift_l 2
+	tax
+	; sprite 0
+	lda player_walk_right_spr,x
 	sta spr_p,y
-	adc #$02
-	sta spr_p+4,y
-	; (brush)
-	adc #$02
-	sta spr_p+8,y
-	adc #$02
-	sta spr_p+12,y
-	; 2nd row
-	adc #$1a
-	;adc #$0f
-	sta spr_p+16,y
-	adc #$02
-	sta spr_p+20,y
-	; attr
 	lda #$00
 	sta spr_a,y
-	sta spr_a+4,y
-	sta spr_a+8,y
-	sta spr_a+12,y
-	sta spr_a+16,y
-	sta spr_a+20,y
-	; x
 	sec
 	lda player_x
 	sbc scroll_x
 	sta spr_x,y
-	sta spr_x+8,y
-	sta spr_x+16,y
-	clc
-	adc #$08
-	sta spr_x+4,y
-	sta spr_x+20,y
-	adc #$08
-	sta spr_x+8,y
-	adc #$08
-	sta spr_x+12,y
-	; y
 	lda player_y
 	sta spr_y,y
-	sta spr_y+4,y
+	inc_y 4
+	; sprite 1
+	inx
+	lda player_walk_right_spr,x
+	sta spr_p,y
+	lda #$00
+	sta spr_a,y
+	sec
+	lda player_x
+	sbc scroll_x
 	clc
-	adc #$10
-	sta spr_y+16,y
-	sta spr_y+20,y
-	; (y brush)
+	adc #$08
+	sta spr_x,y
+	lda player_y
+	sta spr_y,y
+	inc_y 4
+	; sprite 2
+	inx
+	lda player_walk_right_spr,x
+	sta spr_p,y
+	lda #$00
+	sta spr_a,y
+	sec
+	lda player_x
+	sbc scroll_x
+	sta spr_x,y
 	lda player_y
 	clc
-	adc temp00
-	sta spr_y+8,y
-	sta spr_y+12,y
-
-	tya
+	adc #$10
+	sta spr_y,y
+	inc_y 4
+	; sprite 3
+	inx
+	lda player_walk_right_spr,x
+	sta spr_p,y
+	lda #$00
+	sta spr_a,y
+	sec
+	lda player_x
+	sbc scroll_x
 	clc
-	adc #24
-	tay
+	adc #$08
+	sta spr_x,y
+	lda player_y
+	clc
+	adc #$10
+	sta spr_y,y
+	inc_y 4
+	jmp .walking_done
+.walking_left
+	lda ent_r0,x
+	shift_l 2
+	tax
+	; sprite 0
+	lda player_walk_left_spr,x
+	sta spr_p,y
+	lda #$40
+	sta spr_a,y
+	sec
+	lda player_x
+	sbc scroll_x
+	sta spr_x,y
+	lda player_y
+	sta spr_y,y
+	inc_y 4
+	; sprite 1
+	inx
+	lda player_walk_left_spr,x
+	sta spr_p,y
+	lda #$40
+	sta spr_a,y
+	sec
+	lda player_x
+	sbc scroll_x
+	clc
+	adc #$08
+	sta spr_x,y
+	lda player_y
+	sta spr_y,y
+	inc_y 4
+	; sprite 2
+	inx
+	lda player_walk_left_spr,x
+	sta spr_p,y
+	lda #$40
+	sta spr_a,y
+	sec
+	lda player_x
+	sbc scroll_x
+	sta spr_x,y
+	lda player_y
+	clc
+	adc #$10
+	sta spr_y,y
+	inc_y 4
+	; sprite 3
+	inx
+	lda player_walk_left_spr,x
+	sta spr_p,y
+	lda #$40
+	sta spr_a,y
+	sec
+	lda player_x
+	sbc scroll_x
+	clc
+	adc #$08
+	sta spr_x,y
+	lda player_y
+	clc
+	adc #$10
+	sta spr_y,y
+	inc_y 4
+.walking_done
 
 	jmp ent_z_render_return
+
+
+
+player_walk_right_spr:
+	hex 80 82 a0 a2
+	hex 84 86 a4 a6
+	hex 88 8a a8 aa
+	hex 84 86 a4 a6
+
+player_walk_left_spr:
+	hex 82 80 a2 a0
+	hex 86 84 a6 a4
+	hex 8a 88 aa a8
+	hex 86 84 a6 a4
+
