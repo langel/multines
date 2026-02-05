@@ -151,7 +151,7 @@ ent_z_render_return:
 
 
 	MAC ent_z_calc_sort_vals
-	; call with z pos in a
+	; call with z pos + height in a
 	sec
 	sbc #$20 ; magic number?
 	sta temp00
