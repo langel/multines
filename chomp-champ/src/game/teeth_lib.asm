@@ -71,7 +71,7 @@ teeth_update: subroutine
 .dont_wrap
 	lda tooth_total_dmg,x
 	; xxx this bricks
-	beq .next_tooth
+	;beq .next_tooth
 	bmi .next_tooth
 	stx tooth_index
 	; update dmg count

@@ -27,8 +27,6 @@ state_game_render: subroutine
 .done
 	ldx temp00
 	txs
-	lda #$00
-	sta tooth_update_queue_size
 	jmp nmi_render_done
 
 
@@ -50,15 +48,28 @@ state_game_prerender: subroutine
 	jmp .do_blackout
 .no_blackout
 
+	; throttle number of cells to
+	; render per frame
+	lda #$04
+	sta temp07
+
 	; update cells
 	ldx tooth_update_queue_size
 	bne .queue_loop
 	jmp .tooth_cells_done
 .queue_loop
 	dex
+	stx tooth_update_queue_size
 	; precalc the 4 tiles
 	lda tooth_needs_update,x
 	tay
+	lda tooth_cell2tooth,y
+	tax
+	lda tooth_total_dmg,x
+	bpl .tooth_not_dead
+.no_render
+	jmp .cell_not_rendered_bc_tooth_dead
+.tooth_not_dead
 	lda tooth_cell_dmg,y
 	bne .render_dirt
 	jmp .render_clean
@@ -236,6 +247,7 @@ state_game_prerender: subroutine
 .edge_check_clean_done
 
 .plot_render
+	ldx tooth_update_queue_size
 	; top row of cell
 	ldy temp03
 	lda #$02 ; number of render steps
@@ -272,12 +284,14 @@ state_game_prerender: subroutine
 	jmp .render_cell_done
 
 .render_cell_done
+	; check cells throttle
+	dec temp07
+	beq .tooth_cells_done
+.cell_not_rendered_bc_tooth_dead
 	; next cell
-	txa
+	ldx tooth_update_queue_size
 	bne .do_loop
 	; loop done
-	ldx #$00
-	stx tooth_update_queue_size
 	jmp .tooth_cells_done
 .do_loop
 	jmp .queue_loop
@@ -439,10 +453,37 @@ state_game_prerender: subroutine
 	jmp .skip_black_out
 
 
-	; xxx check tooth for cleared
+	; tooth_total_dmg >= #$40
+	; routed here from top of prerender
 .do_blackout
+	; set blackout status
 	ora #$80
 	sta tooth_total_dmg,x
+	; dirty neighboring teeths
+	stx temp00
+	sty temp01
+	txa
+	shift_l 3
+	tay
+	MAC DEADTOOTH_NEIGHBOR_DIRTEN
+	lda tooth_dead_neighbor_dirt,y
+	tax
+	inc $600,x
+	iny
+	ldx tooth_update_queue_size
+	sta tooth_needs_update,x
+	inc tooth_update_queue_size
+	ENDM
+	DEADTOOTH_NEIGHBOR_DIRTEN
+	DEADTOOTH_NEIGHBOR_DIRTEN
+	DEADTOOTH_NEIGHBOR_DIRTEN
+	DEADTOOTH_NEIGHBOR_DIRTEN
+	DEADTOOTH_NEIGHBOR_DIRTEN
+	DEADTOOTH_NEIGHBOR_DIRTEN
+	DEADTOOTH_NEIGHBOR_DIRTEN
+	DEADTOOTH_NEIGHBOR_DIRTEN
+	ldx temp00
+	ldy temp01
 	; gumline
 	lda #$08
 	PUSHY

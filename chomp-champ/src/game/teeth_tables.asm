@@ -151,3 +151,41 @@ tooth_main_attr_bottom_lo:
 	hex d8 da dc de
 	hex e8 ea ec ee
 	hex e8 ea ec ee
+
+
+tooth_dead_neighbor_dirt:
+	; top row
+	; tooth 0
+	hex 04 24 44 64 04 24 44 64
+	; tooth 1
+	hex 03 23 43 63 08 28 48 68
+	; tooth 2
+	hex 07 27 47 67 0c 2c 4c 6c
+	; tooth 3
+	hex 0b 2b 4b 6b 10 30 50 70
+	; tooth 4
+	hex 0f 2f 4f 6f 14 34 54 74
+	; tooth 5
+	hex 13 33 53 73 18 38 58 78
+	; tooth 6
+	hex 17 37 57 77 1c 3c 5c 7c
+	; tooth 7
+	hex 1b 3b 5b 7b 1b 3b 5b 7b
+	; bottom row
+	; tooth 8
+	hex 84 a4 c4 e4 84 a4 c4 e4
+	; tooth 9
+	hex 83 a3 c3 e3 88 a8 c8 e8
+	; tooth a
+	hex 87 a7 c7 e7 8c ac cc ec
+	; tooth b
+	hex 8b ab cb eb 90 b0 d0 f0
+	; tooth c
+	hex 8f af cf ef 94 b4 d4 f4
+	; tooth d
+	hex 93 b3 d3 f3 98 b8 d8 f8
+	; tooth e
+	hex 97 b7 d7 f7 9c bc dc fc
+	; tooth f
+	hex 9b bb db fb 9b bb db fb
+
