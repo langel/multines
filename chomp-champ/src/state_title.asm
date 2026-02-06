@@ -7,6 +7,10 @@ state_title_init: subroutine
 
 	lda #CTRL_8x8
 	sta ppu_ctrl_ora
+	lda #$00
+	sta scroll_nm
+	sta scroll_x
+	sta scroll_y
 	jsr ent_big_teef_spawn
 
 	lda #$08

@@ -62,6 +62,7 @@ teeth_update: subroutine
 	; temp00 = addend
 	; temp02 = eol
 	; destroys x+y
+	jsr check_mouth_state
 	ldx tooth_index
 .next_tooth
 	inx
@@ -69,11 +70,12 @@ teeth_update: subroutine
 	bne .dont_wrap
 	ldx #$00
 .dont_wrap
+	stx tooth_index
 	lda tooth_total_dmg,x
+	bmi .tooth_lost
 	; xxx this bricks
 	;beq .next_tooth
-	bmi .next_tooth
-	stx tooth_index
+	;bmi .next_tooth
 	; update dmg count
 	txa
 	shift_l 4
@@ -88,6 +90,7 @@ teeth_update: subroutine
 	lda teeth_cell_tables,x
 	tay
 	lda $600,y
+	clc
 	adc temp00
 	sta temp00
 	inx
@@ -96,6 +99,31 @@ teeth_update: subroutine
 	ldx tooth_index
 	sta tooth_total_dmg,x
 .tooth_lost
+	rts
+
+
+check_mouth_state: subroutine
+	lda #$00
+	sta temp00 ; dead counter
+	sta temp01 ; clean counter
+	ldx #$0f
+.loop
+	lda tooth_total_dmg,x
+	bpl .not_dead
+	inc temp00
+	jmp .tooth_checked
+.not_dead
+	bne .tooth_checked
+	inc temp01
+.tooth_checked
+	dex
+	bpl .loop
+	lda temp00
+	cmp #$10
+	bne .not_gameover
+	jsr state_gameover_init
+	;jmp nmi_update_done
+.not_gameover
 	rts
 
 
