@@ -3,6 +3,8 @@ state_game_update: subroutine
 
 	jsr render_enable
 
+	jsr controller_read
+
 	; camera
 	lda player_x_hi
 	bne .not_left

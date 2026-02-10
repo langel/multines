@@ -9,7 +9,7 @@
 ; ent_r2 animation counter
 ; ent_r3 direction
 ; ent_r4 up/down dir
-; ent_r5 ?brush cell_id?
+; ent_r5 brush target cell_id
 
 player_speed    eqm #$01
 
@@ -18,7 +18,7 @@ ent_player_init: subroutine
 	ldx #$00
 	lda #ent_player_id
 	sta ent_type,x
-	lda #$20
+	lda #$e0
 	sta player_x
 	lda #$90
 	sta player_y
@@ -68,9 +68,9 @@ player_state_update_return:
 	; (player_x / 16) 
 	; +
 	; ((player_y / 16) * 32)
-	lda ent_x_hi,x
+	lda player_x_hi,x
 	lsr
-	lda ent_x,x
+	lda player_x,x
 	ror
 	sta temp00
 	; check left/right dir
@@ -79,47 +79,25 @@ player_state_update_return:
 .tooth_cell_right
 	lda temp00
 	clc
-	adc #$10
+	adc #$0c
 	jmp .tooth_cell_dir_done
 .tooth_cell_left
 	lda temp00
 	sec
-	sbc #$08
+	sbc #$04
 .tooth_cell_dir_done
 	shift_r 3
 	sta temp00
-	lda ent_y,x
+	lda player_y,x
 	sec
-	sbc #$37
-	clc
-	adc #$18
+	sbc #$30
+	;clc
+	;adc #$18
 	shift_r 4
 	shift_l 5
 	clc
 	adc temp00
 	sta ent_r5,x ; cell_id
-	sta temp01
-	; check tooth is present
-	tax
-	lda tooth_cell2tooth,x
-	tax
-	lda tooth_total_dmg,x
-	bmi .skip_tooth_clean
-	; decrease tooth damage
-	; but not less than 0
-	ldx temp01
-	lda $600,x
-	;cmp #$0f
-	beq .skip_tooth_clean
-	dec $600,x
-	; add tooth cell to update queue
-	txa
-	ldx tooth_update_queue_size
-	sta tooth_needs_update,x
-	inc tooth_update_queue_size
-	; log tooth change
-.skip_tooth_clean
-	ldx ent_slot
 
 	jmp ent_z_update_return
 
@@ -270,6 +248,37 @@ player_state_1_update: subroutine
 
 	; brushing
 player_state_2_update: subroutine
+	; xxx tmep player controls
+	lda controller1
+	and #BUTTON_UP
+	beq .not_up
+	dec player_y
+.not_up
+	lda controller1
+	and #BUTTON_RIGHT
+	beq .not_right
+	lda #$00
+	sta ent_r3,x
+	inc player_x
+	bne .not_right
+	inc player_x_hi
+.not_right
+	lda controller1
+	and #BUTTON_DOWN
+	beq .not_down
+	inc player_y
+.not_down
+	lda controller1
+	and #BUTTON_LEFT
+	beq .not_left
+	lda #$ff
+	sta ent_r3,x
+	dec player_x
+	lda player_x
+	cmp #$ff
+	bne .not_left
+	dec player_x_hi
+.not_left
 	; animation frames
 	inc ent_r2,x
 	lda ent_r2,x
@@ -284,6 +293,29 @@ player_state_2_update: subroutine
 	lda #$00
 	sta ent_r1,x
 .not_next_frame
+	; check cell tooth
+	lda ent_r5,x
+	sta temp00
+	tax
+	lda tooth_cell2tooth,x
+	tax
+	lda tooth_total_dmg,x
+	bmi .cell_clean_done
+	; check cell 
+	ldx temp00
+	lda $600,x
+	beq .cell_clean_done
+	lda wtf
+	and #$03 ; frames to clean cell 1 dmg
+	bne .cell_clean_done
+	dec $600,x
+	; add tooth cell to update queue
+	txa
+	ldx tooth_update_queue_size
+	sta tooth_needs_update,x
+	inc tooth_update_queue_size
+.cell_clean_done
+	ldx ent_slot
 	jmp player_state_update_return
 
 	; flossing

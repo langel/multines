@@ -134,4 +134,39 @@ teeth_init_playfield: subroutine
 .done_nametabling
 
 
+level_dirty:
+	; render dirty teeth cells
+	lda #$00
+	sta tooth_index
+	sta state00 ; cell counter
+	sta state01 ; call counter
+.dirty_loop
+	ldx state00
+	stx tooth_needs_update
+	inx
+	stx tooth_needs_update+1
+	inx
+	stx tooth_needs_update+2
+	inx
+	stx tooth_needs_update+3
+	inx
+	stx state00
+	lda #$04
+	sta tooth_update_queue_size
+	jsr state_game_prerender
+	jsr state_level_render
+	inc state01
+	lda state01
+	and #$03
+	bne .not_next_tooth
+	inc tooth_index
+.not_next_tooth
+	lda tooth_index
+	cmp #$10
+	bne .dirty_loop
+
+	lda #$00
+	sta tooth_index
+	sta tooth_update_queue_size
+
 	rts

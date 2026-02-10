@@ -30,6 +30,36 @@ state_game_render: subroutine
 	jmp nmi_render_done
 
 
+state_level_render: subroutine
+	; uses popslide
+	; 1st byte : number of steps
+	;       0 = no more tasks
+	; 2nd byte : ppu addr hi
+	; 3rd byte : ppu addr lo
+	; then step bytes
+	tsx
+	stx temp00
+	ldx #$ff
+	txs
+.task_next
+	pla
+	beq .done
+	tay
+	pla
+	sta PPU_ADDR
+	pla 
+	sta PPU_ADDR
+.yloop
+	pla
+	sta PPU_DATA
+	dey
+	bne .yloop
+	jmp .task_next
+.done
+	ldx temp00
+	txs
+	rts
+
 
 state_game_prerender: subroutine
 
