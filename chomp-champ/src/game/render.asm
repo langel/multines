@@ -30,6 +30,7 @@ state_game_render: subroutine
 	jmp nmi_render_done
 
 
+	; called to render dirt by level init
 state_level_render: subroutine
 	; uses popslide
 	; 1st byte : number of steps

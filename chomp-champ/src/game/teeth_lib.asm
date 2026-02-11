@@ -118,12 +118,20 @@ check_mouth_state: subroutine
 .tooth_checked
 	dex
 	bpl .loop
+	; check for game over
 	lda temp00
 	cmp #$10
 	bne .not_gameover
 	jsr state_gameover_init
-	;jmp nmi_update_done
 .not_gameover
+	; check for next level
+	lda temp00
+	clc
+	adc temp01
+	cmp #$10
+	bne .not_nextlevel
+	jsr state_nextlevel_init
+.not_nextlevel
 	rts
 
 
