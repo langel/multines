@@ -9,7 +9,7 @@
 ; ent_r2 animation counter
 ; ent_r3 direction
 ; ent_r4 up/down dir
-; ent_r5 brush target cell_id
+; ent_r5 brush/floss target cell_id
 
 player_speed    eqm #$01
 
@@ -35,42 +35,132 @@ ent_player_init: subroutine
 	sta ent_r3,x
 	rts
 
+/*
+	demo mode
+		player stops and cleans dirt detected
+*/
+
+
+player_velocities:
+	hex 00 01 ; slow ordinal
+	hex b5 00 ; slow diagonal
+	hex d4 02 ; fast ordinal
+	hex 00 02 ; fast diagonal
 
 ent_player_update: subroutine
 
-	; run state updater
-	lda ent_r0,x
-	bne .not_state_0_update
-	jmp player_state_0_update
-.not_state_0_update
-	cmp #$01
-	bne .not_state_1_update
-	jmp player_state_1_update
-.not_state_1_update
-	cmp #$02
-	bne .not_state_2_update
-	jmp player_state_2_update
-.not_state_2_update
-	cmp #$03
-	bne .not_state_3_update
-	jmp player_state_3_update
-.not_state_3_update
-	jmp player_state_4_update
-player_state_update_return:
-
-	; set z position
-	lda player_y
+	; handle direction
+	lda #$00
+	sta temp00
+	lda controller1
+	and #BUTTON_LEFT|BUTTON_RIGHT
+	beq .not_left_or_right
+	inc temp00
+.not_left_or_right
+	lda controller1
+	and #BUTTON_UP|BUTTON_DOWN
+	beq .not_up_or_down
+	inc temp00
+.not_up_or_down
+	; set player_moving flag
+	lda #$00
+	sta player_moving
+	lda temp00
+	bne .is_moving
+	jmp .not_moving
+.is_moving
+	inc player_moving
+	; setup ordinal/diagonal offset
+	lda temp00
+	sec
+	sbc #$01
+	asl
+	sta temp00
+	; set velocity speeds
+	lda controller1
+	and #BUTTON_B|BUTTON_A
+	bne .velocity_set
+	lda #$04
 	clc
-	adc #$20
-	ent_z_calc_sort_vals
-
+	adc temp00
+	sta temp00
+.velocity_set
+	ldx temp00
+	; do add/sub for each axi
+	lda controller1
+	and #BUTTON_LEFT
+	beq .not_left
+	lda player_x_lo
+	sec
+	sbc player_velocities,x
+	sta player_x_lo
+	lda player_x
+	sbc player_velocities+1,x
+	sta player_x
+	lda player_x_hi
+	sbc #$00
+	sta player_x_hi
+	lda controller1
+	and #BUTTON_B|BUTTON_A
+	bne .not_left
+	lda #$ff
+	ldx ent_slot
+	sta ent_r3,x
+	ldx temp00
+.not_left
+	lda controller1
+	and #BUTTON_RIGHT
+	beq .not_right
+	lda player_x_lo
+	clc
+	adc player_velocities,x
+	sta player_x_lo
+	lda player_x
+	adc player_velocities+1,x
+	sta player_x
+	lda player_x_hi
+	adc #$00
+	sta player_x_hi
+	lda controller1
+	and #BUTTON_B|BUTTON_A
+	bne .not_right
+	lda #$00
+	ldx ent_slot
+	sta ent_r3,x
+	ldx temp00
+.not_right
+	lda controller1
+	and #BUTTON_UP
+	beq .not_up
+	lda player_y_lo
+	sec
+	sbc player_velocities,x
+	sta player_y_lo
+	lda player_y
+	sbc player_velocities+1,x
+	sta player_y
+.not_up
+	lda controller1
+	and #BUTTON_DOWN
+	beq .not_down
+	lda player_y_lo
+	clc
+	adc player_velocities,x
+	sta player_y_lo
+	lda player_y
+	adc player_velocities+1,x
+	sta player_y
+.not_down
+.not_moving
+	ldx ent_slot
+	
 	; calc tooth position
 	; (player_x / 16) 
 	; +
 	; ((player_y / 16) * 32)
-	lda player_x_hi,x
+	lda player_x_hi
 	lsr
-	lda player_x,x
+	lda player_x
 	ror
 	sta temp00
 	; check left/right dir
@@ -88,42 +178,88 @@ player_state_update_return:
 .tooth_cell_dir_done
 	shift_r 3
 	sta temp00
-	lda player_y,x
+	lda player_y
 	sec
 	sbc #$30
-	;clc
-	;adc #$18
 	shift_r 4
 	shift_l 5
 	clc
 	adc temp00
 	sta ent_r5,x ; cell_id
 
+	; reset render state
+	lda #$00
+	sta ent_r0,x
+	; check for movement
+	lda player_moving
+	beq .skip_movement
+	lda #$01
+	sta ent_r0,x
+.skip_movement
+	; check for brushing
+	lda controller1
+	and #BUTTON_B
+	beq .skip_brushing
+	lda #$02
+	sta ent_r0,x
+	; check cell tooth
+	lda ent_r5,x
+	sta temp00
+	tax
+	lda tooth_cell2tooth,x
+	tax
+	lda tooth_total_dmg,x
+	bmi .cell_clean_done
+	; check cell 
+	ldx temp00
+	lda $600,x
+	beq .cell_clean_done
+	lda wtf
+	and #$03 ; frames to clean cell 1 dmg
+	bne .cell_clean_done
+	dec $600,x
+	; add tooth cell to update queue
+	txa
+	ldx tooth_update_queue_size
+	sta tooth_needs_update,x
+	inc tooth_update_queue_size
+.cell_clean_done
+.skip_brushing
+	ldx ent_slot
+
+	; set z position
+	lda player_y
+	clc
+	adc #$20
+	ent_z_calc_sort_vals
+
 	jmp ent_z_update_return
 
+
+	; RENDER HANDLER
+ent_player_render_lo:
+	byte <player_render_idle
+	byte <player_render_running
+	byte <player_render_brushing
+	byte <player_render_flossing
+	byte <player_render_death
+ent_player_render_hi:
+	byte >player_render_idle
+	byte >player_render_running
+	byte >player_render_brushing
+	byte >player_render_flossing
+	byte >player_render_death
 
 ent_player_render:
 	; run state updater
 	lda ent_r0,x
-	bne .not_state_0
-	jmp player_state_0_render
-.not_state_0
-	cmp #$01
-	bne .not_state_1
-	jmp player_state_1_render
-.not_state_1
-	cmp #$02
-	bne .not_state_2
-	jmp player_state_2_render
-.not_state_2
-	cmp #$03
-	bne .not_state_3
-	jmp player_state_3_render
-.not_state_3
-	jmp player_state_4_render
-player_state_render_return:
-
-	jmp ent_z_render_return
+	tax
+	lda ent_player_render_lo,x
+	sta temp00
+	lda ent_player_render_hi,x
+	sta temp01
+	ldx ent_slot
+	jmp (temp00)
 
 
 
@@ -159,179 +295,10 @@ player_brush_x_offset:
 	hex 04 05 06 05
 
 
-; UPDATES BY STATE
-
-	; idle / standing
-player_state_0_update: subroutine
-	jmp player_state_update_return
-
-	; walking
-player_state_1_update: subroutine
-	; player direction
-	lda ent_r3,x
-	bmi .go_left
-.go_right
-	clc
-	lda player_x
-	adc #player_speed
-	sta player_x
-	sta ent_x,x
-	lda player_x_hi
-	adc #$00
-	sta player_x_hi
-	sta ent_x_hi,x
-	; check right boundary
-	lda player_x_hi
-	beq .go_done
-	lda player_x
-	cmp #$e0
-	bcc .go_done
-	lda #$ff
-	sta ent_r3,x
-.go_left
-	sec
-	lda player_x
-	sbc #player_speed
-	sta player_x
-	sta ent_x,x
-	lda player_x_hi
-	sbc #$00
-	sta player_x_hi
-	sta ent_x_hi,x
-	; check right boundary
-	lda player_x_hi
-	bne .go_done
-	lda player_x
-	cmp #$0e
-	bcs .go_done
-	lda #$00
-	sta ent_r3,x
-.go_done
-	lda player_x
-	sta ent_x,x
-	; move up/down
-	lda ent_r4,x
-	bne .go_up
-.go_down
-	inc player_y
-	inc ent_y,x
-	jmp .updown_move_done
-.go_up
-	dec player_y
-	dec ent_y,x
-.updown_move_done
-	lda player_y
-	cmp #$36
-	bcc .updown_reverse
-	cmp #$ae
-	bcc .updown_checked
-.updown_reverse
-	lda ent_r4,x
-	eor #$01
-	sta ent_r4,x
-.updown_checked
-	; animation frames
-	inc ent_r2,x
-	lda ent_r2,x
-	cmp #$05
-	bne .not_next_frame
-	lda #$00
-	sta ent_r2,x
-	inc ent_r1,x
-	lda ent_r1,x
-	cmp #$06
-	bne .not_next_frame
-	lda #$00
-	sta ent_r1,x
-.not_next_frame
-	jmp player_state_update_return
-
-	; brushing
-player_state_2_update: subroutine
-	; xxx tmep player controls
-	lda controller1
-	and #BUTTON_UP
-	beq .not_up
-	dec player_y
-.not_up
-	lda controller1
-	and #BUTTON_RIGHT
-	beq .not_right
-	lda #$00
-	sta ent_r3,x
-	inc player_x
-	bne .not_right
-	inc player_x_hi
-.not_right
-	lda controller1
-	and #BUTTON_DOWN
-	beq .not_down
-	inc player_y
-.not_down
-	lda controller1
-	and #BUTTON_LEFT
-	beq .not_left
-	lda #$ff
-	sta ent_r3,x
-	dec player_x
-	lda player_x
-	cmp #$ff
-	bne .not_left
-	dec player_x_hi
-.not_left
-	; animation frames
-	inc ent_r2,x
-	lda ent_r2,x
-	cmp #$05
-	bne .not_next_frame
-	lda #$00
-	sta ent_r2,x
-	inc ent_r1,x
-	lda ent_r1,x
-	cmp #$04
-	bne .not_next_frame
-	lda #$00
-	sta ent_r1,x
-.not_next_frame
-	; check cell tooth
-	lda ent_r5,x
-	sta temp00
-	tax
-	lda tooth_cell2tooth,x
-	tax
-	lda tooth_total_dmg,x
-	bmi .cell_clean_done
-	; check cell 
-	ldx temp00
-	lda $600,x
-	beq .cell_clean_done
-	lda wtf
-	and #$03 ; frames to clean cell 1 dmg
-	bne .cell_clean_done
-	dec $600,x
-	; add tooth cell to update queue
-	txa
-	ldx tooth_update_queue_size
-	sta tooth_needs_update,x
-	inc tooth_update_queue_size
-.cell_clean_done
-	ldx ent_slot
-	jmp player_state_update_return
-
-	; flossing
-player_state_3_update: subroutine
-	jmp player_state_update_return
-
-	; dying/dead
-player_state_4_update: subroutine
-	jmp player_state_update_return
-
-
 
 ; RENDERS BY STATE
 
-	; idle / standing
-player_state_0_render: subroutine
+player_render_idle: subroutine
 	lda player_x
 	sec
 	sbc scroll_x
@@ -386,11 +353,24 @@ player_state_0_render: subroutine
 	clc
 	adc #$10
 	tay
+	jmp ent_z_render_return
 
-	jmp player_state_render_return
 
-	; walking
-player_state_1_render: subroutine
+player_render_running: subroutine
+	; animation frames
+	inc ent_r2,x
+	lda ent_r2,x
+	cmp #$05
+	bcc .not_next_frame
+	lda #$00
+	sta ent_r2,x
+	inc ent_r1,x
+	lda ent_r1,x
+	cmp #$06
+	bcc .not_next_frame
+	lda #$00
+	sta ent_r1,x
+.not_next_frame
 	; get direction
 	lda ent_r3,x
 	bpl .walking_right
@@ -523,10 +503,24 @@ player_state_1_render: subroutine
 	sta spr_y,y
 	inc_y 4
 .walking_done
-	jmp player_state_render_return
+	jmp ent_z_render_return
 
-	; brushing
-player_state_2_render: subroutine
+
+player_render_brushing: subroutine
+	; animation frames
+	inc ent_r2,x
+	lda ent_r2,x
+	cmp #$05
+	bcc .not_next_frame
+	lda #$00
+	sta ent_r2,x
+	inc ent_r1,x
+	lda ent_r1,x
+	cmp #$04
+	bcc .not_next_frame
+	lda #$00
+	sta ent_r1,x
+.not_next_frame
 	; get brush offset
 	lda ent_r1,x
 	tax
@@ -595,9 +589,9 @@ player_state_2_render: subroutine
 	lda #$e2
 	sta spr_p+12,y
 	; brush
-	lda #$e4
+	lda #$ec
 	sta spr_p+16,y
-	lda #$e6
+	lda #$ee
 	sta spr_p+20,y
 	jmp .facing_done
 .facing_left
@@ -618,9 +612,9 @@ player_state_2_render: subroutine
 	lda #$e0
 	sta spr_p+12,y
 	; brush
-	lda #$e6
+	lda #$ee
 	sta spr_p+16,y
-	lda #$e4
+	lda #$ec
 	sta spr_p+20,y
 .facing_done
 	ldx ent_slot
@@ -628,12 +622,14 @@ player_state_2_render: subroutine
 	clc
 	adc #$18
 	tay
-	jmp player_state_render_return
+	jmp ent_z_render_return
 
-	; flossing
-player_state_3_render: subroutine
-	jmp player_state_render_return
 
-	; dying/dead
-player_state_4_render: subroutine
-	jmp player_state_render_return
+player_render_flossing: subroutine
+	jmp ent_z_render_return
+
+
+player_render_death: subroutine
+	jmp ent_z_render_return
+
+

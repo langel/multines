@@ -26,16 +26,19 @@ tooth_tile_cache    eqm $760
 tooth_update_queue_size byte
 tooth_index             byte
 
-; xxx probably delete these
+; used instead of ent registers
 player_x_hi   byte
 player_x      byte
 player_x_lo   byte
 player_y      byte
 player_y_lo   byte
 
+player_moving byte
+
 ; collision detection
 player_hit_x    byte
 player_hit_y    byte
 brush_hit_x     byte
 brush_hit_y     byte
+
 

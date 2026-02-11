@@ -5,6 +5,18 @@ state_game_update: subroutine
 
 	jsr controller_read
 
+	; debug visualization on
+	;lda #%00011111 ; b/w
+	;lda #%11111110 ; emph
+;	lda #%00011000 ; diable left 8 pixels row
+;	sta PPU_MASK
+
+	; xxx need to check level status
+	; game over all teeth gone
+	; next level all teeth clean or gone
+
+	jsr ent_z_update
+
 	; camera
 	lda player_x_hi
 	bne .not_left
@@ -43,18 +55,6 @@ state_game_update: subroutine
 	and #$01
 	sta scroll_nm
 .cam_done
-
-	; debug visualization on
-	;lda #%00011111 ; b/w
-	;lda #%11111110 ; emph
-;	lda #%00011000 ; diable left 8 pixels row
-;	sta PPU_MASK
-
-	; xxx need to check level status
-	; game over all teeth gone
-	; next level all teeth clean or gone
-
-	jsr ent_z_update
 
 	jsr teeth_update
 
