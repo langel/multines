@@ -153,6 +153,40 @@ ent_player_update: subroutine
 .not_down
 .not_moving
 	ldx ent_slot
+
+	; player playfield bound
+	lda player_x_hi
+	bne .screen_2
+.screen_1
+	lda player_x
+	cmp #$0c
+	bcs .bind_x_done
+	lda #$0c
+	sta player_x
+	jmp .bind_x_done
+.screen_2
+	lda player_x
+	cmp #$e0
+	bcc .bind_x_done
+	lda #$e0
+	sta player_x
+.bind_x_done
+	; check y position
+	lda player_y
+	cmp #$34
+	bcc .bound_top
+	cmp #$ac
+	bcs .bound_bottom
+	jmp .bind_y_done
+.bound_top
+	lda #$34
+	sta player_y
+	jmp .bind_y_done	
+.bound_bottom
+	lda #$ac
+	sta player_y
+.bind_y_done
+
 	
 	; calc tooth position
 	; (player_x / 16) 
