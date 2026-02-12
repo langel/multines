@@ -521,6 +521,13 @@ player_render_brushing: subroutine
 	lda #$00
 	sta ent_r1,x
 .not_next_frame
+	; bound frame counter
+	lda ent_r1,x
+	cmp #$04
+	bcc .frame_bounded
+	lda #$00
+	sta ent_r1,x
+.frame_bounded
 	; get brush offset
 	lda ent_r1,x
 	tax
@@ -618,6 +625,36 @@ player_render_brushing: subroutine
 	sta spr_p+20,y
 .facing_done
 	ldx ent_slot
+	; check for walk cycle
+	lda player_moving
+	beq .not_moving
+	lda wtf
+	shift_r 2
+	and #$03
+	sta temp00
+	and #$01
+	beq .not_moving
+	lda temp00
+	and #$02
+	bne .right_leg_up
+.left_leg_up
+	lda #$e4
+	sta spr_p+8,y
+	lda #$e6
+	sta spr_p+12,y
+	lda #$00
+	sta spr_a+8,y
+	sta spr_a+12,y
+	jmp .not_moving
+.right_leg_up
+	lda #$e6
+	sta spr_p+8,y
+	lda #$e4
+	sta spr_p+12,y
+	lda #$40
+	sta spr_a+8,y
+	sta spr_a+12,y
+.not_moving
 	tya
 	clc
 	adc #$18
