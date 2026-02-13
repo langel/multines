@@ -35,10 +35,18 @@ player_y_lo   byte
 
 player_moving byte
 
+floss_length  byte
+floss_status  byte
+; N bit = increasing or decreasing
+; O bit = has target
+; bit 0 = floss animating
+
 ; collision detection
 player_hit_x    byte
 player_hit_y    byte
 brush_hit_x     byte
 brush_hit_y     byte
+floss_hit_x     byte
+floss_hit_y     byte
 
 

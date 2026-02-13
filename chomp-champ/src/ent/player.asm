@@ -258,8 +258,52 @@ ent_player_update: subroutine
 	sta tooth_needs_update,x
 	inc tooth_update_queue_size
 .cell_clean_done
-.skip_brushing
 	ldx ent_slot
+.skip_brushing
+	; check for flossing
+	lda controller1
+	and #BUTTON_A
+	beq .skip_flossing
+	; xxx todo
+	; initially floss increases at length
+	; if floss hits max length and no food
+	;    then floss decreases
+	; player must press button fresh to floss again
+	; if floss hits tooth gap then it stays there
+	;    releasing button then floss decreases
+	; player can move
+	;    up/down required to damage food
+	;    food hp == 0 causes despawn (animated)
+	;    player too far from gap then floss decreases
+	; releasing A kills floss state
+	lda controller1_d
+	and #BUTTON_A
+	beq .not_initial_press
+	lda #$00
+	sta floss_length
+	lda #$01
+	sta floss_status
+.not_initial_press
+	lda floss_status
+	beq .skip_flossing
+	bmi .floss_decrease
+.floss_increase
+	inc floss_length
+	lda floss_length
+	cmp #$18
+	bcc .floss_done
+	lda floss_status
+	ora #$80
+	sta floss_status
+.floss_decrease
+	dec floss_length
+	bne .floss_done
+	lda #$00
+	sta floss_status
+.floss_done
+	lda #$03 ; render id
+	sta ent_r0,x
+.skip_flossing
 
 	; set z position
 	lda player_y
@@ -328,7 +372,20 @@ player_brush_left_spr:
 player_brush_x_offset:
 	hex 04 05 06 05
 
+player_floss_spr:
+	hex f0 f2 f4 f6
 
+player_floss_right_spr:
+	hex cc ce
+	hex d0 d2
+	hex d4 d6
+	hex d0 d2
+
+player_floss_left_spr:
+	hex ce cc
+	hex d2 d0
+	hex d6 d4
+	hex d2 d0
 
 ; RENDERS BY STATE
 
@@ -697,7 +754,182 @@ player_render_brushing: subroutine
 
 
 player_render_flossing: subroutine
+	; animation frames
+	inc ent_r2,x
+	lda ent_r2,x
+	cmp #$05
+	bcc .not_next_frame
+	lda #$00
+	sta ent_r2,x
+	inc ent_r1,x
+	lda ent_r1,x
+	cmp #$04
+	bcc .not_next_frame
+	lda #$00
+	sta ent_r1,x
+.not_next_frame
+	; bound frame counter
+	lda ent_r1,x
+	cmp #$04
+	bcc .frame_bounded
+	lda #$00
+	sta ent_r1,x
+.frame_bounded
+	; player x
+	lda player_x
+	sec
+	sbc scroll_x
+	sta temp07
+	sta spr_x,y
+	sta spr_x+8,y
+	clc
+	adc #$08
+	sta spr_x+4,y
+	sta spr_x+12,y
+	; player y
+	lda player_y
+	sta spr_y+0,y
+	sta spr_y+4,y
+	clc
+	adc #$10
+	sta spr_y+8,y
+	sta spr_y+12,y
+	; get anim spr offset
+	lda ent_r1,x
+	asl
+	sta temp00
+	; get direction
+	lda ent_r3,x
+	bpl .facing_right
+	jmp .facing_left
+.facing_right
+	; player
+	ldx temp00
+	lda #$00
+	sta spr_a,y
+	sta spr_a+4,y
+	sta spr_a+8,y
+	sta spr_a+12,y
+	lda player_floss_right_spr,x
+	sta spr_p,y
+	lda player_floss_right_spr+1,x
+	sta spr_p+4,y
+	lda #$e0
+	sta spr_p+8,y
+	lda #$e2
+	sta spr_p+12,y
+	jmp .facing_done
+.facing_left
+	ldx temp00
+	lda #$40
+	sta spr_a,y
+	sta spr_a+4,y
+	sta spr_a+8,y
+	sta spr_a+12,y
+	lda player_floss_left_spr,x
+	sta spr_p,y
+	lda player_floss_left_spr+1,x
+	sta spr_p+4,y
+	lda #$e2
+	sta spr_p+8,y
+	lda #$e0
+	sta spr_p+12,y
+.facing_done
+	ldx ent_slot
+	; check for walk cycle
+	lda player_moving
+	beq .not_moving
+	lda wtf
+	shift_r 2
+	and #$03
+	sta temp00
+	and #$01
+	beq .not_moving
+	lda temp00
+	and #$02
+	bne .right_leg_up
+.left_leg_up
+	lda #$e4
+	sta spr_p+8,y
+	lda #$e6
+	sta spr_p+12,y
+	lda #$00
+	sta spr_a+8,y
+	sta spr_a+12,y
+	jmp .not_moving
+.right_leg_up
+	lda #$e6
+	sta spr_p+8,y
+	lda #$e4
+	sta spr_p+12,y
+	lda #$40
+	sta spr_a+8,y
+	sta spr_a+12,y
+.not_moving
+	tya
+	clc
+	adc #$10
+	tay
+
+	; FLOSS RETRY
+	lda floss_length
+	shift_r 3
+	sta temp00
+	lda ent_r3,x
+	bpl .floss_right
+.floss_left
+	lda temp07
+	sec
+	sbc #$08
+	sta temp07
+	lda #$f8 ; unit
+	sta temp01
+	lda #$40 ; attr
+	sta temp02
+	jmp .floss_dir_setup
+.floss_right
+	lda temp07
+	clc
+	adc #$10
+	sta temp07
+	lda #$08 ; unit
+	sta temp01
+	lda #$00 ; attr
+	sta temp02
+.floss_dir_setup
+	lda temp00
+	beq .floss_longs_done
+	lda temp07
+	sta spr_x,y
+	clc
+	adc temp01
+	sta temp07
+	lda player_y
+	sta spr_y,y
+	lda temp02
+	sta spr_a,y
+	lda #$f6
+	sta spr_p,y
+	inc_y 4
+	dec temp00
+	jmp .floss_dir_setup
+.floss_longs_done
+.partial_floss_sprite
+	lda temp07
+	sta spr_x,y
+	lda player_y
+	sta spr_y,y
+	lda temp02
+	sta spr_a,y
+	lda floss_length
+	and #$06
+	clc
+	adc #$f0
+	sta spr_p,y
+	inc_y 4
 	jmp ent_z_render_return
+
+	
 
 
 player_render_death: subroutine
