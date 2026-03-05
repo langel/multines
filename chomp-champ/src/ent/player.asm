@@ -52,6 +52,10 @@ ent_player_update: subroutine
 	; handle direction
 	lda #$00
 	sta temp00
+	; no left/right if flossing
+	lda controller1
+	and #BUTTON_A
+	bne .not_left_or_right
 	lda controller1
 	and #BUTTON_LEFT|BUTTON_RIGHT
 	beq .not_left_or_right
@@ -188,7 +192,51 @@ ent_player_update: subroutine
 .bind_y_done
 
 	
-	; calc tooth position
+
+	; reset render state
+	lda #$00
+	sta ent_r0,x
+	; check for movement
+	lda player_moving
+	beq .skip_movement
+	lda #$01
+	sta ent_r0,x
+.skip_movement
+
+
+	; BRUSHING
+	lda controller1
+	and #BUTTON_B
+	bne .do_brushing
+	jmp .skip_brushing
+.do_brushing
+	; set render index
+	lda #$02
+	sta ent_r0,x
+	; set hit position
+	sec
+	lda player_x
+	sbc scroll_x
+	sta temp00
+	lda ent_r3,x
+	bmi .brush_left
+.brush_right
+	lda temp00
+	clc
+	adc #$16
+	jmp .brush_x_found
+.brush_left
+	lda temp00
+	sec
+	sbc #$0a
+.brush_x_found
+	sta brush_hit_x
+	clc
+	lda player_y,x
+	adc #$10
+	sta brush_hit_y
+	; check cell tooth
+	; calc tooth position of brush
 	; (player_x / 16) 
 	; +
 	; ((player_y / 16) * 32)
@@ -220,23 +268,7 @@ ent_player_update: subroutine
 	clc
 	adc temp00
 	sta ent_r5,x ; cell_id
-
-	; reset render state
-	lda #$00
-	sta ent_r0,x
-	; check for movement
-	lda player_moving
-	beq .skip_movement
-	lda #$01
-	sta ent_r0,x
-.skip_movement
-	; check for brushing
-	lda controller1
-	and #BUTTON_B
-	beq .skip_brushing
-	lda #$02
-	sta ent_r0,x
-	; check cell tooth
+	; check for cell dirt
 	lda ent_r5,x
 	sta temp00
 	tax
@@ -260,22 +292,23 @@ ent_player_update: subroutine
 .cell_clean_done
 	ldx ent_slot
 .skip_brushing
-	; check for flossing
+
+
+	; FLOSSING
 	lda controller1
 	and #BUTTON_A
 	beq .skip_flossing
 	; xxx todo
-	; initially floss increases at length
-	; if floss hits max length and no food
+	; if floss hits max length and no tooth gap
 	;    then floss decreases
-	; player must press button fresh to floss again
 	; if floss hits tooth gap then it stays there
 	;    releasing button then floss decreases
-	; player can move
-	;    up/down required to damage food
-	;    food hp == 0 causes despawn (animated)
-	;    player too far from gap then floss decreases
+	; food hp == 0 causes despawn (animated)
 	; releasing A kills floss state
+	; xxx done
+	; initially floss increases at length
+	; player must press button fresh to floss again
+	; player can only move up/down while flossing
 	lda controller1_d
 	and #BUTTON_A
 	beq .not_initial_press
@@ -301,8 +334,11 @@ ent_player_update: subroutine
 	lda #$00
 	sta floss_status
 .floss_done
-	lda #$03 ; render id
+	; set render index
+	lda #$03 
 	sta ent_r0,x
+	; set floss hit position
+
 .skip_flossing
 
 	; set z position
@@ -871,7 +907,7 @@ player_render_flossing: subroutine
 	adc #$10
 	tay
 
-	; FLOSS RETRY
+	; FLOSS
 	lda floss_length
 	shift_r 3
 	sta temp00

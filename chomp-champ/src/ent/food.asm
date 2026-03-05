@@ -8,6 +8,9 @@
 ; germs can eat it too
 
 ; ent_r0 is subtype
+; ent_r3 visible
+; ent_r4 collision x
+; ent_r5 collision y
 ; ent_r6 z pos sort up
 ; ent_r7 z pos sort down
 
@@ -48,6 +51,36 @@ ent_food_spawn: subroutine
 
 ent_food_update: subroutine
 	; update logic
+	jsr ent_calc_position
+	lda ent_visible
+	sta ent_r3,x
+	lda collision_0_x
+	sta ent_r4,x
+	lda collision_0_y
+	sta ent_r5,x
+
+	; check brush collision
+	clc
+	lda collision_0_x
+	adc collision_0_w
+	cmp brush_hit_x
+	bcc .no_collision
+	clc
+	lda collision_0_x
+	cmp brush_hit_x
+	bcs .no_collision
+	clc
+	lda collision_0_y
+	adc collision_0_w
+	cmp brush_hit_y
+	bcc .no_collision
+	clc
+	lda collision_0_y
+	cmp brush_hit_y
+	bcs .no_collision
+.collision
+	ent_despawn
+.no_collision
 
 	; set z position
 	lda ent_y,x
@@ -60,7 +93,6 @@ ent_food_update: subroutine
 
 ent_food_render: subroutine
 	; RENDER
-	jsr ent_calc_position
 	lda ent_r0,x
 	tay
 	lda ent_food_sprite,y
@@ -68,6 +100,13 @@ ent_food_render: subroutine
 	lda ent_food_attr,y
 	sta temp01
 	ldy ent_spr_ptr
+	; recall ent position
+	lda ent_r3,x
+	sta ent_visible
+	lda ent_r4,x
+	sta collision_0_x
+	lda ent_r5,x
+	sta collision_0_y
 	jsr ent_render_generic_8x16
 
 	jmp ent_z_render_return
