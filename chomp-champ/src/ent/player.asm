@@ -303,12 +303,12 @@ ent_player_update: subroutine
 	;    then floss decreases
 	; if floss hits tooth gap then it stays there
 	;    releasing button then floss decreases
-	; food hp == 0 causes despawn (animated)
 	; releasing A kills floss state
 	; xxx done
 	; initially floss increases at length
 	; player must press button fresh to floss again
 	; player can only move up/down while flossing
+	; food hp == 0 causes despawn (animated)
 	lda controller1_d
 	and #BUTTON_A
 	beq .not_initial_press
@@ -338,7 +338,28 @@ ent_player_update: subroutine
 	lda #$03 
 	sta ent_r0,x
 	; set floss hit position
-
+	sec
+	lda player_x
+	sbc scroll_x
+	sta temp00
+	lda ent_r3,x
+	bmi .floss_left
+.floss_right
+	lda temp00
+	clc
+	adc #$10
+	adc floss_length
+	jmp .floss_x_found
+.floss_left
+	lda temp00
+	sec
+	sbc floss_length
+.floss_x_found
+	sta floss_hit_x
+	clc
+	lda player_y,x
+	adc #$10
+	sta floss_hit_y
 .skip_flossing
 
 	; set z position
