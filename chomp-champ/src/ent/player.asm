@@ -20,7 +20,7 @@ ent_player_init: subroutine
 	ldx #$00
 	lda #ent_player_id
 	sta ent_type,x
-	lda #$e0
+	lda #$d0
 	sta player_x
 	lda #$90
 	sta player_y
@@ -299,7 +299,8 @@ ent_player_update: subroutine
 	; FLOSSING
 	lda controller1
 	and #FLOSS_BUTTON
-	beq .skip_flossing
+	bne .floss_button_pressed
+	jmp .skip_flossing
 	; xxx todo
 	; if floss hits max length and no tooth gap
 	;    then floss decreases
@@ -311,6 +312,7 @@ ent_player_update: subroutine
 	; player must press button fresh to floss again
 	; player can only move up/down while flossing
 	; food hp == 0 causes despawn (animated)
+.floss_button_pressed
 	lda controller1_d
 	and #FLOSS_BUTTON
 	beq .not_initial_press
@@ -320,15 +322,47 @@ ent_player_update: subroutine
 	sta floss_status
 .not_initial_press
 	lda floss_status
-	beq .skip_flossing
+	bne .keep_flossing
+	jmp .skip_flossing
+.keep_flossing
 	bmi .floss_decrease
+	cmp #$40
+	beq .floss_done
 .floss_increase
 	inc floss_length
+	; check for tooth gap
+	lda ent_r3,x
+	bpl .floss_right_gap_check
+.floss_left_gap_check
+	sec
+	lda player_x
+	sbc floss_length
+	sta $180
+	and #$3f
+	cmp #$01
+	bne .no_gap
+	lda #$40
+	sta floss_status
+	jmp .floss_done
+.floss_right_gap_check
+	clc
+	adc player_x
+	adc #$10
+	adc floss_length
+	sta $180
+	and #$3f
+	cmp #$00
+	bne .no_gap
+	lda #$40
+	sta floss_status
+	jmp .floss_done
+.no_gap
+	; if max length then start decrease
 	lda floss_length
 	cmp #$18
 	bcc .floss_done
 	lda floss_status
-	ora #$80
+	lda #$81
 	sta floss_status
 .floss_decrease
 	dec floss_length
@@ -336,7 +370,25 @@ ent_player_update: subroutine
 	lda #$00
 	sta floss_status
 .floss_done
-	; set render index
+	; check for tooth row gap if has target
+	lda floss_status
+	bvc .flooth_row_gap_done
+	lda player_y
+	sta $181
+	cmp #$73
+	beq .flooth_stop
+	cmp #$72
+	beq .flooth_stop
+	cmp #$71
+	beq .flooth_stop
+	cmp #$70
+	beq .flooth_stop
+	jmp .flooth_row_gap_done
+.flooth_stop
+	lda #$00
+	sta floss_status
+.flooth_row_gap_done
+	; set state/render index
 	lda #$03 
 	sta ent_r0,x
 	; set floss hit position
