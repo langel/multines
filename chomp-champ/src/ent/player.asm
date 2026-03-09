@@ -12,6 +12,8 @@
 ; ent_r5 brush/floss target cell_id
 
 player_speed    eqm #$01
+BRUSH_BUTTON    eqm BUTTON_A
+FLOSS_BUTTON    eqm BUTTON_B
 
 ent_player_init: subroutine
 	; player always anet slot 00
@@ -54,7 +56,7 @@ ent_player_update: subroutine
 	sta temp00
 	; no left/right if flossing
 	lda controller1
-	and #BUTTON_A
+	and #FLOSS_BUTTON
 	bne .not_left_or_right
 	lda controller1
 	and #BUTTON_LEFT|BUTTON_RIGHT
@@ -206,7 +208,7 @@ ent_player_update: subroutine
 
 	; BRUSHING
 	lda controller1
-	and #BUTTON_B
+	and #BRUSH_BUTTON
 	bne .do_brushing
 	jmp .skip_brushing
 .do_brushing
@@ -296,7 +298,7 @@ ent_player_update: subroutine
 
 	; FLOSSING
 	lda controller1
-	and #BUTTON_A
+	and #FLOSS_BUTTON
 	beq .skip_flossing
 	; xxx todo
 	; if floss hits max length and no tooth gap
@@ -310,7 +312,7 @@ ent_player_update: subroutine
 	; player can only move up/down while flossing
 	; food hp == 0 causes despawn (animated)
 	lda controller1_d
-	and #BUTTON_A
+	and #FLOSS_BUTTON
 	beq .not_initial_press
 	lda #$00
 	sta floss_length

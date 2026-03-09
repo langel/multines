@@ -99,7 +99,7 @@ ent_food_update: subroutine
 .standard_behavior
 	; check brush collision
 	lda controller1
-	and #BUTTON_B
+	and #BRUSH_BUTTON
 	beq .brushing_done
 	clc
 	lda collision_0_x
@@ -125,7 +125,7 @@ ent_food_update: subroutine
 
 	; check floss collision
 	lda controller1
-	and #BUTTON_A
+	and #FLOSS_BUTTON
 	beq .skip_flossing
 	clc
 	lda collision_0_x
