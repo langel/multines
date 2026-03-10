@@ -54,10 +54,6 @@ ent_player_update: subroutine
 	; handle direction
 	lda #$00
 	sta temp00
-	; no left/right if flossing
-	lda controller1
-	and #FLOSS_BUTTON
-	bne .not_left_or_right
 	lda controller1
 	and #BUTTON_LEFT|BUTTON_RIGHT
 	beq .not_left_or_right
@@ -84,7 +80,9 @@ ent_player_update: subroutine
 	sta temp00
 	; set velocity speeds
 	lda controller1
-	and #BUTTON_B|BUTTON_A
+	and #BRUSH_BUTTON
+	bne .velocity_set
+	lda floss_status
 	bne .velocity_set
 	lda #$04
 	clc
@@ -92,6 +90,13 @@ ent_player_update: subroutine
 	sta temp00
 .velocity_set
 	ldx temp00
+	; no left/right if flossing
+	lda controller1
+	and #FLOSS_BUTTON
+	beq .moving_no_flossing
+	lda floss_status
+	bne .floss_so_no_left_or_right
+.moving_no_flossing
 	; do add/sub for each axi
 	lda controller1
 	and #BUTTON_LEFT
@@ -106,8 +111,12 @@ ent_player_update: subroutine
 	lda player_x_hi
 	sbc #$00
 	sta player_x_hi
+	; dont change dir if brushing
 	lda controller1
-	and #BUTTON_B|BUTTON_A
+	and #BRUSH_BUTTON
+	bne .not_left
+	; or flossing
+	lda floss_status
 	bne .not_left
 	lda #$ff
 	ldx ent_slot
@@ -127,14 +136,19 @@ ent_player_update: subroutine
 	lda player_x_hi
 	adc #$00
 	sta player_x_hi
+	; dont change dir if brushing
 	lda controller1
-	and #BUTTON_B|BUTTON_A
+	and #BRUSH_BUTTON
+	bne .not_right
+	; or flossing
+	lda floss_status
 	bne .not_right
 	lda #$00
 	ldx ent_slot
 	sta ent_r3,x
 	ldx temp00
 .not_right
+.floss_so_no_left_or_right
 	lda controller1
 	and #BUTTON_UP
 	beq .not_up
@@ -300,6 +314,8 @@ ent_player_update: subroutine
 	lda controller1
 	and #FLOSS_BUTTON
 	bne .floss_button_pressed
+	lda #$00
+	sta floss_status
 	jmp .skip_flossing
 	; xxx todo
 	; if floss hits max length and no tooth gap
@@ -322,12 +338,13 @@ ent_player_update: subroutine
 	sta floss_status
 .not_initial_press
 	lda floss_status
+	sta $188
 	bne .keep_flossing
 	jmp .skip_flossing
 .keep_flossing
 	bmi .floss_decrease
 	cmp #$40
-	beq .floss_done
+	beq .floss_state_done
 .floss_increase
 	inc floss_length
 	; check for tooth gap
@@ -343,7 +360,7 @@ ent_player_update: subroutine
 	bne .no_gap
 	lda #$40
 	sta floss_status
-	jmp .floss_done
+	jmp .floss_state_done
 .floss_right_gap_check
 	clc
 	adc player_x
@@ -351,43 +368,40 @@ ent_player_update: subroutine
 	adc floss_length
 	sta $180
 	and #$3f
-	cmp #$00
+	cmp #$3f
 	bne .no_gap
 	lda #$40
 	sta floss_status
-	jmp .floss_done
+	jmp .floss_state_done
 .no_gap
 	; if max length then start decrease
 	lda floss_length
 	cmp #$18
-	bcc .floss_done
+	bcc .floss_state_done
 	lda floss_status
 	lda #$81
 	sta floss_status
 .floss_decrease
 	dec floss_length
-	bne .floss_done
+	bne .floss_state_done
 	lda #$00
 	sta floss_status
-.floss_done
+	jmp .skip_flossing
+.floss_state_done
 	; check for tooth row gap if has target
 	lda floss_status
-	bvc .flooth_row_gap_done
+	and #$40
+	beq .flooth_not_row_gap
 	lda player_y
 	sta $181
+	cmp #$6f
+	bcc .flooth_not_row_gap
 	cmp #$73
-	beq .flooth_stop
-	cmp #$72
-	beq .flooth_stop
-	cmp #$71
-	beq .flooth_stop
-	cmp #$70
-	beq .flooth_stop
-	jmp .flooth_row_gap_done
+	bcs .flooth_not_row_gap
 .flooth_stop
 	lda #$00
 	sta floss_status
-.flooth_row_gap_done
+.flooth_not_row_gap
 	; set state/render index
 	lda #$03 
 	sta ent_r0,x

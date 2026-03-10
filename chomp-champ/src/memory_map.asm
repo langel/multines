@@ -38,7 +38,7 @@ player_moving byte
 floss_length  byte
 floss_status  byte
 ; N bit = increasing or decreasing
-; O bit = has target
+; bit 6 = target locked
 ; bit 0 = floss animating
 
 ; collision detection
