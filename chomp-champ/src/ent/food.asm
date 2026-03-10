@@ -17,8 +17,8 @@
 ; ent_r3 visible
 ; ent_r4 collision x
 ; ent_r5 collision y
-; ent_r6 z pos sort up
-; ent_r7 z pos sort down
+; ent_r6 z sort up
+; ent_r7 z sort down
 
 ent_food_sprite:
 	hex 00 04 08 0c
@@ -154,7 +154,7 @@ ent_food_update: subroutine
 	lda ent_y,x
 	clc
 	adc #$10
-	ent_z_calc_sort_vals
+	ent_z_calc_sort_vals_9bit
 
 	; check hp
 	lda ent_hp,x

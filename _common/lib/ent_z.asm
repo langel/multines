@@ -171,3 +171,32 @@ ent_z_render_return:
 	sbc temp01
 	sta ent_r7,x
 	ENDM
+
+
+	MAC ent_z_calc_sort_vals_9bit
+	; call with z pos + height in a
+	sec
+	sbc #$20 ; magic number?
+	sta temp00
+	lda ent_x_hi,x
+	lsr
+	lda ent_x,x ; y + (x / 4)
+	ror
+	lsr
+	lsr
+	sta temp01
+	clc
+	adc temp00
+	sta ent_r6,x
+	lda ent_x_hi,x
+	lsr
+	lda ent_x,x ; y - (x / 4)
+	ror
+	lsr
+	lsr
+	sta temp01
+	lda temp00
+	sec
+	sbc temp01
+	sta ent_r7,x
+	ENDM

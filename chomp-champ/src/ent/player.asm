@@ -10,6 +10,8 @@
 ; ent_r3 direction
 ; ent_r4 up/down dir
 ; ent_r5 brush/floss target cell_id
+; ent_r6 z sort up
+; ent_r7 z sort down
 
 player_speed    eqm #$01
 BRUSH_BUTTON    eqm BUTTON_A
@@ -431,10 +433,14 @@ ent_player_update: subroutine
 .skip_flossing
 
 	; set z position
+	lda player_x
+	sta ent_x,x
+	lda player_x_hi
+	sta ent_x_hi,x
 	lda player_y
 	clc
 	adc #$20
-	ent_z_calc_sort_vals
+	ent_z_calc_sort_vals_9bit
 
 	jmp ent_z_update_return
 
