@@ -176,6 +176,9 @@ ent_player_update: subroutine
 .not_moving
 	ldx ent_slot
 
+	; CAMERA UPDATE
+	jsr state_game_camera
+
 	; player playfield bound
 	lda player_x_hi
 	bne .screen_2
