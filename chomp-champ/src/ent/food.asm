@@ -14,6 +14,7 @@
 ;             ent_r6 y vel lo
 ;             ent_r7 y vel hi
 ; ent_r1 is subtype
+; ent_r2 attacked shake pos
 ; ent_r3 visible
 ; ent_r4 collision x
 ; ent_r5 collision y
@@ -121,9 +122,23 @@ ent_food_update: subroutine
 	bcs .brushing_done
 .brush_collision
 	dec ent_hp,x
+	lda wtf
+	and #$03
+	beq .brushing_done
+	cmp #$01
+	beq .shake_left
+	cmp #$02
+	beq .shake_right
+	jmp .brushing_done
+.shake_left
+	dec ent_r4,x
+	jmp .brushing_done
+.shake_right
+	inc ent_r4,x
 .brushing_done
 
 	; check floss collision
+	; xxx should require state $01
 	lda controller1
 	and #FLOSS_BUTTON
 	beq .skip_flossing
