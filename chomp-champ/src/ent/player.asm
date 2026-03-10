@@ -352,6 +352,35 @@ ent_player_update: subroutine
 	beq .floss_state_done
 .floss_increase
 	inc floss_length
+	; check on top of living tooth
+	; calc tooth id
+	; (player_x / 64) +
+	; (player_y > 100) * 8
+	lda player_x_hi
+	lsr
+	lda player_x
+	ror
+	shift_r 5
+	sta temp00
+	lda player_y
+	cmp #$70
+	bcc .flossing_top_row
+.flossing_bottom_row
+	lda #$08
+	clc
+	adc temp00
+	sta temp00
+.flossing_top_row
+	ldx temp00
+	lda tooth_total_dmg,x
+	bmi .floss_no_gap
+	bpl .floss_check_for_gap
+	; if tooth dead can't find gap
+.floss_no_gap
+	ldx ent_slot
+	jmp .no_gap
+.floss_check_for_gap
+	ldx ent_slot
 	; check for tooth gap
 	lda ent_r3,x
 	bpl .floss_right_gap_check
@@ -502,6 +531,8 @@ player_brush_left_spr:
 	hex c6 c4
 	hex ca c8
 	hex c6 c4
+
+; check on top of living tooth
 
 player_brush_x_offset:
 	hex 04 05 06 05
