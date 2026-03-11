@@ -15,6 +15,10 @@ ent_random_spawn_pos: subroutine
 	sta ent_x_hi,x
 .not_nm2
 	lda rng_val1
+	lsr
+	sta ent_y,x
+	rts
+
 	cmp #$b0
 	bcs .reroll
 	cmp #$40

@@ -1051,7 +1051,7 @@ player_render_flossing: subroutine
 	sta temp01
 	lda #$40 ; attr
 	sta temp02
-	jmp .floss_dir_setup
+	jmp .floss_sprite_long_loop
 .floss_right
 	lda temp07
 	clc
@@ -1061,11 +1061,23 @@ player_render_flossing: subroutine
 	sta temp01
 	lda #$00 ; attr
 	sta temp02
-.floss_dir_setup
+.floss_sprite_long_loop
 	lda temp00
 	beq .floss_longs_done
+	lda temp01
+	bpl .no_long_x_checks
+.long_x_underflow_check
+	lda temp07
+	cmp #$f8
+	bcc .no_long_x_checks
+	lda #$00
+	sta spr_x,y
+	jmp .long_x_checks_done
+.no_long_x_checks
 	lda temp07
 	sta spr_x,y
+.long_x_checks_done
+	lda temp07
 	clc
 	adc temp01
 	sta temp07
@@ -1077,20 +1089,33 @@ player_render_flossing: subroutine
 	sta spr_p,y
 	inc_y 4
 	dec temp00
-	jmp .floss_dir_setup
+	jmp .floss_sprite_long_loop
 .floss_longs_done
 .partial_floss_sprite
+	lda temp01
+	bpl .no_partial_x_checks
+.partial_x_underflow_check
+	lda temp07
+	cmp #$f8
+	bcc .no_partial_x_checks
+	lda #$00
+	sta spr_x,y
+	lda #$f6
+	sta spr_p,y
+	jmp .partial_x_checks_done
+.no_partial_x_checks
 	lda temp07
 	sta spr_x,y
-	lda player_y
-	sta spr_y,y
-	lda temp02
-	sta spr_a,y
 	lda floss_length
 	and #$06
 	clc
 	adc #$f0
 	sta spr_p,y
+.partial_x_checks_done
+	lda player_y
+	sta spr_y,y
+	lda temp02
+	sta spr_a,y
 	inc_y 4
 	jmp ent_z_render_return
 

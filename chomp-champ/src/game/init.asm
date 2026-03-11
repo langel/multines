@@ -54,14 +54,14 @@ state_game_init: subroutine
 	jsr ent_food_spawn
 	jsr ent_food_spawn
 	jsr ent_food_spawn
-	jsr ent_food_spawn
-	jsr ent_food_spawn
-	jsr ent_food_spawn
-	jsr ent_food_spawn
-	jsr ent_food_spawn
-	jsr ent_food_spawn
-	jsr ent_food_spawn
-	jsr ent_food_spawn
+	jsr ent_food_spawn_in_gap
+	jsr ent_food_spawn_in_gap
+	jsr ent_food_spawn_in_gap
+	jsr ent_food_spawn_in_gap
+	;jsr ent_food_spawn_in_gap
+	;jsr ent_food_spawn_in_gap
+	;jsr ent_food_spawn_in_gap
+	;jsr ent_food_spawn_in_gap
 	jsr ent_gnat_spawn
 
 

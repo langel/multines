@@ -188,14 +188,14 @@ ent_calc_position: subroutine
 	and #$03
 	cmp #$03
 	beq .collision_full
-.check_left
+.set_left
 	cmp #$01
 	bne .check_right
 	sec
 	lda #$ff
 	sbc collision_0_x
 	sta collision_0_w
-	lda #$08
+	lda #$10
 	sta collision_0_h
 	rts
 .check_right
@@ -203,7 +203,7 @@ ent_calc_position: subroutine
 	lda collision_0_x
 	adc #$10
 	sta collision_0_w
-	lda #$08
+	lda #$10
 	sta collision_0_h
 	rts
 .collision_full

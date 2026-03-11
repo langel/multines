@@ -72,8 +72,10 @@ ent_germ_update: subroutine
 .bound_x_far_left
 	lda ent_x,x
 	cmp #$02
-	bcc .turn_x
-	jmp .bound_x_done
+	bcs .bound_x_done
+	lda #$02
+	sta ent_x,x
+	jmp .turn_x
 .bound_x_far_right
 	lda ent_x,x
 	cmp #$ee
