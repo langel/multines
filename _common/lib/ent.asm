@@ -190,7 +190,7 @@ ent_calc_position: subroutine
 	beq .collision_full
 .set_left
 	cmp #$01
-	bne .check_right
+	bne .set_right
 	sec
 	lda #$ff
 	sbc collision_0_x
@@ -198,7 +198,7 @@ ent_calc_position: subroutine
 	lda #$10
 	sta collision_0_h
 	rts
-.check_right
+.set_right
 	clc
 	lda collision_0_x
 	adc #$10
@@ -208,8 +208,16 @@ ent_calc_position: subroutine
 	rts
 .collision_full
 	; XXX not checking for y off screen
+	lda collision_0_x
+	cmp #$f0
+	bcc .not_in_right_edge
+	adc #$10
+	jmp .collision_full_width_clamped
+.not_in_right_edge
 	lda #$10
+.collision_full_width_clamped
 	sta collision_0_w
+	lda #$10
 	sta collision_0_h
 .collision_done
 	rts

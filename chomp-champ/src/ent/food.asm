@@ -88,7 +88,6 @@ ent_food_spawn_in_gap: subroutine
 	and #$70
 	shift_r 4
 	tay
-	ldy #$07
 	lda ent_food_gap_x_hi_pos,y
 	sta ent_x_hi,x
 	lda ent_food_gap_x_pos,y
