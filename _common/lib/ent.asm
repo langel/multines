@@ -159,10 +159,10 @@ ent_calc_position: subroutine
 	; check x columns
 	sec
 	lda ent_x,x
-	sbc scroll_x
+	sbc camera_x
 	sta collision_0_x
 	lda ent_x_hi,x
-	sbc scroll_x_hi
+	sbc camera_x_hi
 	beq .left_visible
 	cmp #$ff
 	bne .left_done

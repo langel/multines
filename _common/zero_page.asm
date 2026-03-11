@@ -55,6 +55,7 @@ state_render_hi  byte
 state_update_lo  byte
 state_update_hi  byte
 
+ent_ptr_start    byte
 ent_spr_ptr      byte
 ent_slot         byte
 ent_slot_start   byte
@@ -68,6 +69,11 @@ scroll_x_hi      byte
 scroll_y_hi      byte
 scroll_x         byte
 scroll_y         byte
+camera_nm        byte
+camera_x_hi      byte
+camera_y_hi      byte
+camera_x         byte
+camera_y         byte
 
 
 controller1      byte

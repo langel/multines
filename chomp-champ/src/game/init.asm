@@ -27,6 +27,8 @@ state_game_init: subroutine
 
 	jsr ent_z_init
 
+	lda #$04
+	sta player_lives
 	jsr ent_player_init
 
 /*
@@ -89,6 +91,7 @@ state_game_init: subroutine
 	bne .pal_loop
 
 	jsr teeth_init_playfield
+	jsr hud_init
 	
 	jsr render_enable
 	

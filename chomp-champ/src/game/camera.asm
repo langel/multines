@@ -8,11 +8,11 @@ state_game_camera: subroutine
 	bcs .not_far_end
 	; handle far left
 	lda #$ff
-	sta scroll_x
+	sta camera_x
 	lda #$ff
-	sta scroll_x_hi
+	sta camera_x_hi
 	and #$01
-	sta scroll_nm
+	sta camera_nm
 	jmp .cam_done
 .not_left
 	lda player_x_hi
@@ -22,21 +22,21 @@ state_game_camera: subroutine
 	bcc .not_far_end
 	; handle far right
 	lda #$01
-	sta scroll_x
-	sta scroll_x_hi
-	sta scroll_nm
+	sta camera_x
+	sta camera_x_hi
+	sta camera_nm
 	jmp .cam_done
 .not_right
 .not_far_end
 	lda player_x
 	sec
 	sbc #$80
-	sta scroll_x
+	sta camera_x
 	lda player_x_hi
 	sbc #$00
-	sta scroll_x_hi
+	sta camera_x_hi
 	and #$01
-	sta scroll_nm
+	sta camera_nm
 .cam_done
 
 	rts

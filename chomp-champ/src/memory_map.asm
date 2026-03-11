@@ -26,6 +26,9 @@ tooth_tile_cache    eqm $760
 tooth_update_queue_size byte
 tooth_index             byte
 
+
+hud_initted   byte
+
 ; used instead of ent registers
 player_x_hi   byte
 player_x      byte
@@ -33,6 +36,7 @@ player_x_lo   byte
 player_y      byte
 player_y_lo   byte
 
+player_lives  byte
 player_moving byte
 
 floss_length  byte

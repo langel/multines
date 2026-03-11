@@ -27,6 +27,9 @@ state_game_render: subroutine
 .done
 	ldx temp00
 	txs
+
+	jsr hud_render
+
 	jmp nmi_render_done
 
 
@@ -178,7 +181,7 @@ state_game_prerender: subroutine
 	tya
 	and #$03
 	bne .not_top_tooth_bottom_left
-	lda #$35
+	lda #$7b
 	sta tooth_tile_cache+2
 	jmp .edge_check_done
 .not_top_tooth_bottom_left

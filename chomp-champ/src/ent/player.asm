@@ -22,7 +22,7 @@ ent_player_init: subroutine
 	ldx #$00
 	lda #ent_player_id
 	sta ent_type,x
-	lda #$d0
+	lda #$e0
 	sta player_x
 	lda #$90
 	sta player_y
@@ -237,7 +237,7 @@ ent_player_update: subroutine
 	; set hit position
 	sec
 	lda player_x
-	sbc scroll_x
+	sbc camera_x
 	sta temp00
 	lda ent_r3,x
 	bmi .brush_left
@@ -442,7 +442,7 @@ ent_player_update: subroutine
 	; set floss hit position
 	sec
 	lda player_x
-	sbc scroll_x
+	sbc camera_x
 	sta temp00
 	lda ent_r3,x
 	bmi .floss_left
@@ -557,7 +557,7 @@ player_floss_left_spr:
 player_render_idle: subroutine
 	lda player_x
 	sec
-	sbc scroll_x
+	sbc camera_x
 	sta spr_x,y
 	sta spr_x+8,y
 	clc
@@ -642,7 +642,7 @@ player_render_running: subroutine
 	sta spr_a,y
 	sec
 	lda player_x
-	sbc scroll_x
+	sbc camera_x
 	sta spr_x,y
 	lda player_y
 	sta spr_y,y
@@ -655,7 +655,7 @@ player_render_running: subroutine
 	sta spr_a,y
 	sec
 	lda player_x
-	sbc scroll_x
+	sbc camera_x
 	clc
 	adc #$08
 	sta spr_x,y
@@ -670,7 +670,7 @@ player_render_running: subroutine
 	sta spr_a,y
 	sec
 	lda player_x
-	sbc scroll_x
+	sbc camera_x
 	sta spr_x,y
 	lda player_y
 	clc
@@ -685,7 +685,7 @@ player_render_running: subroutine
 	sta spr_a,y
 	sec
 	lda player_x
-	sbc scroll_x
+	sbc camera_x
 	clc
 	adc #$08
 	sta spr_x,y
@@ -706,7 +706,7 @@ player_render_running: subroutine
 	sta spr_a,y
 	sec
 	lda player_x
-	sbc scroll_x
+	sbc camera_x
 	sta spr_x,y
 	lda player_y
 	sta spr_y,y
@@ -719,7 +719,7 @@ player_render_running: subroutine
 	sta spr_a,y
 	sec
 	lda player_x
-	sbc scroll_x
+	sbc camera_x
 	clc
 	adc #$08
 	sta spr_x,y
@@ -734,7 +734,7 @@ player_render_running: subroutine
 	sta spr_a,y
 	sec
 	lda player_x
-	sbc scroll_x
+	sbc camera_x
 	sta spr_x,y
 	lda player_y
 	clc
@@ -749,7 +749,7 @@ player_render_running: subroutine
 	sta spr_a,y
 	sec
 	lda player_x
-	sbc scroll_x
+	sbc camera_x
 	clc
 	adc #$08
 	sta spr_x,y
@@ -800,7 +800,7 @@ player_render_brushing: subroutine
 	; player x
 	lda player_x
 	sec
-	sbc scroll_x
+	sbc camera_x
 	sta spr_x,y
 	sta spr_x+8,y
 	clc
@@ -943,7 +943,7 @@ player_render_flossing: subroutine
 	; player x
 	lda player_x
 	sec
-	sbc scroll_x
+	sbc camera_x
 	sta temp07
 	sta spr_x,y
 	sta spr_x+8,y

@@ -32,6 +32,7 @@ cart_start: subroutine
 	include "src/state_nextlevel.asm"
 	include "src/state_gameover.asm"
 	include "src/game/camera.asm"
+	include "src/game/hud.asm"
 	include "src/game/init.asm"
 	include "src/game/lib.asm"
 	include "src/game/render.asm"

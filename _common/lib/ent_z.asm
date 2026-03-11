@@ -110,9 +110,10 @@ ent_z_update_return:
 	; ents render
 	ldx #$00
 	stx ent_z_slot
-	ldy #$00
+	ldy ent_ptr_start
 	sty ent_spr_ptr
-	sty ent_z_slot
+	lda #$00
+	sta ent_z_slot
 .sort_direction
 	lda wtf
 	lsr
