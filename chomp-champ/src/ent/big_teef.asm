@@ -31,7 +31,8 @@ ent_big_teef_spawn: subroutine
 
 ent_big_teef_update: subroutine
 
-	inc $3e0
+	lda #%00011111
+	sta PPU_MASK
 
 	; big teef
 	lda #$16
@@ -146,6 +147,11 @@ ent_big_teef_update: subroutine
 	inc state04
 	inc state04
 	inc state04
+	
+	lda #%00011110
+	sta PPU_MASK
+
+	rts
 
 	jmp ent_z_update_return
 	

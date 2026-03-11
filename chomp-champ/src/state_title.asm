@@ -1,6 +1,6 @@
 
 title_copy_line:
-	hex 65 68 5b 65 5a 6c 6d 78 75 78 66 66 71 71 6f
+	hex 65 68 5b 65 5a 6c 6d 08 77 75 78 08 66 66 71 71 6f 74 66 66 71 71 62 6f
 
 
 state_title_init: subroutine
@@ -11,7 +11,6 @@ state_title_init: subroutine
 	sta scroll_nm
 	sta scroll_x
 	sta scroll_y
-	jsr ent_big_teef_spawn
 
 	lda #$08
 	sta temp00
@@ -52,10 +51,11 @@ state_title_init: subroutine
 	iny
 	cpy #$c0
 	bne .load_champ
+
 	; load copy line
 	lda #$23
 	sta PPU_ADDR
-	lda #$68
+	lda #$64
 	sta PPU_ADDR
 	lda #<title_copy_line
 	sta temp00
@@ -66,7 +66,7 @@ state_title_init: subroutine
 	lda (temp00),y
 	sta PPU_DATA
 	iny
-	cpy #$0f
+	cpy #$18
 	bne .load_copy
 
 	; setup big teef
@@ -74,9 +74,13 @@ state_title_init: subroutine
 	sta state02 ; x pos
 	lda #$a0
 	sta state03 ; y pos
+	jsr ent_big_teef_spawn
 
+	;jsr ent_z_init
 
 	jsr palette_init
+	ldx #render_do_nothing_id
+	jsr state_set_render_routine
 	ldx #state_title_update_id
 	jsr state_set_update_routine
 	jsr render_enable
@@ -88,7 +92,9 @@ state_title_init: subroutine
 state_title_update: subroutine
 
 	jsr render_enable
-	jsr ents_update
+	jsr controller_read
+;	jsr ent_z_update
+	jsr ent_big_teef_update
 
 .palette_cycle
 	lda wtf
@@ -144,7 +150,7 @@ state_title_update: subroutine
 	clc
 	adc #$15
 	sta palette_cache+2
-; throb canclel
+; throb cancel
 	lda state01
 	and #$03
 	cmp #$03
