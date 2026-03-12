@@ -5,6 +5,13 @@ ent_poop_spawn: subroutine
 	bmi .done
 	lda #ent_poop_id
 	sta ent_type,x
+	;position
+	lda #$a0
+	sta ent_x,x
+	lda #$00
+	sta ent_x_hi,x
+	lda #$60
+	sta ent_y,x
 .done
 	rts
 
@@ -37,13 +44,6 @@ ent_poop_from_germ: subroutine
 
 ent_poop_update: subroutine
 	; update logic
-	dec ent_x,x
-	lda ent_x,x
-	cmp #$ff
-	bne .dont_despawn
-	ent_despawn
-	rts
-.dont_despawn
 
 	jmp ent_z_update_return
 
@@ -51,7 +51,7 @@ ent_poop_update: subroutine
 ent_poop_render: subroutine
 	; render (reload y?)
 	jsr ent_calc_position
-	lda #$64
+	lda #$7c
 	sta temp00
 	lda #$02
 	sta temp01
