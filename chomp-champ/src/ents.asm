@@ -5,6 +5,8 @@ ent_germ_id        eqm #$03
 ent_gnat_id        eqm #$04
 ent_player_id      eqm #$05
 ent_poop_id        eqm #$06
+ent_grub_id        eqm #$07
+ent_eggs_id        eqm #$08
 
 
 ent_update_lo:
@@ -15,6 +17,8 @@ ent_update_lo:
 	byte <ent_gnat_update
 	byte <ent_player_update
 	byte <ent_poop_update
+	byte <ent_grub_update
+	byte <ent_eggs_update
 ent_update_hi:
 	byte >do_nothing
 	byte >ent_big_teef_update
@@ -23,6 +27,8 @@ ent_update_hi:
 	byte >ent_gnat_update
 	byte >ent_player_update
 	byte >ent_poop_update
+	byte >ent_grub_update
+	byte >ent_eggs_update
 
 ent_render_lo:
 	byte <do_nothing
@@ -32,6 +38,8 @@ ent_render_lo:
 	byte <ent_gnat_render
 	byte <ent_player_render
 	byte <ent_poop_render
+	byte <ent_grub_render
+	byte <ent_eggs_render
 ent_render_hi:
 	byte >do_nothing
 	byte >ent_big_teef_render
@@ -40,4 +48,6 @@ ent_render_hi:
 	byte >ent_gnat_render
 	byte >ent_player_render
 	byte >ent_poop_render
+	byte >ent_grub_render
+	byte >ent_eggs_render
 
