@@ -15,7 +15,12 @@ hud_dmg_to_tile: subroutine
 	lda #$01
 	jmp .done
 .mostly_dead
-	lda #$02
+	lda wtf
+	shift_r 4
+	and #$01
+	clc
+	adc #$01
+	;lda #$02
 	jmp .done
 .dead
 	lda #$03
@@ -34,6 +39,14 @@ hud_init: subroutine
 	; make room for sprite 0
 	lda #$08
 	sta ent_ptr_start
+
+	; overwrite bg palette 0
+	lda #$04
+	sta $e8
+	lda #$27
+	sta $e9
+	lda #$32
+	sta $ea
 
 	; top teeth meter
 	PPU_ADDR_SET $2054
@@ -75,15 +88,54 @@ hud_sprite0: subroutine
 .wait1	
 	bit PPU_STATUS
 	beq .wait1
-	; update scroll
-	lda camera_x
-	sta PPU_SCROLL
+
+	; disable rendering
 	lda #$00
+	sta PPU_CTRL
+	sta PPU_MASK
+	; update palette
+	lda #$3f
+	sta PPU_ADDR
+	lda #$01
+	sta PPU_ADDR
+	lda #$15
+	sta PPU_DATA
+	lda #$0c
+	sta PPU_DATA
+	lda #$31
+	sta PPU_DATA
+
+	ldx #$07
+.scanline_wait
+	dex
+	bne .scanline_wait
+	
+	; fine scrolling method
+	lda camera_nm
+	lsr
+	lda #$00
+	rol
+	shift_l 2
+	sta PPU_ADDR
+	lda #$20 ; y offset
 	sta PPU_SCROLL
+	and #%11111000
+	shift_l 2
+	sta temp00
+	ldx camera_x
+	txa
+	shift_r 3
+	ora temp00
+	stx PPU_SCROLL
+	sta PPU_ADDR
+
+	; enable rendering
 	lda #CTRL_NMI|CTRL_BG_1000
 	ora ppu_ctrl_ora
 	ora camera_nm
 	sta PPU_CTRL
+	lda #%00011110
+	sta PPU_MASK
 	rts
 
 
@@ -150,14 +202,38 @@ hud_update: subroutine
 	bne .life_sprite_loop
 
 	; sprite 0
-	lda #$00
+	lda #$20
 	sta spr_a
 	lda #$10
 	sta spr_p
-	lda #$dd
+	lda #$bd
 	sta spr_x
 	lda #$1d
 	sta spr_y
+
+	; player indicator
+	lda ent_r3 ; player dir
+	bmi .head_mirror
+.head_fine
+	lda #$00
+	jmp .head_assigned
+.head_mirror
+	lda #$40
+.head_assigned
+	sta spr_a+4
+	lda #$12
+	sta spr_p+4
+	lda player_x_hi
+	lsr
+	lda player_x
+	ror
+	lsr
+	lsr
+	clc
+	adc #$9d
+	sta spr_x+4
+	lda #$20
+	sta spr_y+4
 
 	rts
 

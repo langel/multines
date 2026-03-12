@@ -388,7 +388,6 @@ ent_player_update: subroutine
 	sec
 	lda player_x
 	sbc floss_length
-	sta $180
 	and #$3f
 	cmp #$01
 	bne .no_gap
@@ -400,7 +399,6 @@ ent_player_update: subroutine
 	adc player_x
 	adc #$10
 	adc floss_length
-	sta $180
 	and #$3f
 	cmp #$3f
 	bne .no_gap
@@ -427,7 +425,6 @@ ent_player_update: subroutine
 	and #$40
 	beq .flooth_not_row_gap
 	lda player_y
-	sta $181
 	cmp #$6f
 	bcc .flooth_not_row_gap
 	cmp #$73
