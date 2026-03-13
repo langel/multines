@@ -67,6 +67,7 @@ state_game_init: subroutine
 	jsr ent_gnat_spawn
 	jsr ent_poop_spawn
 	jsr ent_grub_spawn
+	jsr ent_eggs_spawn
 
 
 	; XXX level init should do this

@@ -40,7 +40,7 @@ ent_grub_update: subroutine
 
 	inc ent_r5,x
 	lda ent_r5,x
-	cmp #$05
+	cmp #$07
 	beq .update_grub
 	jmp .frame_done
 

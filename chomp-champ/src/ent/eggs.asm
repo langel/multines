@@ -7,11 +7,11 @@ ent_eggs_spawn: subroutine
 	lda #ent_eggs_id
 	sta ent_type,x
 	;position
-	lda #$a0
+	lda #$f5
 	sta ent_x,x
-	lda #$00
+	lda #$01
 	sta ent_x_hi,x
-	lda #$60
+	lda #$a0
 	sta ent_y,x
 .done
 	rts
@@ -27,11 +27,36 @@ ent_eggs_update: subroutine
 ent_eggs_render: subroutine
 	; render (reload y?)
 	jsr ent_calc_position
-	lda #$7c
-	sta temp00
+
+.left_sprite
+	lda ent_visible
+	and #$01
+	beq .right_sprite
+	lda #$30
+	sta spr_p,y
 	lda #$02
-	sta temp01
-	jsr ent_render_generic_8x16
+	sta spr_a,y
+	lda collision_0_x
+	sta spr_x,y
+	lda collision_0_y
+	sta spr_y,y
+	inc_y 4
+.right_sprite
+	lda ent_visible
+	and #$02
+	beq .sprites_done
+	lda #$30
+	sta spr_p,y
+	lda #$42
+	sta spr_a,y
+	lda collision_0_x
+	clc
+	adc #$08
+	sta spr_x,y
+	lda collision_0_y
+	sta spr_y,y
+	inc_y 4
+.sprites_done
 
 	jmp ent_z_render_return
 
