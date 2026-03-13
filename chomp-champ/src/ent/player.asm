@@ -37,6 +37,12 @@ ent_player_init: subroutine
 	sta ent_r0,x
 	lda #$ff
 	sta ent_r3,x
+	; reset velocity
+	lda #$00
+	sta pl_vel_h_hi
+	sta pl_vel_h_lo
+	sta pl_vel_v_hi
+	sta pl_vel_v_lo
 	rts
 
 /*
@@ -45,15 +51,21 @@ ent_player_init: subroutine
 */
 
 
-player_velocities:
-	hex 00 01 ; slow ordinal
-	hex b5 00 ; slow diagonal
-	hex d4 02 ; fast ordinal
-	hex 00 02 ; fast diagonal
+player_slow_velocities:
+	hex 00 01 ; ordinal
+	hex b5 00 ; diagonal
+	hex 00 ff ; ordinal
+	hex 4b ff ; diagonal
+	
+player_fast_velocities:
+	hex d4 02 ; ordinal
+	hex 00 02 ; diagonal
+	hex 2c fd ; ordinal
+	hex 00 fe ; diagonal
 
 ent_player_update: subroutine
 
-	; handle direction
+	; handle directional inputs
 	lda #$00
 	sta temp00
 	lda controller1
@@ -66,6 +78,10 @@ ent_player_update: subroutine
 	beq .not_up_or_down
 	inc temp00
 .not_up_or_down
+	; setup ordinal/diagonal offset
+	lda temp00
+	and #$02
+	tay
 	; set player_moving flag
 	lda #$00
 	sta player_moving
@@ -74,107 +90,183 @@ ent_player_update: subroutine
 	jmp .not_moving
 .is_moving
 	inc player_moving
-	; setup ordinal/diagonal offset
-	lda temp00
-	sec
-	sbc #$01
-	asl
-	sta temp00
-	; set velocity speeds
+	; action buttons impact
 	lda controller1
-	and #BRUSH_BUTTON
-	bne .velocity_set
+	and #BRUSH_BUTTON|FLOSS_BUTTON
+	beq .not_brush_or_floss
+	lda #$00
+	sta pl_vel_h_lo
+	sta pl_vel_h_hi
+	sta pl_vel_v_lo
+	sta pl_vel_v_hi
+	; no acceleration with actions
+	lda #FLOSS_BUTTON
+	beq .floss_move_cleared
 	lda floss_status
-	bne .velocity_set
-	lda #$04
-	clc
-	adc temp00
-	sta temp00
-.velocity_set
-	ldx temp00
-	; no left/right if flossing
+	beq .floss_move_cleared
+	jmp .bf_rightleft_done
+.floss_move_cleared
+	; left/right if not flossing
 	lda controller1
-	and #FLOSS_BUTTON
-	beq .moving_no_flossing
-	lda floss_status
-	bne .floss_so_no_left_or_right
-.moving_no_flossing
-	; do add/sub for each axi
+	cmp #BUTTON_RIGHT
+	beq .bf_not_right
+	lda player_slow_velocities,y
+	sta pl_vel_h_lo
+	lda player_slow_velocities+1,y
+	sta pl_vel_h_hi
+	jmp .bf_rightleft_done
+.bf_not_right
 	lda controller1
-	and #BUTTON_LEFT
-	beq .not_left
-	lda player_x_lo
+	cmp #BUTTON_LEFT
+	beq .bf_rightleft_done
+	lda player_slow_velocities+4,y
+	sta pl_vel_h_lo
+	lda player_slow_velocities+5,y
+	sta pl_vel_h_hi
+.bf_rightleft_done
+	; up/down in both cases
+	lda controller1
+	cmp #BUTTON_DOWN
+	beq .bf_not_right
+	lda player_slow_velocities,y
+	sta pl_vel_v_lo
+	lda player_slow_velocities+1,y
+	sta pl_vel_v_hi
+	jmp .bf_move_done
+.bf_not_down
+	lda controller1
+	cmp #BUTTON_UP
+	beq .bf_move_done
+	lda player_slow_velocities+4,y
+	sta pl_vel_v_lo
+	lda player_slow_velocities+5,y
+	sta pl_vel_v_hi
+.bf_move_done
+	jmp .moving_done
+.not_brush_or_floss
+	; normal movement with
+	; acceleration handling
+	; left
+	lda controller1
+	cmp #BUTTON_LEFT
+	beq .left_move_done
 	sec
-	sbc player_velocities,x
-	sta player_x_lo
-	lda player_x
-	sbc player_velocities+1,x
-	sta player_x
-	lda player_x_hi
+	lda #$40
+	sbc pl_vel_h_lo
+	sta pl_vel_h_lo
+	lda pl_vel_h_hi
 	sbc #$00
-	sta player_x_hi
-	; dont change dir if brushing
+	sta pl_vel_h_hi
+	cmp player_fast_velocities+5,y
+	bcc .left_clamp
+	bne .left_move_done
+	lda pl_vel_h_lo
+	cmp player_fast_velocities+4,y
+	bcs .left_move_done
+.left_clamp
+	lda player_slow_velocities+4,y
+	sta pl_vel_h_lo
+	lda player_slow_velocities+5,y
+	sta pl_vel_h_hi
+.left_move_done
+	; right
 	lda controller1
-	and #BRUSH_BUTTON
-	bne .not_left
-	; or flossing
-	lda floss_status
-	bne .not_left
-	lda #$ff
-	ldx ent_slot
-	sta ent_r3,x
-	ldx temp00
-.not_left
-	lda controller1
-	and #BUTTON_RIGHT
-	beq .not_right
-	lda player_x_lo
+	cmp #BUTTON_RIGHT
+	beq .right_move_done
 	clc
-	adc player_velocities,x
+	lda #$40
+	adc pl_vel_h_lo
+	sta pl_vel_h_lo
+	lda pl_vel_h_hi
+	adc #$00
+	sta pl_vel_h_hi
+	cmp player_fast_velocities+5,y
+	bcc .right_move_done
+	bne .right_clamp
+	lda pl_vel_h_lo
+	cmp player_fast_velocities+4,y
+	bcc .right_move_done
+	beq .right_move_done
+.right_clamp
+	lda player_slow_velocities+4,y
+	sta pl_vel_h_lo
+	lda player_slow_velocities+5,y
+	sta pl_vel_h_hi
+.right_move_done
+	; up
+	lda controller1
+	cmp #BUTTON_UP
+	beq .up_move_done
+	sec
+	lda #$40
+	sbc pl_vel_v_lo
+	sta pl_vel_v_lo
+	lda pl_vel_v_hi
+	sbc #$00
+	sta pl_vel_v_hi
+	cmp player_fast_velocities+5,y
+	bcc .up_clamp
+	bne .up_move_done
+	lda pl_vel_v_lo
+	cmp player_fast_velocities+4,y
+	bcs .up_move_done
+.up_clamp
+	lda player_slow_velocities+4,y
+	sta pl_vel_v_lo
+	lda player_slow_velocities+5,y
+	sta pl_vel_v_hi
+.up_move_done
+	; down
+	lda controller1
+	cmp #BUTTON_DOWN
+	beq .down_move_done
+	clc
+	lda #$40
+	adc pl_vel_v_lo
+	sta pl_vel_v_lo
+	lda pl_vel_v_hi
+	adc #$00
+	sta pl_vel_v_hi
+	cmp player_fast_velocities+5,y
+	bcc .down_move_done
+	bne .down_clamp
+	lda pl_vel_v_lo
+	cmp player_fast_velocities+4,y
+	bcc .down_move_done
+	beq .down_move_done
+.down_clamp
+	lda player_slow_velocities+4,y
+	sta pl_vel_v_lo
+	lda player_slow_velocities+5,y
+	sta pl_vel_v_hi
+.down_move_done
+	jmp .moving_done
+
+.not_moving
+	lda #$00
+	sta pl_vel_h_hi
+	sta pl_vel_h_lo
+	sta pl_vel_v_hi
+	sta pl_vel_v_lo
+.moving_done
+	; velocity movement
+	clc
+	lda player_x_lo
+	adc pl_vel_h_lo
 	sta player_x_lo
 	lda player_x
-	adc player_velocities+1,x
+	adc pl_vel_h_hi
 	sta player_x
 	lda player_x_hi
 	adc #$00
 	sta player_x_hi
-	; dont change dir if brushing
-	lda controller1
-	and #BRUSH_BUTTON
-	bne .not_right
-	; or flossing
-	lda floss_status
-	bne .not_right
-	lda #$00
-	ldx ent_slot
-	sta ent_r3,x
-	ldx temp00
-.not_right
-.floss_so_no_left_or_right
-	lda controller1
-	and #BUTTON_UP
-	beq .not_up
-	lda player_y_lo
-	sec
-	sbc player_velocities,x
-	sta player_y_lo
-	lda player_y
-	sbc player_velocities+1,x
-	sta player_y
-.not_up
-	lda controller1
-	and #BUTTON_DOWN
-	beq .not_down
-	lda player_y_lo
 	clc
-	adc player_velocities,x
+	lda player_y_lo
+	adc pl_vel_v_lo
 	sta player_y_lo
 	lda player_y
-	adc player_velocities+1,x
+	adc pl_vel_v_hi
 	sta player_y
-.not_down
-.not_moving
-	ldx ent_slot
 
 	; CAMERA UPDATE
 	jsr state_game_camera

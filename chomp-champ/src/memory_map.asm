@@ -36,6 +36,11 @@ player_x_lo   byte
 player_y      byte
 player_y_lo   byte
 
+pl_vel_h_hi   byte
+pl_vel_h_lo   byte
+pl_vel_v_hi   byte
+pl_vel_v_lo   byte
+
 player_lives  byte
 player_moving byte
 
