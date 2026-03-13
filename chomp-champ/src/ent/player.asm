@@ -90,6 +90,9 @@ ent_player_update: subroutine
 	jmp .not_moving
 .is_moving
 	inc player_moving
+	lda controller1
+	and #BUTTON_LEFT|BUTTON_RIGHT|BUTTON_UP|BUTTON_DOWN
+	sta temp01
 	; action buttons impact
 	lda controller1
 	and #BRUSH_BUTTON|FLOSS_BUTTON
@@ -100,15 +103,13 @@ ent_player_update: subroutine
 	sta pl_vel_v_lo
 	sta pl_vel_v_hi
 	; no acceleration with actions
-	lda #FLOSS_BUTTON
-	beq .floss_move_cleared
 	lda floss_status
 	beq .floss_move_cleared
 	jmp .bf_rightleft_done
 .floss_move_cleared
 	; left/right if not flossing
-	lda controller1
-	cmp #BUTTON_RIGHT
+	lda temp01
+	and #BUTTON_RIGHT
 	beq .bf_not_right
 	lda player_slow_velocities,y
 	sta pl_vel_h_lo
@@ -116,8 +117,8 @@ ent_player_update: subroutine
 	sta pl_vel_h_hi
 	jmp .bf_rightleft_done
 .bf_not_right
-	lda controller1
-	cmp #BUTTON_LEFT
+	lda temp01
+	and #BUTTON_LEFT
 	beq .bf_rightleft_done
 	lda player_slow_velocities+4,y
 	sta pl_vel_h_lo
@@ -125,17 +126,17 @@ ent_player_update: subroutine
 	sta pl_vel_h_hi
 .bf_rightleft_done
 	; up/down in both cases
-	lda controller1
-	cmp #BUTTON_DOWN
-	beq .bf_not_right
+	lda temp01
+	and #BUTTON_DOWN
+	beq .bf_not_down
 	lda player_slow_velocities,y
 	sta pl_vel_v_lo
 	lda player_slow_velocities+1,y
 	sta pl_vel_v_hi
 	jmp .bf_move_done
 .bf_not_down
-	lda controller1
-	cmp #BUTTON_UP
+	lda temp01
+	and #BUTTON_UP
 	beq .bf_move_done
 	lda player_slow_velocities+4,y
 	sta pl_vel_v_lo
@@ -146,17 +147,28 @@ ent_player_update: subroutine
 .not_brush_or_floss
 	; normal movement with
 	; acceleration handling
-	; left
-	lda controller1
+	; horizontal axis: only one direction accelerates
+	lda temp01
+	and #BUTTON_LEFT|BUTTON_RIGHT
 	cmp #BUTTON_LEFT
-	beq .left_move_done
+	beq .do_left
+	cmp #BUTTON_RIGHT
+	beq .do_right
+	lda #$00
+	sta pl_vel_h_lo
+	sta pl_vel_h_hi
+	jmp .left_move_done
+.do_left
 	sec
-	lda #$40
-	sbc pl_vel_h_lo
+	lda pl_vel_h_lo
+	sbc #$40
 	sta pl_vel_h_lo
 	lda pl_vel_h_hi
 	sbc #$00
 	sta pl_vel_h_hi
+	lda #$ff
+	sta ent_r3,x
+	lda pl_vel_h_hi
 	cmp player_fast_velocities+5,y
 	bcc .left_clamp
 	bne .left_move_done
@@ -164,42 +176,55 @@ ent_player_update: subroutine
 	cmp player_fast_velocities+4,y
 	bcs .left_move_done
 .left_clamp
-	lda player_slow_velocities+4,y
+	lda player_fast_velocities+4,y
 	sta pl_vel_h_lo
-	lda player_slow_velocities+5,y
+	lda player_fast_velocities+5,y
 	sta pl_vel_h_hi
 .left_move_done
 	; right
-	lda controller1
+.do_right
+	lda temp01
+	and #BUTTON_LEFT|BUTTON_RIGHT
 	cmp #BUTTON_RIGHT
-	beq .right_move_done
+	bne .right_move_done
 	clc
-	lda #$40
-	adc pl_vel_h_lo
+	lda pl_vel_h_lo
+	adc #$40
 	sta pl_vel_h_lo
 	lda pl_vel_h_hi
 	adc #$00
 	sta pl_vel_h_hi
-	cmp player_fast_velocities+5,y
+	lda #$00
+	sta ent_r3,x
+	lda pl_vel_h_hi
+	cmp player_fast_velocities+1,y
 	bcc .right_move_done
 	bne .right_clamp
 	lda pl_vel_h_lo
-	cmp player_fast_velocities+4,y
+	cmp player_fast_velocities,y
 	bcc .right_move_done
 	beq .right_move_done
 .right_clamp
-	lda player_slow_velocities+4,y
+	lda player_fast_velocities,y
 	sta pl_vel_h_lo
-	lda player_slow_velocities+5,y
+	lda player_fast_velocities+1,y
 	sta pl_vel_h_hi
 .right_move_done
-	; up
-	lda controller1
+	; vertical axis: only one direction accelerates
+	lda temp01
+	and #BUTTON_UP|BUTTON_DOWN
 	cmp #BUTTON_UP
-	beq .up_move_done
+	beq .do_up
+	cmp #BUTTON_DOWN
+	beq .do_down
+	lda #$00
+	sta pl_vel_v_lo
+	sta pl_vel_v_hi
+	jmp .up_move_done
+.do_up
 	sec
-	lda #$40
-	sbc pl_vel_v_lo
+	lda pl_vel_v_lo
+	sbc #$40
 	sta pl_vel_v_lo
 	lda pl_vel_v_hi
 	sbc #$00
@@ -211,33 +236,34 @@ ent_player_update: subroutine
 	cmp player_fast_velocities+4,y
 	bcs .up_move_done
 .up_clamp
-	lda player_slow_velocities+4,y
+	lda player_fast_velocities+4,y
 	sta pl_vel_v_lo
-	lda player_slow_velocities+5,y
+	lda player_fast_velocities+5,y
 	sta pl_vel_v_hi
 .up_move_done
 	; down
-	lda controller1
+.do_down
+	lda temp01
+	and #BUTTON_UP|BUTTON_DOWN
 	cmp #BUTTON_DOWN
-	beq .down_move_done
+	bne .down_move_done
 	clc
-	lda #$40
-	adc pl_vel_v_lo
+	lda pl_vel_v_lo
+	adc #$40
 	sta pl_vel_v_lo
 	lda pl_vel_v_hi
 	adc #$00
 	sta pl_vel_v_hi
-	cmp player_fast_velocities+5,y
+	cmp player_fast_velocities+1,y
 	bcc .down_move_done
 	bne .down_clamp
-	lda pl_vel_v_lo
-	cmp player_fast_velocities+4,y
+	cmp player_fast_velocities,y
 	bcc .down_move_done
 	beq .down_move_done
 .down_clamp
-	lda player_slow_velocities+4,y
+	lda player_fast_velocities,y
 	sta pl_vel_v_lo
-	lda player_slow_velocities+5,y
+	lda player_fast_velocities+1,y
 	sta pl_vel_v_hi
 .down_move_done
 	jmp .moving_done
@@ -257,8 +283,12 @@ ent_player_update: subroutine
 	lda player_x
 	adc pl_vel_h_hi
 	sta player_x
-	lda player_x_hi
-	adc #$00
+	lda #$00
+	bit pl_vel_h_hi
+	bpl .pl_vel_h_sign_done
+	lda #$ff
+.pl_vel_h_sign_done
+	adc player_x_hi
 	sta player_x_hi
 	clc
 	lda player_y_lo
@@ -267,9 +297,6 @@ ent_player_update: subroutine
 	lda player_y
 	adc pl_vel_v_hi
 	sta player_y
-
-	; CAMERA UPDATE
-	jsr state_game_camera
 
 	; player playfield bound
 	lda player_x_hi
@@ -280,6 +307,9 @@ ent_player_update: subroutine
 	bcs .bind_x_done
 	lda #$0c
 	sta player_x
+	lda #$00
+	sta player_x_hi
+	sta player_x_lo
 	jmp .bind_x_done
 .screen_2
 	lda player_x
@@ -287,6 +317,10 @@ ent_player_update: subroutine
 	bcc .bind_x_done
 	lda #$e0
 	sta player_x
+	lda #$01
+	sta player_x_hi
+	lda #$00
+	sta player_x_lo
 .bind_x_done
 	; check y position
 	lda player_y
@@ -303,6 +337,8 @@ ent_player_update: subroutine
 	lda #$ac
 	sta player_y
 .bind_y_done
+	; CAMERA UPDATE
+	jsr state_game_camera
 
 	
 
