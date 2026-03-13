@@ -1,4 +1,5 @@
 
+; ent_r0 dirt counter
 ; ent_r1 tooth cell id
 ; ent_r2 distance counter
 ; ent_r3 direction
@@ -37,7 +38,6 @@ ent_grub_spawn: subroutine
 ent_grub_spawn_from_egg: subroutine
 	lda #ent_grub_id
 	sta ent_type,x
-
 
 	jsr rng_update
 	lda rng_val0
@@ -222,6 +222,12 @@ ent_grub_update: subroutine
 	dec ent_r2,x
 .turning_done
 
+	inc ent_r0,x
+	lda ent_r0,x
+	cmp #$03
+	bne .skip_tooth_dmg
+	lda #$00
+	sta ent_r0,x
 	; dirt some tooth
 	; (germ_x / 16) 
 	; +
@@ -230,11 +236,13 @@ ent_grub_update: subroutine
 	lsr
 	lda ent_x,x
 	ror
+	clc
+	adc #$02
 	shift_r 3
 	sta temp00
 	lda ent_y,x
 	sec
-	sbc #$37
+	sbc #$33
 	shift_r 4
 	shift_l 5
 	clc
@@ -292,7 +300,9 @@ ent_grub_render: subroutine
 	beq .generic_render
 .up_down_single_sprite
 	lda ent_visible
-	beq .render_done
+	and #$01
+	cmp #$01
+	bne .render_done
 	lda collision_0_x
 	sta spr_x,y
 	lda collision_0_y
