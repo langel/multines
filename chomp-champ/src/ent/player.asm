@@ -450,17 +450,6 @@ ent_player_update: subroutine
 	lda #$00
 	sta floss_status
 	jmp .skip_flossing
-	; xxx todo
-	; if floss hits max length and no tooth gap
-	;    then floss decreases
-	; if floss hits tooth gap then it stays there
-	;    releasing button then floss decreases
-	; releasing A kills floss state
-	; xxx done
-	; initially floss increases at length
-	; player must press button fresh to floss again
-	; player can only move up/down while flossing
-	; food hp == 0 causes despawn (animated)
 .floss_button_pressed
 	lda controller1_d
 	and #FLOSS_BUTTON

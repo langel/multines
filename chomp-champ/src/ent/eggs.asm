@@ -1,8 +1,9 @@
 
 ; ent_r0 countdowner to hatch
 ; ent_r1 x shake offset
-; ent_r2 y shake offset
 ; ent_r3 sine phase
+; ent_r4 x lo shake origin
+; ent_r5 x hi shake origin
 
 
 
@@ -14,8 +15,10 @@ ent_eggs_spawn: subroutine
 	;position
 	lda #$f5
 	sta ent_x,x
+	sta ent_r4,x
 	lda #$00
 	sta ent_x_hi,x
+	sta ent_r5,x
 	lda #$a0
 	sta ent_y,x
 	; shake props
@@ -34,9 +37,11 @@ ent_eggs_spawn_from_poop: subroutine
 	lda ent_x,y
 	sbc #$01
 	sta ent_x,y
+	sta ent_r4,y
 	lda ent_x_hi,y
 	sbc #$00
 	sta ent_x_hi,y
+	sta ent_r5,y
 	
 	lda #$20
 	sta ent_hp,y
@@ -87,14 +92,15 @@ ent_eggs_update: subroutine
 
 
 ent_eggs_render: subroutine
-	; render (reload y?)
-	jsr ent_calc_position
-
-	; shake adjust
-	lda collision_0_x
+	; add sine to origin
 	clc
+	lda ent_r4,x
 	adc ent_r1,x
-	sta collision_0_x
+	sta ent_x,x
+	lda ent_r5,x
+	adc #$00
+	sta ent_x_hi,x
+	jsr ent_calc_position
 
 .left_sprite
 	lda ent_visible
