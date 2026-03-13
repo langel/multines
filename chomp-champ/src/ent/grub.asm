@@ -34,6 +34,31 @@ ent_grub_spawn: subroutine
 	rts
 
 
+ent_grub_spawn_from_egg: subroutine
+	lda #ent_grub_id
+	sta ent_type,x
+
+	lda ent_x,x
+	clc
+	adc #$02
+	sta ent_x,x
+	lda ent_x_hi,x
+	adc #$00
+	sta ent_x_hi,x
+
+	jsr rng_update
+	lda rng_val0
+	and #$1f
+	sta ent_r2,x
+	lda rng_val1
+	and #$03
+	sta ent_r3,x
+
+	lda #$00
+	sta ent_r4,x
+	sta ent_r5,x
+	rts
+
 
 ent_grub_update: subroutine
 	; update logic

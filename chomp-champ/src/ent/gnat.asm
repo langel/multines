@@ -191,6 +191,8 @@ ent_gnat_update: subroutine
 	sta ent_r5,x
 	; xxx need to turn
 	;     poop into eggs
+	lda ent_r2,x
+	jsr ent_eggs_spawn_from_poop
 .on_poop_done
 
 	; check ascending
