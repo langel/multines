@@ -45,8 +45,10 @@ ent_particle_spawn_from_egg: subroutine
 ent_particle_spawn_from_baddie: subroutine
 	lda #ent_particle_id
 	sta ent_type,x
-	lda #$08
+	lda #$04
 	sta ent_hp,x
+	lda #$00
+	sta ent_r0,x
 	jmp ent_particle_transfer_pos
 
 ent_particle_transfer_pos: subroutine

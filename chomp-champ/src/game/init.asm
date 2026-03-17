@@ -68,7 +68,6 @@ state_game_init: subroutine
 	jsr ent_poop_spawn
 	jsr ent_grub_spawn
 	jsr ent_eggs_spawn
-	jsr ent_particle_spawn
 
 
 	; XXX level init should do this

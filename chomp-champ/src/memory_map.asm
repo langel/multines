@@ -18,6 +18,11 @@
 
 
 */
+
+ent_coll_x          eqm $380
+ent_coll_y          eqm $3a0
+ent_coll_visible    eqm $3c0
+
 tooth_cell_dmg      eqm $600
 tooth_total_dmg     eqm $700
 tooth_needs_update  eqm $720

@@ -1,6 +1,6 @@
 
 ; ent_r0 dirt counter
-; ent_r1 tooth cell id
+; ent_r1 frame wait length
 ; ent_r2 distance counter
 ; ent_r3 direction
 ;        0 right
@@ -14,6 +14,10 @@ grub_dir_sprite:
 	hex dc fc dc fc bc be bc be
 grub_dir_attr:
 	hex 02 02 42 42 02 02 82 82
+
+grub_hp                   eqm #$40
+grub_default_wait_length  eqm #$07
+grub_attacked_wait_length eqm #$03
 
 
 ent_grub_spawn: subroutine
@@ -29,8 +33,12 @@ ent_grub_spawn: subroutine
 	lda #$50
 	sta ent_y,x
 
+	lda #grub_hp
+	sta ent_hp,x
 	lda #$03
 	sta ent_r3,x
+	lda #grub_default_wait_length
+	sta ent_r1,x
 .done
 	rts
 
@@ -40,6 +48,10 @@ ent_grub_spawn_from_egg: subroutine
 	bmi .done
 	lda #ent_grub_id
 	sta ent_type,x
+
+	lda #grub_hp
+	sta ent_hp,x
+
 	jsr rng_update
 	; distance to next turn
 	lda rng_val0
@@ -66,6 +78,9 @@ ent_grub_spawn_from_egg: subroutine
 	lda ent_y,y
 	sta ent_y,x
 
+	lda #grub_default_wait_length
+	sta ent_r1,x
+
 	lda #$00
 	sta ent_r4,x
 	sta ent_r5,x
@@ -79,11 +94,18 @@ ent_grub_update: subroutine
 
 	inc ent_r5,x
 	lda ent_r5,x
-	cmp #$07
+	cmp ent_r1,x
 	beq .update_grub
 	jmp .frame_done
 
 .update_grub
+
+	lda ent_r1,x
+	cmp #grub_default_wait_length
+	beq .speed_default
+	inc ent_r1,x
+.speed_default
+
 	inc ent_r4,x
 	lda ent_r4,x
 	and #$01
@@ -256,7 +278,6 @@ ent_grub_update: subroutine
 	shift_l 5
 	clc
 	adc temp00
-	sta ent_r1,x ; cell_id
 	sta temp01
 	; check tooth is present
 	tax
@@ -283,6 +304,54 @@ ent_grub_update: subroutine
 	ldx ent_slot
 
 .frame_done
+
+	jsr ent_calc_position
+	lda ent_visible
+	sta ent_coll_visible,x
+	lda collision_0_x
+	sta ent_coll_x,x
+	lda collision_0_y
+	sta ent_coll_y,x
+
+.check_brush_collision
+	lda controller1
+	and #BRUSH_BUTTON
+	beq .brushing_done
+	clc
+	lda collision_0_x
+	adc collision_0_w
+	cmp brush_hit_x
+	bcc .brushing_done
+	clc
+	lda collision_0_x
+	cmp brush_hit_x
+	bcs .brushing_done
+	clc
+	lda collision_0_y
+	adc collision_0_h
+	cmp brush_hit_y
+	bcc .brushing_done
+	clc
+	lda collision_0_y
+	cmp brush_hit_y
+	bcs .brushing_done
+.brush_collision
+	lda ent_r3 ; player dir
+	and #$01
+	sta ent_r3,x
+	lda #grub_attacked_wait_length
+	sta ent_r1,x
+	lda ent_r5,x
+	cmp ent_r1,x
+	bcc .dont_reset_r5
+	lda #$00
+	sta ent_r5,x
+.dont_reset_r5
+	dec ent_hp,x
+	lda ent_hp,x
+	bpl .brushing_done
+	jsr ent_particle_spawn_from_baddie
+.brushing_done
 	
 	lda ent_y,x
 	clc
@@ -294,8 +363,6 @@ ent_grub_update: subroutine
 
 
 ent_grub_render: subroutine
-	; render (reload y?)
-	jsr ent_calc_position
 	; sprite
 	lda ent_r3,x
 	asl
@@ -313,13 +380,13 @@ ent_grub_render: subroutine
 	and #$02
 	beq .generic_render
 .up_down_single_sprite
-	lda ent_visible
+	lda ent_coll_visible,x
 	and #$01
 	cmp #$01
 	bne .render_done
-	lda collision_0_x
+	lda ent_coll_x,x
 	sta spr_x,y
-	lda collision_0_y
+	lda ent_coll_y,x
 	sta spr_y,y
 	lda temp00
 	sta spr_p,y
@@ -328,6 +395,12 @@ ent_grub_render: subroutine
 	inc_y 4
 	jmp .render_done
 .generic_render
+	lda ent_coll_visible,x
+	sta ent_visible
+	lda ent_coll_x,x
+	sta collision_0_x
+	lda ent_coll_y,x
+	sta collision_0_y
 	jsr ent_render_generic_8x16
 
 .render_done
