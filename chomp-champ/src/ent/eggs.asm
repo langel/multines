@@ -86,7 +86,10 @@ ent_eggs_update: subroutine
 	lda temp00
 	sta ent_r1,x
 
-
+	lda ent_y,x
+	clc
+	adc #$10
+	ent_z_calc_sort_vals_9bit
 
 	jmp ent_z_update_return
 

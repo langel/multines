@@ -237,6 +237,11 @@ ent_gnat_update: subroutine
 	sta ent_y,x
 .y_float_done
 	
+	lda ent_y,x
+	clc
+	adc #$10
+	ent_z_calc_sort_vals_9bit
+	
 	jmp ent_z_update_return
 
 
