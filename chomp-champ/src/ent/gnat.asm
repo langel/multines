@@ -239,7 +239,7 @@ ent_gnat_update: subroutine
 	
 	lda ent_y,x
 	clc
-	adc #$10
+	adc #$16
 	ent_z_calc_sort_vals_9bit
 	
 	jmp ent_z_update_return

@@ -48,6 +48,7 @@ cart_start: subroutine
 	include "src/ent/germ.asm"
 	include "src/ent/gnat.asm"
 	include "src/ent/grub.asm"
+	include "src/ent/particle.asm"
 	include "src/ent/player.asm"
 	include "src/ent/poop.asm"
 	include "src/palette.asm"
