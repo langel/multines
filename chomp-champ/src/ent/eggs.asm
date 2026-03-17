@@ -56,7 +56,9 @@ ent_eggs_update: subroutine
 	dec ent_r0,x
 	bne .dont_hatch
 	; transform into grub
-	jmp ent_grub_spawn_from_egg
+	jsr ent_grub_spawn_from_egg
+	jsr ent_particle_spawn_from_egg
+	jmp ent_z_update_return
 .dont_hatch
 	; shake time
 	lda #$00

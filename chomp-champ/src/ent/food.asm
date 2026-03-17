@@ -295,12 +295,16 @@ ent_food_update: subroutine
 	; check hp
 	lda ent_hp,x
 	bpl .lives
+	; setup falling staute
 	lda #$80
 	sta ent_r0,x
-	lda #$fd
-	sta ent_r7,x
-	lda #$00
+	jsr rng_update
+	lda rng_val0
+	asl
 	sta ent_r6,x
+	lda #$fc
+	adc #$00
+	sta ent_r7,x
 .lives
 	
 	jmp ent_z_update_return

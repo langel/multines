@@ -36,7 +36,10 @@ ent_particle_spawn: subroutine
 ent_particle_spawn_from_egg: subroutine
 	lda #ent_particle_id
 	sta ent_type,x
-	inc ent_r0,x
+	lda #$01
+	sta ent_r0,x
+	lda #$00
+	sta ent_hp,x
 	jmp ent_particle_transfer_pos
 
 ent_particle_spawn_from_baddie: subroutine
@@ -54,7 +57,7 @@ ent_particle_transfer_pos: subroutine
 	lda ent_x_hi,x
 	adc #$00
 	sta ent_r1,x
-	jmp ent_z_update_return
+	rts
 	
 
 
@@ -75,9 +78,9 @@ ent_particle_update: subroutine
 	lda ent_r2,x
 	adc #$01
 	sta ent_r2,x
-	lda ent_x_hi,x
+	lda ent_r1,x
 	adc #$00
-	sta ent_x_hi,x
+	sta ent_r1,x
 	; y falling
 	clc
 	lda ent_r6,x
@@ -95,24 +98,7 @@ ent_particle_update: subroutine
 	sta ent_y,x
 	cmp #$f0
 	bcc .dont_despawn
-	;ent_despawn
-	; respawn
-	lda #$06
-	sta ent_hp,x
-	lda #$00
-	sta ent_x_hi,x
-	lda #$d0
-	sta ent_x,x
-	lda #$a0
-	sta ent_y,x
-	; ugggg
-	lda ent_x,x
-	clc
-	adc #$08
-	sta ent_r2,x
-	lda ent_x_hi,x
-	adc #$00
-	sta ent_r1,x
+	ent_despawn
 	
 .dont_despawn
 	jmp ent_z_update_return

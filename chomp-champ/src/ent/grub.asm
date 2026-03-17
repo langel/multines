@@ -36,32 +36,41 @@ ent_grub_spawn: subroutine
 
 
 ent_grub_spawn_from_egg: subroutine
+	jsr ent_find_slot
+	bmi .done
 	lda #ent_grub_id
 	sta ent_type,x
-
 	jsr rng_update
+	; distance to next turn
 	lda rng_val0
 	and #$1f
 	sta ent_r2,x
+	; starting direction
 	lda rng_val1
 	and #$03
 	sta ent_r3,x
-
+	; fix offset
+	ldy ent_slot
 	lda ent_r3,x
 	and #$02
 	beq .no_x_offset
-	lda ent_x,x
+	lda ent_x,y
 	clc
 	adc #$04
 	sta ent_x,x
-	lda ent_x_hi,x
+	lda ent_x_hi,y
 	adc #$00
 	sta ent_x_hi,x
 .no_x_offset
 
+	lda ent_y,y
+	sta ent_y,x
+
 	lda #$00
 	sta ent_r4,x
 	sta ent_r5,x
+.done
+	ldx ent_slot
 	rts
 
 
