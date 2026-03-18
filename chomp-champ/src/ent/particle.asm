@@ -45,7 +45,7 @@ ent_particle_spawn_from_egg: subroutine
 ent_particle_spawn_from_baddie: subroutine
 	lda #ent_particle_id
 	sta ent_type,x
-	lda #$04
+	lda #$07
 	sta ent_hp,x
 	lda #$00
 	sta ent_r0,x
@@ -114,7 +114,7 @@ ent_particle_update: subroutine
 	;sta ent_r0,x
 	lda ent_x,x
 	clc
-	adc #$08
+	adc #$07
 	sta ent_r2,x
 	lda ent_x_hi,x
 	adc #$00

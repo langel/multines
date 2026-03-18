@@ -15,9 +15,9 @@ grub_dir_sprite:
 grub_dir_attr:
 	hex 02 02 42 42 02 02 82 82
 
-grub_hp                   eqm #$40
+grub_hp                   eqm #$20
 grub_default_wait_length  eqm #$07
-grub_attacked_wait_length eqm #$03
+grub_attacked_wait_length eqm #$01
 
 
 ent_grub_spawn: subroutine
@@ -61,11 +61,8 @@ ent_grub_spawn_from_egg: subroutine
 	lda rng_val1
 	and #$03
 	sta ent_r3,x
-	; fix offset
+	; copy position
 	ldy ent_slot
-	lda ent_r3,x
-	and #$02
-	beq .no_x_offset
 	lda ent_x,y
 	clc
 	adc #$04
@@ -73,12 +70,10 @@ ent_grub_spawn_from_egg: subroutine
 	lda ent_x_hi,y
 	adc #$00
 	sta ent_x_hi,x
-.no_x_offset
-
 	lda ent_y,y
 	sta ent_y,x
 
-	lda #grub_default_wait_length
+	lda #grub_attacked_wait_length
 	sta ent_r1,x
 
 	lda #$00
@@ -102,9 +97,13 @@ ent_grub_update: subroutine
 
 	lda ent_r1,x
 	cmp #grub_default_wait_length
-	beq .speed_default
+	beq .speed_done
+	jsr rng_update
+	lda rng_val0
+	cmp #$40
+	bcs .speed_done
 	inc ent_r1,x
-.speed_default
+.speed_done
 
 	inc ent_r4,x
 	lda ent_r4,x
@@ -163,27 +162,41 @@ ent_grub_update: subroutine
 .y_too_high
 	lda #$3c
 	sta ent_y,x
+	lda #$01
+	sta ent_r3,x
 	jmp .turn_left_or_right
 .y_too_low
 	lda #$af
 	sta ent_y,x
+	lda #$00
+	sta ent_r3,x
 	jmp .turn_left_or_right
 .check_x_bounds
 	lda ent_x_hi,x
+	bmi .check_x_left_escape
 	bne .check_x_hi_bound
 	lda ent_x,x
-	cmp #$02
+	cmp #$05
 	bne .bound_check_done
-	lda #$03
+	lda #$06
 	sta ent_x,x
 	jmp .turn_up_or_down
 	jmp .bound_check_done
+.check_x_left_escape
+	lda #$04
+	sta ent_x,x
+	lda #$00
+	sta ent_x_hi,x
+	lda #$03
+	sta ent_r3,x
 .check_x_hi_bound
 	lda ent_x,x
 	cmp #$f0
-	bne .bound_check_done
+	bcc .bound_check_done
 	lda #$eb
 	sta ent_x,x
+	lda #$02
+	sta ent_r3,x
 	jmp .turn_up_or_down
 .bound_check_done
 
@@ -284,8 +297,9 @@ ent_grub_update: subroutine
 	lda tooth_cell2tooth,x
 	tax
 	lda tooth_total_dmg,x
+	; check tooth is missing
 	bmi .skip_tooth_dmg
-	; xxx check tooth is cleared
+	; check tooth is cleared
 	beq .skip_tooth_dmg
 	; increase tooth damage
 	; but it maxes it
@@ -313,6 +327,21 @@ ent_grub_update: subroutine
 	lda collision_0_y
 	sta ent_coll_y,x
 
+	; hitbox adjustments
+	lda ent_r3,x
+	and #$02
+	bne .hitbox_tall
+.hitbox_wide
+	lda collision_0_x
+	clc
+	adc #$04
+	sta collision_0_x
+	jmp .hitbox_adjust_done
+.hitbox_tall
+	lda #$0a
+	sta collision_0_w
+.hitbox_adjust_done
+
 .check_brush_collision
 	lda controller1
 	and #BRUSH_BUTTON
@@ -339,6 +368,25 @@ ent_grub_update: subroutine
 	lda ent_r3 ; player dir
 	and #$01
 	sta ent_r3,x
+	bne .skitter_left
+.skitter_right
+	clc
+	lda ent_x,x
+	adc #$01
+	sta ent_x,x
+	lda ent_x_hi,x
+	adc #$00
+	sta ent_x_hi,x
+	jmp .skitter_done
+.skitter_left
+	sec
+	lda ent_x,x
+	sbc #$01
+	sta ent_x,x
+	lda ent_x_hi,x
+	sbc #$00
+	sta ent_x_hi,x
+.skitter_done
 	lda #grub_attacked_wait_length
 	sta ent_r1,x
 	lda ent_r5,x
