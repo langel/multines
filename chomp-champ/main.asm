@@ -38,8 +38,6 @@ cart_start: subroutine
 	include "src/game/render.asm"
 	include "src/game/teeth_init.asm"
 	include "src/game/teeth_lib.asm"
-	include "src/game/teeth_tables.asm"
-	include "src/game/tooth_tables_2.asm"
 	include "src/game/update.asm"
 	include "src/ents.asm"
 	include "src/ent/big_teef.asm"
@@ -53,7 +51,10 @@ cart_start: subroutine
 	include "src/ent/poop.asm"
 	include "src/palette.asm"
 
-	org $b000
+	org $b700
+	include "src/game/tooth_tables_2.asm"
+	include "src/game/teeth_tables.asm"
+	org $be00
 title_screen_nam:
 	incbin "assets/title.bin"
 

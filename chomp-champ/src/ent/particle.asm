@@ -100,8 +100,7 @@ ent_particle_update: subroutine
 	sta ent_y,x
 	cmp #$f0
 	bcc .dont_despawn
-	ent_despawn
-	
+	jmp ent_z_despawn
 .dont_despawn
 	jmp ent_z_update_return
 

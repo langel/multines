@@ -36,6 +36,12 @@ ent_poop_from_germ: subroutine
 	sta ent_y,y
 	lda ent_y_lo,x
 	sta ent_y_lo,y
+	; hp
+	lda #$10
+	sta ent_hp,y
+	; poop causes dirt
+	ldy #$05
+	jsr ent_sully_cell
 .done
 	ldx ent_slot
 	ldy ent_spr_ptr
@@ -44,6 +50,58 @@ ent_poop_from_germ: subroutine
 
 ent_poop_update: subroutine
 	; update logic
+	jsr ent_calc_position
+	lda ent_visible
+	sta ent_r3,x
+	lda collision_0_x
+	sta ent_r4,x
+	lda collision_0_y
+	sta ent_r5,x
+
+.check_brush_collision
+	lda controller1
+	and #BRUSH_BUTTON
+	beq .brushing_done
+	clc
+	lda collision_0_x
+	adc collision_0_w
+	cmp brush_hit_x
+	bcc .brushing_done
+	clc
+	lda collision_0_x
+	cmp brush_hit_x
+	bcs .brushing_done
+	clc
+	lda collision_0_y
+	adc collision_0_h
+	cmp brush_hit_y
+	bcc .brushing_done
+	clc
+	lda collision_0_y
+	cmp brush_hit_y
+	bcs .brushing_done
+.brush_collision
+	lda wtf
+	lsr
+	and #$03
+	beq .brushing_done
+	cmp #$01
+	beq .brush_shake_left
+	cmp #$02
+	beq .brush_shake_right
+	jmp .shake_done
+.brush_shake_left
+	dec ent_r4,x
+	jmp .shake_done
+.brush_shake_right
+	inc ent_r4,x
+.shake_done
+	dec ent_hp,x
+	lda ent_hp,x
+	bpl .brushing_done
+	jsr ent_particle_spawn_from_baddie
+.brushing_done
+
 	lda ent_y,x
 	clc
 	adc #$10
@@ -53,8 +111,14 @@ ent_poop_update: subroutine
 
 
 ent_poop_render: subroutine
-	; render (reload y?)
-	jsr ent_calc_position
+	; recall ent position
+	lda ent_r3,x
+	sta ent_visible
+	lda ent_r4,x
+	sta collision_0_x
+	lda ent_r5,x
+	sta collision_0_y
+
 	lda #$7c
 	sta temp00
 	lda #$02

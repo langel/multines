@@ -272,48 +272,8 @@ ent_grub_update: subroutine
 	bne .skip_tooth_dmg
 	lda #$00
 	sta ent_r0,x
-	; dirt some tooth
-	; (germ_x / 16) 
-	; +
-	; ((germ_y / 16) * 32)
-	lda ent_x_hi,x
-	lsr
-	lda ent_x,x
-	ror
-	clc
-	adc #$02
-	shift_r 3
-	sta temp00
-	lda ent_y,x
-	sec
-	sbc #$33
-	shift_r 4
-	shift_l 5
-	clc
-	adc temp00
-	sta temp01
-	; check tooth is present
-	tax
-	lda tooth_cell2tooth,x
-	tax
-	lda tooth_total_dmg,x
-	; check tooth is missing
-	bmi .skip_tooth_dmg
-	; check tooth is cleared
-	beq .skip_tooth_dmg
-	; increase tooth damage
-	; but it maxes it
-	ldx temp01
-	lda $600,x
-	cmp #$0f
-	beq .skip_tooth_dmg
-	inc $600,x
-	; add tooth cell to update queue
-	txa
-	ldx tooth_update_queue_size
-	sta tooth_needs_update,x
-	inc tooth_update_queue_size
-	; log tooth change
+	ldy #$01
+	jsr ent_sully_cell
 .skip_tooth_dmg
 	ldx ent_slot
 

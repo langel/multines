@@ -54,15 +54,45 @@ teeth_init: subroutine
 	rts
 
 
-; xxx need to check for:
-;	game over (all teeth gone)
-;  level complete (all teeth are clean or gone)
+
 teeth_update: subroutine
 	; adds up dirt value of all 16 cells of tooth_index based on frame counter
 	; temp00 = addend
 	; temp02 = eol
 	; destroys x+y
-	jsr check_mouth_state
+
+;check_mouth_state BEGIN
+	lda #$00
+	sta temp00 ; dead counter
+	sta temp01 ; clean counter
+	ldx #$0f
+.loop
+	lda tooth_total_dmg,x
+	bpl .not_dead
+	inc temp00
+	jmp .tooth_checked
+.not_dead
+	bne .tooth_checked
+	inc temp01
+.tooth_checked
+	dex
+	bpl .loop
+	; check for game over
+	lda temp00
+	cmp #$10
+	bne .not_gameover
+	jsr state_gameover_init
+.not_gameover
+	; check for next level
+	lda temp00
+	clc
+	adc temp01
+	cmp #$10
+	bne .not_nextlevel
+	jsr state_nextlevel_init
+.not_nextlevel
+;check_mouth_state FINISH
+
 	ldx tooth_index
 .next_tooth
 	inx
@@ -101,63 +131,6 @@ teeth_update: subroutine
 .tooth_lost
 	rts
 
-
-check_mouth_state: subroutine
-	lda #$00
-	sta temp00 ; dead counter
-	sta temp01 ; clean counter
-	ldx #$0f
-.loop
-	lda tooth_total_dmg,x
-	bpl .not_dead
-	inc temp00
-	jmp .tooth_checked
-.not_dead
-	bne .tooth_checked
-	inc temp01
-.tooth_checked
-	dex
-	bpl .loop
-	; check for game over
-	lda temp00
-	cmp #$10
-	bne .not_gameover
-	jsr state_gameover_init
-.not_gameover
-	; check for next level
-	lda temp00
-	clc
-	adc temp01
-	cmp #$10
-	bne .not_nextlevel
-	jsr state_nextlevel_init
-.not_nextlevel
-	rts
-
-
-; xxx no longer in use
-tooth_health_update: subroutine
-	; a = tooth id
-	; temp00 = addend
-	; temp01 = tooth_id
-	; destroys x+y
-	sta temp01
-	shift_l 4
-	tax
-	ldy #$10
-	clc
-	lda #$00
-	sta temp00
-.tooth_loop
-	lda tooth_cell_dmg,x
-	adc temp00
-	sta temp00
-	inx 
-	dey
-	bne .tooth_loop
-	ldx temp01
-	sta tooth_total_dmg,x
-	rts
 
 
 

@@ -14,7 +14,7 @@ gnat_diving     eqm $02
 gnat_on_poop    eqm $04
 gnat_ascending  eqm $08
 
-gnat_base_y     eqm $40
+gnat_base_y     eqm $30
 
 ent_gnat_spawn: subroutine
 	jsr ent_find_slot
@@ -66,6 +66,8 @@ ent_gnat_update: subroutine
 	bne .move_right
 .move_left
 	dec ent_x,x
+	lda ent_x,x
+	cmp #$ff
 	bne .left_not_next_screen
 	dec ent_x_hi,x
 .left_not_next_screen
@@ -180,8 +182,18 @@ ent_gnat_update: subroutine
 	lda ent_r3,x
 	and #%00000100
 	beq .on_poop_done
+	; check poop is still there
+	ldy ent_r2,x
+	lda ent_type,y
+	cmp #ent_poop_id
+	bne .on_poop_next_state
+	; check timer
 	dec ent_r4,x
 	bne .on_poop_done
+.poop_becomes_eggs
+	lda ent_r2,x
+	jsr ent_eggs_spawn_from_poop
+.on_poop_next_state
 	; setup next state
 	lda ent_r3,x
 	and #%00000001
@@ -189,10 +201,6 @@ ent_gnat_update: subroutine
 	sta ent_r3,x
 	lda #$00
 	sta ent_r5,x
-	; xxx need to turn
-	;     poop into eggs
-	lda ent_r2,x
-	jsr ent_eggs_spawn_from_poop
 .on_poop_done
 
 	; check ascending
@@ -236,7 +244,7 @@ ent_gnat_update: subroutine
 	sbc temp00
 	sta ent_y,x
 .y_float_done
-	
+
 	lda ent_y,x
 	clc
 	adc #$16

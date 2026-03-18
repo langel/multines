@@ -24,8 +24,12 @@ ent_germ_spawn: subroutine
 	lda rng_val0
 	and #$03
 	sta ent_r3,x
+	; hp
+	lda #$10
+	sta ent_hp,x
 .done
 	rts
+
 
 ent_germ_update: subroutine
 
@@ -33,8 +37,45 @@ ent_germ_update: subroutine
 	lda ent_r2,x
 	cmp wtf
 	bne .no_poop
-	;jsr ent_poop_from_germ
+	jsr ent_poop_from_germ
 .no_poop
+
+	jsr ent_calc_position
+	lda ent_visible
+	sta ent_coll_visible,x
+	lda collision_0_x
+	sta ent_coll_x,x
+	lda collision_0_y
+	sta ent_coll_y,x
+.check_brush_collision
+	lda controller1
+	and #BRUSH_BUTTON
+	beq .brushing_done
+	clc
+	lda collision_0_x
+	adc collision_0_w
+	cmp brush_hit_x
+	bcc .brushing_done
+	clc
+	lda collision_0_x
+	cmp brush_hit_x
+	bcs .brushing_done
+	clc
+	lda collision_0_y
+	adc collision_0_h
+	cmp brush_hit_y
+	bcc .brushing_done
+	clc
+	lda collision_0_y
+	cmp brush_hit_y
+	bcs .brushing_done
+.brush_collision
+	dec ent_hp,x
+	lda ent_hp,x
+	bpl .brushing_done
+	jsr ent_particle_spawn_from_baddie
+	jmp ent_z_update_return
+.brushing_done
 
 	; movement left/right
 	lda ent_r3,x
@@ -102,12 +143,6 @@ ent_germ_update: subroutine
 	sta ent_r3,x
 .y_low_enough
 
-	; set z position
-	lda ent_y,x
-	clc
-	adc #$10
-	ent_z_calc_sort_vals
-
 	; calc tooth position
 	lda wtf
 	and #$0f
@@ -171,7 +206,15 @@ ent_germ_update: subroutine
 	sta ent_r1,x
 .not_next_frame
 	
+	; set z position
+	lda ent_y,x
+	clc
+	adc #$10
+	ent_z_calc_sort_vals
+	
 	jmp ent_z_update_return
+
+
 
 ent_germ_frame_table:
 	hex 4c 50 4c 54
@@ -181,7 +224,7 @@ ent_germ_frame_table:
 
 ent_germ_render: subroutine
 	; RENDER
-	jsr ent_calc_position
+	;jsr ent_calc_position
 	; metasprite
 	ldx ent_slot
 	lda ent_r1,x
@@ -202,6 +245,12 @@ ent_germ_render: subroutine
 	shift_l 5
 	ora #$01
 	sta temp01
+	lda ent_coll_visible,x
+	sta ent_visible
+	lda ent_coll_x,x
+	sta collision_0_x
+	lda ent_coll_y,x
+	sta collision_0_y
 	jsr ent_render_generic_8x16
 
 	jmp ent_z_render_return

@@ -62,9 +62,22 @@ state_gameover_init: subroutine
 	sta scroll_x
 	jsr render_enable
 
+	lda #$00
+	sta state00
+	sta state01
+
 	rts
 
 
 state_gameover_update: subroutine
-	jsr render_enable
+
+	inc state00
+	lda state00
+	cmp #$00
+	bne .not_reset
+	jsr state_game_init
+.not_reset
+
 	jmp nmi_update_done
+	
+

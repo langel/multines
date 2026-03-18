@@ -11,6 +11,15 @@ state_game_update: subroutine
 	;lda #%00011000 ; diable left 8 pixels row
 	;sta PPU_MASK
 
+	jsr teeth_update
+
+	; check if same state
+	lda state_update_id
+	cmp #state_game_update_id
+	beq .stay_in_game_state
+	jmp nmi_update_done
+.stay_in_game_state
+
 	jsr hud_sprite0
 
 	; xxx need to check level status
@@ -18,8 +27,6 @@ state_game_update: subroutine
 	; next level all teeth clean or gone
 
 	jsr ent_z_update
-
-	jsr teeth_update
 
 	jsr hud_update
 

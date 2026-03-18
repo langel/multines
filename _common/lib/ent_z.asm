@@ -151,6 +151,12 @@ ent_z_render_return:
 	rts
 
 
+
+ent_z_despawn: subroutine
+	ent_despawn
+	jmp ent_z_update_return
+
+
 	MAC ent_z_calc_sort_vals
 	; call with z pos + height in a
 	sec

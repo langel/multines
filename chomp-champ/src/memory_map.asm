@@ -31,6 +31,7 @@ tooth_tile_cache    eqm $760
 tooth_update_queue_size byte
 tooth_index             byte
 
+germs_under_attack      byte
 
 hud_initted   byte
 

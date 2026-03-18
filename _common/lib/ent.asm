@@ -165,11 +165,11 @@ ent_calc_position: subroutine
 	sbc camera_x_hi
 	beq .left_visible
 	cmp #$ff
-	bne .left_done
+	bne .visibility_done
 	lda collision_0_x
 	cmp #$f8
 	bcs .right_visible
-	bcc .left_done
+	bcc .visibility_done
 .left_visible
 	lda ent_visible
 	ora #$01
@@ -177,12 +177,12 @@ ent_calc_position: subroutine
 	lda collision_0_x
 	cmp #$f8
 	bcc .right_visible
-	bcs .left_done
+	bcs .visibility_done
 .right_visible
 	lda ent_visible
 	ora #$02
 	sta ent_visible
-.left_done
+.visibility_done
 	lda ent_visible
 	beq .collision_done
 	and #$03
