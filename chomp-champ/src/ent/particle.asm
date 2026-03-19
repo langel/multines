@@ -34,24 +34,48 @@ ent_particle_spawn: subroutine
 
 
 ent_particle_spawn_from_egg: subroutine
+	; needs to be new slot
+	jsr ent_find_slot
+	bmi .done
 	lda #ent_particle_id
 	sta ent_type,x
 	lda #$01
 	sta ent_r0,x
 	lda #$00
 	sta ent_hp,x
-	jmp ent_particle_transfer_pos
+	; transfer egg position
+	ldy ent_slot
+	clc
+	lda ent_x,y
+	adc #$04
+	sta ent_x,x
+	lda ent_x_hi,y
+	adc #$00
+	sta ent_x_hi,x
+	lda ent_y,y
+	sta ent_y,x
+	; setup 2nd particle
+	lda ent_x,x
+	clc
+	adc #$08
+	sta ent_r2,x
+	lda ent_x_hi,x
+	adc #$00
+	sta ent_r1,x
+.done
+	ldx ent_slot
+	rts
+
 
 ent_particle_spawn_from_baddie: subroutine
+	; replaces baddy slot
 	lda #ent_particle_id
 	sta ent_type,x
 	lda #$07
 	sta ent_hp,x
 	lda #$00
 	sta ent_r0,x
-	jmp ent_particle_transfer_pos
-
-ent_particle_transfer_pos: subroutine
+	; setup 2nd particle
 	lda ent_x,x
 	clc
 	adc #$08
@@ -60,6 +84,7 @@ ent_particle_transfer_pos: subroutine
 	adc #$00
 	sta ent_r1,x
 	rts
+
 	
 
 

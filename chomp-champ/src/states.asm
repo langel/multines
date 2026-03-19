@@ -37,10 +37,10 @@ state_table_hi:
 	; bootup state initializer
 state_init: subroutine
 	;jsr state_title_init
-	;jsr state_game_init
+	jsr state_game_init
 	;jsr state_gameover_init
 	;jsr state_nextlevel_init
-	jsr state_congration_init
+	;jsr state_congration_init
 
 	rts
 

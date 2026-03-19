@@ -77,6 +77,14 @@ hud_init: subroutine
 
 
 hud_sprite0: subroutine
+	; cache palette in zp
+	lda game_palette+1
+	sta temp00
+	lda game_palette+2
+	sta temp01
+	lda game_palette+3
+	sta temp02
+	; check if it setup
 	lda hud_initted
 	bne .wait0
 	rts
@@ -97,17 +105,19 @@ hud_sprite0: subroutine
 	sta PPU_ADDR
 	lda #$01
 	sta PPU_ADDR
-	lda #$15
+	lda temp00
 	sta PPU_DATA
-	lda #$0c
+	lda temp01
 	sta PPU_DATA
-	lda #$31
+	lda temp02
 	sta PPU_DATA
 
-	ldx #$07
+	ldx #03
 .scanline_wait
 	dex
 	bne .scanline_wait
+	nop
+	nop
 	
 	; fine scrolling method
 	lda camera_nm
@@ -205,7 +215,7 @@ hud_update: subroutine
 	sta spr_a
 	lda #$10
 	sta spr_p
-	lda #$bd
+	lda #$ba
 	sta spr_x
 	lda #$1d
 	sta spr_y
