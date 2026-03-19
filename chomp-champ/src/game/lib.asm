@@ -64,7 +64,10 @@ ent_sully_cell: subroutine
 	ldx temp01
 	tya
 	adc $600,x
-	and #$0f
+	cmp #$0f
+	bcc .dont_fix_dmg
+	lda #$0f
+.dont_fix_dmg
 	sta $600,x
 	; add tooth cell to update queue
 	txa
@@ -73,4 +76,5 @@ ent_sully_cell: subroutine
 	inc tooth_update_queue_size
 	; log tooth change
 .skip_cell_dmg
+	ldx ent_slot
 	rts

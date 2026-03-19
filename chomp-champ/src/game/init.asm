@@ -5,11 +5,10 @@ game_palette:
 	; til
 	hex 15 00 31
 	hex 15 18 28
-	hex 15 0c 18
+	hex 15 08 18
 	hex 15 0f 08
 	; spr
 	hex 02 11 38 ; player
-	;hex 02 11 38 ; player
 	hex 0b 19 2a ; germ / broccoli
 	hex 06 17 37 ; poop / bird leg
 	hex 13 23 34 ; berries?

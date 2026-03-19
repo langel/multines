@@ -43,8 +43,6 @@ ent_poop_from_germ: subroutine
 	ldy #$05
 	jsr ent_sully_cell
 .done
-	ldx ent_slot
-	ldy ent_spr_ptr
 	rts
 
 

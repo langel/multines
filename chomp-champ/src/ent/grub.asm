@@ -270,7 +270,6 @@ ent_grub_update: subroutine
 	ldy #$01
 	jsr ent_sully_cell
 .skip_tooth_dmg
-	ldx ent_slot
 
 .frame_done
 

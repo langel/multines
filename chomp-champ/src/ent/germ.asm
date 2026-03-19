@@ -3,15 +3,10 @@
 ; ent_r1 animation frame
 ; ent_r2 poop clock
 ; ent_r3 direction
-;  polar coordinates
+;        polar coordinates
 
-;	000000x0 left/right
-;	0000000x up/down
+; ent_r4 food target
 
-;  0000000x up
-;  000000x0 right
-;  00000x00 down
-;  0000x000 left
 
 ; ent_r5 temp tooth cell id
 ; ent_r6 z pos sort up
@@ -51,30 +46,23 @@ ent_germ_spawn: subroutine
 	; hp
 	lda #$10
 	sta ent_hp,x
+	; clear food target
+	lda #$ff
+	sta ent_r4,x
 .done
 	rts
 
 
 ent_germ_update: subroutine
 
-	; spawn poop?
-	lda ent_r2,x
-	cmp wtf
-	bne .no_poop
-	jsr rng_update
-	lda rng_val0
-	cmp #$40
-	bcs .no_poop
-	jsr ent_poop_from_germ
-.no_poop
-
 	jsr ent_calc_position
-	lda ent_visible
-	sta ent_coll_visible,x
 	lda collision_0_x
 	sta ent_coll_x,x
 	lda collision_0_y
 	sta ent_coll_y,x
+	lda ent_visible
+	sta ent_coll_visible,x
+	beq .brushing_done
 .check_brush_collision
 	lda controller1
 	and #BRUSH_BUTTON
@@ -104,15 +92,24 @@ ent_germ_update: subroutine
 	; set germs on offensive
 	lda #$7f
 	sta germ_attacked
-	bpl .brushing_done
+	bpl .not_dead
 	jsr ent_particle_spawn_from_baddie
 	jmp ent_z_update_return
+.not_dead
 .brushing_done
+
+; states
+;    0 = wandering
+;    1 = food targetted
+;    2 = eating food
+;    3 = on offensive
+;    4 = under attack
+
 
 	; check germs_attack
 	lda germ_attacked
 	;beq .passive_mode
-	beq .testing
+	beq .mode_wandering
 	sec
 	lda germ_attacked
 	sbc #$10
@@ -120,21 +117,20 @@ ent_germ_update: subroutine
 	lda #$00
 	sta germ_attacked
 .stay_offensive
-	jmp .offense_mode
+	jmp .mode_offense
 
-.testing
-/*
-	lda wtf
-	and #$0f
-	bne .turning_done
-	inc ent_r3,x
-	lda ent_r3,x
-	cmp #$08
-	bne .turning_done
-	lda #$00
-	sta ent_r3,x
-.turning_done
-*/
+.mode_wandering
+	; spawn poop?
+	lda ent_r2,x
+	cmp wtf
+	bne .no_poop
+	jsr rng_update
+	lda rng_val0
+	cmp #$40
+	bcs .no_poop
+	jsr ent_poop_from_germ
+.no_poop
+
 	; move according to dir
 	ldy ent_r3,x
 	clc
@@ -154,45 +150,10 @@ ent_germ_update: subroutine
 	lda ent_y,x
 	adc ent_germ_y_dir_vel,y
 	sta ent_y,x
-
-.passive_mode
-/*
-	; movement left/right
-	lda ent_r3,x
-	and #$02
-	beq .move_left
-.move_right
-	inc ent_x,x
-	bne .no_right_carry
-	inc ent_x_hi,x
-.no_right_carry
-	jmp .right_left_done
-.move_left
-	lda ent_x,x
-	sec
-	sbc #$01
-	sta ent_x,x
-	lda ent_x_hi,x
-	sbc #$00
-	sta ent_x_hi,x
-.right_left_done
-	; movement up/down
-	lda ent_r3,x
-	and #$01
-	beq .move_up
-.move_down
-	inc ent_y,x
-	jmp .down_up_done
-.move_up
-	dec ent_y,x
-.down_up_done
-	jmp .movement_done
-*/
-
-.offense_mode
-
 .movement_done
 
+
+.mode_offense
 
 	; bound x
 	lda ent_x_hi,x
@@ -242,49 +203,9 @@ ent_germ_update: subroutine
 	sta temp00
 	cpx temp00
 	bne .skip_tooth_dmg
-	; (germ_x / 16) 
-	; +
-	; ((germ_y / 16) * 32)
-	lda ent_x_hi,x
-	lsr
-	lda ent_x,x
-	ror
-	clc
-	adc #$04
-	shift_r 3
-	sta temp00
-	lda ent_y,x
-	sec
-	sbc #$37
-	shift_r 4
-	shift_l 5
-	clc
-	adc temp00
-	sta ent_r5,x ; cell_id
-	sta temp01
-	; check tooth is present
-	tax
-	lda tooth_cell2tooth,x
-	tax
-	lda tooth_total_dmg,x
-	bmi .skip_tooth_dmg
-	; xxx check tooth is cleared
-	beq .skip_tooth_dmg
-	; increase tooth damage
-	; but it maxes it
-	ldx temp01
-	lda $600,x
-	cmp #$0f
-	beq .skip_tooth_dmg
-	inc $600,x
-	; add tooth cell to update queue
-	txa
-	ldx tooth_update_queue_size
-	sta tooth_needs_update,x
-	inc tooth_update_queue_size
-	; log tooth change
+	ldy #$01
+	jsr ent_sully_cell
 .skip_tooth_dmg
-	ldx ent_slot
 
 	; update animation frame
 	inc ent_r0,x
