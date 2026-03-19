@@ -70,6 +70,7 @@ state_gameover_init: subroutine
 
 
 state_gameover_update: subroutine
+	jsr render_enable
 
 	inc state00
 	lda state00

@@ -5,7 +5,7 @@ title_copy_line:
 
 state_title_init: subroutine
 
-	lda #CTRL_8x8
+	lda #CTRL_8x16
 	sta ppu_ctrl_ora
 	lda #$00
 	sta scroll_nm
@@ -163,6 +163,12 @@ state_title_update: subroutine
 	lda #$25
 	sta palette_cache+2
 .throb_dont_cancel
+
+
+	lda controller1
+	beq .dont_start
+	jsr state_game_init
+.dont_start
 
 
 	jmp nmi_update_done

@@ -25,6 +25,18 @@ state_game_init: subroutine
 	ldx #state_game_update_id
 	jsr state_set_update_routine
 
+	; clear some ram
+	lda #$00
+	tax
+.clear_some_ram
+	sta $300,x
+	sta $400,x
+	sta $500,x
+	sta $600,x
+	sta $700,x
+	inx
+	bne .clear_some_ram
+
 	jsr ent_z_init
 
 	lda #$04
