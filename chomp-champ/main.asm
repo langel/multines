@@ -28,6 +28,7 @@ cart_start: subroutine
 	;   $8080
 	include "src/states.asm"
 	include "src/state_title.asm"
+	include "src/state_congration.asm"
 	include "src/state_demo.asm"
 	include "src/state_nextlevel.asm"
 	include "src/state_gameover.asm"
