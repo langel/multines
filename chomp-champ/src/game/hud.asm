@@ -79,7 +79,6 @@ hud_init: subroutine
 hud_sprite0: subroutine
 	lda hud_initted
 	bne .wait0
-	inc hud_initted
 	rts
 .wait0	
 	bit PPU_STATUS
@@ -210,6 +209,9 @@ hud_update: subroutine
 	sta spr_x
 	lda #$1d
 	sta spr_y
+	; enable hud split-scroll
+	lda #$01
+	sta hud_initted
 
 	; player indicator
 	lda ent_r3 ; player dir
