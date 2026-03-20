@@ -37,8 +37,6 @@ state_game_init: subroutine
 	sta $400,x
 	sta $500,x
 	sta $600,x
-	; xxx level init should not
-	;     clear missing teeth
 	sta $700,x
 	inx
 	bne .clear_most_ram

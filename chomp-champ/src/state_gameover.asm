@@ -1,4 +1,12 @@
 
+palette_game_over:
+	; bg
+	hex 0f
+	; tiles
+	hex 02 21 0f
+	hex 15 16 14
+	hex 0f 27 0f
+
 text_game_over:
 	hex 60 08 5a 08 66 08 5e 08 
 	hex 08 68 08 6f 08 5e 08 6b
@@ -10,7 +18,18 @@ text_all_tooths_lost:
 
 
 state_gameover_init: subroutine
+
 	jsr render_disable
+	jsr sprites_clear
+
+	; load palette
+	ldx #$00
+.pal_loop
+	lda palette_game_over,x
+	sta palette_cache,x
+	inx
+	cpx #$0a
+	bne .pal_loop
 
 	lda #$08
 	sta temp00
@@ -18,10 +37,6 @@ state_gameover_init: subroutine
 	sta temp01
 	lda #$20
 	jsr nametable_fill
-
-	jsr sprites_clear
-	jsr palette_init
-
 	
 	; player head render
 	lda #$08
@@ -43,12 +58,11 @@ state_gameover_init: subroutine
 	sta temp03
 	jsr metapattern_to_nametable_8x16
 
-
+	; write all tooths lost
 	lda #$20
 	sta PPU_ADDR
 	lda #$83
 	sta PPU_ADDR
-	; write all tooths lost
 	ldx #$00
 .all_tooths_lost_loop
 	lda text_all_tooths_lost,x
@@ -56,17 +70,30 @@ state_gameover_init: subroutine
 	inx
 	cpx #$1b
 	bne .all_tooths_lost_loop
-
+	; attri
+	lda #$23
+	sta PPU_ADDR
+	lda #$c8
+	sta PPU_ADDR
+	lda #%10101010
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
 
 	; vertical texts
 	lda #CTRL_INC_32
 	sta PPU_CTRL
 
+	; write game over
 	lda #$21
 	sta PPU_ADDR
 	lda #$3a
 	sta PPU_ADDR
-	; write game over
 	ldx #$00
 .game_over_loop
 	lda text_game_over,x
@@ -74,6 +101,33 @@ state_gameover_init: subroutine
 	inx
 	cpx #$10
 	bne .game_over_loop
+	; attr
+	lda #$23
+	sta PPU_ADDR
+	lda #$d6
+	sta PPU_ADDR
+	ldx #%01010101
+	stx PPU_DATA
+	lda #$23
+	sta PPU_ADDR
+	lda #$de
+	sta PPU_ADDR
+	stx PPU_DATA
+	lda #$23
+	sta PPU_ADDR
+	lda #$e6
+	sta PPU_ADDR
+	stx PPU_DATA
+	lda #$23
+	sta PPU_ADDR
+	lda #$ee
+	sta PPU_ADDR
+	stx PPU_DATA
+	lda #$23
+	sta PPU_ADDR
+	lda #$f6
+	sta PPU_ADDR
+	stx PPU_DATA
 
 
 	ldx #state_gameover_update_id

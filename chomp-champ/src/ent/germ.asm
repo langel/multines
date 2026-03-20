@@ -235,7 +235,7 @@ ent_germ_frame_table:
 	hex 4c 50 4c 54
 	hex 40 44 40 48
 	hex 4c 50 4c 54
-	hex 58 5c 60 5c
+	hex 58 5c 58 60
 	hex 64 68 64 6c
 	hex 70 74 70 78
 	hex 64 68 64 6c
