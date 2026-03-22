@@ -151,12 +151,21 @@ state_gameover_init: subroutine
 state_gameover_update: subroutine
 	jsr render_enable
 
-	inc state00
+	clc
 	lda state00
-	cmp #$00
-	bne .not_reset
-	jsr state_game_init
-.not_reset
+	adc #$01
+	sta state00
+	lda state01
+	adc #$00
+	sta state01
+	cmp #$02
+	beq .start_a_game
+
+	lda controller1_d
+	beq .dont_start
+.start_a_game
+	jsr state_title_init
+.dont_start
 
 	jmp nmi_update_done
 	

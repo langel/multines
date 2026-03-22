@@ -19,6 +19,8 @@ state_nextlevel_init: subroutine
 	bne .pal_loop
 
 	; clear ent ram
+	lda #$00
+	tax
 .clear_ent_ram
 	sta $300,x
 	sta $400,x
@@ -56,11 +58,17 @@ state_nextlevel_init: subroutine
 	lda #$08 ; space
 	sta PPU_DATA
 	lda #$08 ; space
+	sta PPU_DATA
 	; current level integers
+	ldx game_level
+	lda zero_pad_10s_table,x
+	clc
+	adc #$50
 	sta PPU_DATA
-	lda #$50
-	sta PPU_DATA
-	lda #$51
+	ldx game_level
+	lda zero_pad_01s_table,x
+	clc
+	adc #$50
 	sta PPU_DATA
 
 	ldx #state_nextlevel_update_id
@@ -68,6 +76,9 @@ state_nextlevel_init: subroutine
 	ldx #render_do_nothing_id
 	jsr state_set_render_routine
 
+	lda #$00
+	sta state04
+	sta state05
 
 	lda #$00
 	sta ppu_ctrl_ora
@@ -80,4 +91,25 @@ state_nextlevel_init: subroutine
 
 state_nextlevel_update: subroutine
 	jsr render_enable
+	jsr controller_read
+	
+	clc
+	lda state04
+	adc #$01
+	sta state04
+	lda state05
+	adc #$00
+	sta state05
+	cmp #$01
+	beq .start_a_game
+
+	lda controller1_d
+	beq .dont_start
+.start_a_game
+	jsr state_game_init
+.dont_start
+
 	jmp nmi_update_done
+
+
+

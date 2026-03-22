@@ -26,22 +26,6 @@ state_game_init: subroutine
 	lda #CTRL_8x16
 	sta ppu_ctrl_ora
 
-	; clear some ram
-	lda #$00
-	ldx <#end_of_common_ram
-.clear_zp
-	sta #$00,x
-	inx
-	bne .clear_zp
-.clear_most_ram
-	sta $300,x
-	sta $400,x
-	sta $500,x
-	sta $600,x
-	sta $700,x
-	inx
-	bne .clear_most_ram
-
 	; load palette
 	ldx #$00
 .pal_loop
@@ -53,8 +37,6 @@ state_game_init: subroutine
 	
 	jsr ent_z_init
 
-	lda #$04
-	sta player_lives
 	jsr ent_player_init
 
 /*
@@ -70,32 +52,41 @@ state_game_init: subroutine
 	jsr ent_germ_spawn
 	jsr ent_germ_spawn
 	jsr ent_germ_spawn
+	jsr ent_germ_spawn
  */
 	jsr ent_germ_spawn
 	jsr ent_germ_spawn
-	jsr ent_germ_spawn
-	jsr ent_food_spawn
-	jsr ent_food_spawn
-	jsr ent_food_spawn
-	jsr ent_food_spawn
-	jsr ent_food_spawn
 	jsr ent_food_spawn
 	jsr ent_food_spawn
 	jsr ent_food_spawn
 	/*
-	jsr ent_food_spawn_in_gap
-	jsr ent_food_spawn_in_gap
-	jsr ent_food_spawn_in_gap
-	jsr ent_food_spawn_in_gap
+	jsr ent_food_spawn
+	jsr ent_food_spawn
+	jsr ent_food_spawn
+	jsr ent_food_spawn
+	jsr ent_food_spawn
 	jsr ent_food_spawn_in_gap
 	jsr ent_food_spawn_in_gap
 	jsr ent_food_spawn_in_gap
 	jsr ent_food_spawn_in_gap
 	*/
+	jsr ent_food_spawn_in_gap
+	jsr ent_food_spawn_in_gap
+	jsr ent_food_spawn_in_gap
+	jsr ent_food_spawn_in_gap
 	jsr ent_gnat_spawn
 	;jsr ent_poop_spawn
 	;jsr ent_grub_spawn
 	;jsr ent_eggs_spawn
+
+	ldx game_level
+	stx state07
+.extra_germs
+	jsr ent_germ_spawn
+	ldx state07
+	dex
+	stx state07
+	bpl .extra_germs
 
 
 	; XXX level init should do this

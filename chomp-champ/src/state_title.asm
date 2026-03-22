@@ -1,4 +1,6 @@
 
+; state00 ????
+; xxx fill these in!
 
 title_screen_palette:
 	hex 0f 15 25 14
@@ -10,6 +12,8 @@ title_copy_line:
 
 
 state_title_init: subroutine
+
+	jsr render_disable
 
 	lda #CTRL_8x8
 	sta ppu_ctrl_ora
@@ -90,6 +94,10 @@ state_title_init: subroutine
 	lda #$a0
 	sta state03 ; y pos
 	jsr ent_big_teef_spawn
+
+	lda #$00
+	sta state06
+	sta state07
 
 	ldx #render_do_nothing_id
 	jsr state_set_render_routine
@@ -176,10 +184,20 @@ state_title_update: subroutine
 	sta palette_cache+2
 .throb_dont_cancel
 
+	clc
+	lda state06
+	adc #$01
+	sta state06
+	lda state07
+	adc #$00
+	sta state07
+	cmp #$02
+	beq .start_a_game
 
-	lda controller1
+	lda controller1_d
 	beq .dont_start
-	jsr state_game_init
+.start_a_game
+	jsr init_new_game
 .dont_start
 
 

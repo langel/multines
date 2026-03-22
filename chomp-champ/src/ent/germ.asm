@@ -44,7 +44,7 @@ ent_germ_spawn: subroutine
 	and #$03
 	sta ent_r3,x
 	; hp
-	lda #$10
+	lda #$40
 	sta ent_hp,x
 	; clear food target
 	lda #$ff
@@ -89,13 +89,13 @@ ent_germ_update: subroutine
 	; take hit points
 	dec ent_hp,x
 	lda ent_hp,x
+	bpl .dont_despawn
+	jsr ent_particle_spawn_from_baddie
+	jmp ent_z_update_return
+.dont_despawn
 	; set germs on offensive
 	lda #$7f
 	sta germ_attacked
-	bpl .not_dead
-	jsr ent_particle_spawn_from_baddie
-	jmp ent_z_update_return
-.not_dead
 .brushing_done
 
 ; states
@@ -113,6 +113,7 @@ ent_germ_update: subroutine
 	sec
 	lda germ_attacked
 	sbc #$10
+	sta germ_attacked
 	bcs .stay_offensive
 	lda #$00
 	sta germ_attacked
@@ -120,17 +121,6 @@ ent_germ_update: subroutine
 	jmp .mode_offense
 
 .mode_wandering
-	; spawn poop?
-	lda ent_r2,x
-	cmp wtf
-	bne .no_poop
-	jsr rng_update
-	lda rng_val0
-	cmp #$40
-	bcs .no_poop
-	jsr ent_poop_from_germ
-.no_poop
-
 	; move according to dir
 	ldy ent_r3,x
 	clc
@@ -150,10 +140,30 @@ ent_germ_update: subroutine
 	lda ent_y,x
 	adc ent_germ_y_dir_vel,y
 	sta ent_y,x
-.movement_done
-
+	jmp .movement_done
 
 .mode_offense
+	lda wtf
+	and #$07
+	bne .offense_done
+	jsr rng_update
+	lda rng_val0
+	and #$07
+	sta ent_r3,x
+.offense_done
+
+.movement_done
+
+	; spawn poop?
+	lda ent_r2,x
+	cmp wtf
+	bne .no_poop
+	jsr rng_update
+	lda rng_val0
+	cmp #$40
+	bcs .no_poop
+	jsr ent_poop_from_germ
+.no_poop
 
 	; bound x
 	lda ent_x_hi,x

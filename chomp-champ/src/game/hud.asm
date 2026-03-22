@@ -30,6 +30,10 @@ hud_dmg_to_tile: subroutine
 
 hud_init: subroutine
 
+	; reset hud split-scroll
+	lda #$00
+	sta hud_initted
+
 	; setup render for frame 1
 	lda #$00
 	sta hud_tooth_addr
@@ -112,7 +116,7 @@ hud_sprite0: subroutine
 	lda temp02
 	sta PPU_DATA
 
-	ldx #03
+	ldx #01
 .scanline_wait
 	dex
 	bne .scanline_wait

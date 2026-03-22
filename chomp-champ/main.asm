@@ -36,6 +36,7 @@ cart_start: subroutine
 	include "src/game/hud.asm"
 	include "src/game/init.asm"
 	include "src/game/lib.asm"
+	include "src/game/new_game.asm"
 	include "src/game/render.asm"
 	include "src/game/teeth_init.asm"
 	include "src/game/teeth_lib.asm"
