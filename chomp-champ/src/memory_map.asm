@@ -34,6 +34,7 @@ tooth_index             byte
 germ_attacked           byte
 
 hud_initted   byte
+game_level    byte
 
 ; used instead of ent registers
 player_x_hi   byte

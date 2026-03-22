@@ -16,14 +16,15 @@ game_palette:
 
 state_game_init: subroutine
 
-	lda #CTRL_8x16
-	sta ppu_ctrl_ora
 	jsr render_disable
-	
+
 	ldx #state_game_render_id
 	jsr state_set_render_routine
 	ldx #state_game_update_id
 	jsr state_set_update_routine
+
+	lda #CTRL_8x16
+	sta ppu_ctrl_ora
 
 	; clear some ram
 	lda #$00
@@ -41,6 +42,15 @@ state_game_init: subroutine
 	inx
 	bne .clear_most_ram
 
+	; load palette
+	ldx #$00
+.pal_loop
+	lda game_palette,x
+	sta palette_cache,x
+	inx
+	cpx #25
+	bne .pal_loop
+	
 	jsr ent_z_init
 
 	lda #$04
@@ -100,16 +110,6 @@ state_game_init: subroutine
 	bcc .dirt_loop
 
 	jsr teeth_init
-
-
-	; load palette
-	ldx #$00
-.pal_loop
-	lda game_palette,x
-	sta palette_cache,x
-	inx
-	cpx #25
-	bne .pal_loop
 
 	jsr teeth_init_playfield
 	jsr hud_init

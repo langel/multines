@@ -1,16 +1,31 @@
 
+
+title_screen_palette:
+	hex 0f 15 25 14
+
+title_screen_line_pal_base eqm $04
+
 title_copy_line:
 	hex 65 68 5b 65 5a 6c 6d 08 77 75 78 08 66 66 71 71 6f 74 66 66 71 71 62 6f
 
 
 state_title_init: subroutine
 
-	lda #CTRL_8x16
+	lda #CTRL_8x8
 	sta ppu_ctrl_ora
 	lda #$00
 	sta scroll_nm
 	sta scroll_x
 	sta scroll_y
+
+	; setup pallete
+	ldx #$00
+.pal_loop
+	lda title_screen_palette,x
+	sta palette_cache,x
+	inx
+	cpx #$04
+	bne .pal_loop
 
 	lda #$08
 	sta temp00
@@ -76,9 +91,6 @@ state_title_init: subroutine
 	sta state03 ; y pos
 	jsr ent_big_teef_spawn
 
-	;jsr ent_z_init
-
-	jsr palette_init
 	ldx #render_do_nothing_id
 	jsr state_set_render_routine
 	ldx #state_title_update_id
@@ -93,7 +105,7 @@ state_title_update: subroutine
 
 	jsr render_enable
 	jsr controller_read
-;	jsr ent_z_update
+
 	jsr ent_big_teef_update
 
 .palette_cycle

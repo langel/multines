@@ -1,6 +1,33 @@
 
+
+nextlevel_palette:
+	hex 0f 15 25 14
+
 state_nextlevel_init: subroutine
 	jsr render_disable
+
+	; set up next level in ram
+	inc game_level
+
+	; setup pallete
+	ldx #$00
+.pal_loop
+	lda nextlevel_palette,x
+	sta palette_cache,x
+	inx
+	cpx #$04
+	bne .pal_loop
+
+	; clear ent ram
+.clear_ent_ram
+	sta $300,x
+	sta $400,x
+	sta $500,x
+	inx
+	bne .clear_ent_ram
+
+
+	; draw next level screen
 	
 	lda #$08
 	sta temp00
@@ -29,19 +56,19 @@ state_nextlevel_init: subroutine
 	lda #$08 ; space
 	sta PPU_DATA
 	lda #$08 ; space
+	; current level integers
 	sta PPU_DATA
 	lda #$50
 	sta PPU_DATA
 	lda #$51
 	sta PPU_DATA
 
-
-	jsr palette_init
-
 	ldx #state_nextlevel_update_id
 	jsr state_set_update_routine
 	ldx #render_do_nothing_id
 	jsr state_set_render_routine
+
+
 	lda #$00
 	sta ppu_ctrl_ora
 	sta scroll_nm

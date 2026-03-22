@@ -1,13 +1,13 @@
 
 big_teef_sprites:
 	; upper mandible
-	hex 0b 0c 0d 0d 0e 0f
-	hex 1b 1c 1d 1d 1e 1f
+	hex 16 18 1a 1a 1c 1e
+	hex 17 19 1b 1b 1d 1f
 	; lower mandible
-	hex 2b 2c 2d 2d 2e 2f
-	hex 3b 3c 3d 3d 3e 3f
+	hex 36 38 3a 3a 3c 3e
+	hex 37 39 3b 3b 3d 3f
 	; connective tissue
-	hex 0a 1a
+	hex 14 15
 
 big_teef_attrs:
 	; upper mandible
@@ -25,23 +25,26 @@ ent_big_teef_spawn: subroutine
 	bmi .done
 	lda #ent_big_teef_id
 	sta ent_type,x
-.done
-	rts
 
-
-ent_big_teef_update: subroutine
-
-	lda #%00011111
-	sta PPU_MASK
-
-	; big teef
+	; big teef palette
 	lda #$16
 	sta palette_cache+13
 	lda #$14
 	sta palette_cache+14
 	lda #$27
 	sta palette_cache+15
+.done
+	rts
 
+
+ent_big_teef_update: subroutine
+
+	;lda #%00011111
+	;sta PPU_MASK
+
+	; xxx TO DO
+	;     upper mandible should go up and down instead of lower manidble going down and up
+	;     sine movement should be upward hald sine so it looks like its bouncing (or maybe even use gravity instead)
 
 	ldx #$00
 	ldy #$00
@@ -142,14 +145,14 @@ ent_big_teef_update: subroutine
 	lda sine_table,x
 	shift_r 5
 	clc
-	adc #$a0
+	adc #$9e
 	sta state03
 	inc state04
 	inc state04
 	inc state04
 	
-	lda #%00011110
-	sta PPU_MASK
+	;lda #%00011110
+	;sta PPU_MASK
 
 	rts
 

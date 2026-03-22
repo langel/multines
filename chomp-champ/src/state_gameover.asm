@@ -21,6 +21,11 @@ state_gameover_init: subroutine
 
 	jsr render_disable
 	jsr sprites_clear
+	
+	ldx #state_gameover_update_id
+	jsr state_set_update_routine
+	ldx #render_do_nothing_id
+	jsr state_set_render_routine
 
 	; load palette
 	ldx #$00
@@ -130,10 +135,6 @@ state_gameover_init: subroutine
 	stx PPU_DATA
 
 
-	ldx #state_gameover_update_id
-	jsr state_set_update_routine
-	ldx #render_do_nothing_id
-	jsr state_set_render_routine
 	lda #$00
 	sta ppu_ctrl_ora
 	sta scroll_nm

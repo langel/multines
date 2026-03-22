@@ -1,4 +1,7 @@
 
+congration_palette:
+	hex 0f 15 25 14
+
 state_congration_init: subroutine
 
 	jsr render_disable
@@ -12,7 +15,14 @@ state_congration_init: subroutine
 
 	jsr sprites_clear
 	
-	jsr palette_init
+	; setup pallete
+	ldx #$00
+.pal_loop
+	lda congration_palette,x
+	sta palette_cache,x
+	inx
+	cpx #$04
+	bne .pal_loop
 
 	; pattern 2 nametable
 	; setup color tiles
