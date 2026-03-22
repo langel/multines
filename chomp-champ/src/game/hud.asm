@@ -116,10 +116,12 @@ hud_sprite0: subroutine
 	lda temp02
 	sta PPU_DATA
 
-	ldx #01
+	ldx #02
 .scanline_wait
 	dex
 	bne .scanline_wait
+	nop
+	nop
 	nop
 	nop
 	
