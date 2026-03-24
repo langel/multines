@@ -117,31 +117,27 @@ ent_gnat_update: subroutine
 	sec
 	lda ent_x,x
 	sbc ent_x,y
-	sta $0301
+	sta temp00
 	lda ent_x_hi,x
 	sbc ent_x_hi,y
 	bne .next_poop
 	bmi .next_poop
-	sta $0302
 	jmp .poop_y
 .poop_x_right
 	sec
 	lda ent_x,y
 	sbc ent_x,x
-	sta $0301
+	sta temp00
 	lda ent_x_hi,y
 	sbc ent_x_hi,x
 	bne .next_poop
 	bmi .next_poop
-	sta $0302
 .poop_y
 	sec
 	lda ent_y,y
 	sbc ent_y,x
-	sta $0300
-.poop_collision_detect
-	lda $0300
-	cmp $0301
+	; collision detect
+	cmp temp00
 	bne .next_poop
 	; set poop target
 	tya

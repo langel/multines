@@ -1,4 +1,5 @@
 nmi_handler: subroutine
+	pha
 	lda nmi_lockout
 	beq no_lock
 	jmp nmi_end
@@ -44,6 +45,7 @@ nmi_render_done
 nmi_update_done
 	dec nmi_lockout
 nmi_end
+	pla
 	rti
 
 

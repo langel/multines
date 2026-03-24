@@ -25,9 +25,23 @@ ent_germ_y_dir_vel:
 	hex 00 ff fe ff 00 01 01 01
 
 ent_germ_mirror_x:
-	hex 04 03 06 01 00 07 02 05
+	hex 03 05 04 04 ; 00
+	hex 04 03 03 03 ; 01
+	hex ff ff ff ff ; 02
+	hex 00 01 01 01 ; 03
+	hex 01 07 00 00 ; 04
+	hex 00 07 07 07 ; 05
+	hex ff ff ff ff ; 06
+	hex 05 04 05 05 ; 07
 ent_germ_mirror_y:
-	hex 04 07 06 05 00 03 02 01
+	hex ff ff ff ff ; 00
+	hex 06 07 07 07 ; 01
+	hex 05 07 06 06 ; 02
+	hex 05 06 05 05 ; 03
+	hex ff ff ff ff ; 04
+	hex 03 02 03 03 ; 05
+	hex 03 01 02 02 ; 06
+	hex 01 02 01 01 ; 07
 
 ent_germ_spawn: subroutine
 	jsr ent_find_slot
@@ -41,7 +55,7 @@ ent_germ_spawn: subroutine
 	sta ent_r2,x
 	; set direction
 	lda rng_val0
-	and #$03
+	and #$07
 	sta ent_r3,x
 	; hp
 	lda #$40
@@ -172,16 +186,24 @@ ent_germ_update: subroutine
 	lda ent_x,x
 	cmp #$02
 	bcs .bound_x_done
-	lda #$02
+	lda #$04
 	sta ent_x,x
-	lda #$00
 	jmp .turn_x
 .bound_x_far_right
 	lda ent_x,x
 	cmp #$ee
 	bcc .bound_x_done
+	lda #$ec
+	sta ent_x,x
 .turn_x
 	lda ent_r3,x
+	shift_l 2
+	sta temp00
+	jsr rng_update
+	lda rng_val0
+	and #$03
+	clc
+	adc temp00
 	tay
 	lda ent_germ_mirror_x,y
 	sta ent_r3,x
@@ -201,6 +223,13 @@ ent_germ_update: subroutine
 	sta ent_y,x
 .turn_y
 	lda ent_r3,x
+	shift_l 2
+	sta temp00
+	jsr rng_update
+	lda rng_val0
+	and #$03
+	clc
+	adc temp00
 	tay
 	lda ent_germ_mirror_y,y
 	sta ent_r3,x
