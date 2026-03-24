@@ -1,22 +1,31 @@
 
 ents_max   eqm #$1f
 
-ent_type   eqm $0400
-ent_hp     eqm $0420
-ent_x_hi   eqm $0440
-ent_x      eqm $0460
-ent_x_lo   eqm $0480
-ent_y_hi   eqm $04a0
-ent_y      eqm $04c0
-ent_y_lo   eqm $04e0
-ent_r0     eqm $0500
-ent_r1     eqm $0520
-ent_r2     eqm $0540
-ent_r3     eqm $0560
-ent_r4     eqm $0580
-ent_r5     eqm $05a0
-ent_r6     eqm $05c0
-ent_r7     eqm $05e0
+ent_type   eqm $0300
+ent_hp     eqm $0320
+ent_x_hi   eqm $0340
+ent_x      eqm $0360
+ent_x_lo   eqm $0380
+ent_y_hi   eqm $03a0
+ent_y      eqm $03c0
+ent_y_lo   eqm $03e0
+ent_r400   eqm $0400
+ent_r420   eqm $0420
+ent_r440   eqm $0440
+ent_r460   eqm $0460
+ent_r480   eqm $0480
+ent_r4a0   eqm $04a0
+ent_r4c0   eqm $04c0
+ent_r4e0   eqm $04e0
+ent_r500   eqm $0500
+ent_r520   eqm $0520
+ent_r540   eqm $0540
+ent_r560   eqm $0560
+ent_r580   eqm $0580
+ent_r5a0   eqm $05a0
+ent_r5c0   eqm $05c0
+ent_r5e0   eqm $05e0
+
 
 
 ent_find_slot: subroutine
@@ -121,22 +130,34 @@ ents_update_jump: subroutine
 
 	MAC ent_despawn
 	lda #$00
-	sta ent_type,x
-	sta ent_hp,x
-	sta ent_x_hi,x
-	sta ent_x,x
-	sta ent_x_lo,x
-	sta ent_y_hi,x
-	sta ent_y,x
-	sta ent_y_lo,x
-	sta ent_r0,x
-	sta ent_r1,x
-	sta ent_r2,x
-	sta ent_r3,x
-	sta ent_r4,x
-	sta ent_r5,x
-	sta ent_r6,x
-	sta ent_r7,x
+	sta $0300,x
+	sta $0320,x
+	sta $0340,x
+	sta $0360,x
+	sta $0380,x
+	sta $03a0,x
+	sta $03c0,x
+	sta $03e0,x
+	sta $0400,x
+	sta $0420,x
+	sta $0440,x
+	sta $0460,x
+	sta $0480,x
+	sta $04a0,x
+	sta $04c0,x
+	sta $04e0,x
+	ENDM
+	
+	MAC ent_despawn_2
+	lda #$00
+	sta ent_r500,x
+	sta ent_r520,x
+	sta ent_r540,x
+	sta ent_r560,x
+	sta ent_r580,x
+	sta ent_r5a0,x
+	sta ent_r5c0,x
+	sta ent_r5e0,x
 	ENDM
 
 

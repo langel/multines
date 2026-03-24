@@ -30,8 +30,6 @@ ent_poop_from_germ: subroutine
 	sta ent_x,y
 	lda ent_x_lo,x
 	sta ent_x_lo,y
-	lda ent_y_hi,x
-	sta ent_y_hi,y
 	lda ent_y,x
 	sta ent_y,y
 	lda ent_y_lo,x
@@ -50,11 +48,11 @@ ent_poop_update: subroutine
 	; update logic
 	jsr ent_calc_position
 	lda ent_visible
-	sta ent_r3,x
+	sta ent_coll_visible,x
 	lda collision_0_x
-	sta ent_r4,x
+	sta ent_coll_x,x
 	lda collision_0_y
-	sta ent_r5,x
+	sta ent_coll_y,x
 
 .check_brush_collision
 	lda controller1
@@ -110,11 +108,11 @@ ent_poop_update: subroutine
 
 ent_poop_render: subroutine
 	; recall ent position
-	lda ent_r3,x
+	lda ent_coll_visible,x
 	sta ent_visible
-	lda ent_r4,x
+	lda ent_coll_x,x
 	sta collision_0_x
-	lda ent_r5,x
+	lda ent_coll_y,x
 	sta collision_0_y
 
 	lda #$7c

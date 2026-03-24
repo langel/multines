@@ -19,9 +19,6 @@
 ;        #b0000x000 is in gap
 ;        #bxxxx0000 gap id
 ; ent_r2 attacked shake pos
-; ent_r3 visible
-; ent_r4 collision x
-; ent_r5 collision y
 ; ent_r6 z sort up
 ; ent_r7 z sort down
 
@@ -121,11 +118,11 @@ ent_food_update: subroutine
 	; update logic
 	jsr ent_calc_position
 	lda ent_visible
-	sta ent_r3,x
+	sta ent_coll_visible,x
 	lda collision_0_x
-	sta ent_r4,x
+	sta ent_coll_x,x
 	lda collision_0_y
-	sta ent_r5,x
+	sta ent_coll_y,x
 
 	lda ent_r0,x
 	bpl .standard_behavior
@@ -195,24 +192,18 @@ ent_food_update: subroutine
 	beq .brush_shake_right
 	jmp .brushing_done
 .brush_shake_left
-	dec ent_r4,x
+	dec ent_coll_x,x
 	jmp .brushing_done
 .brush_shake_right
-	inc ent_r4,x
+	inc ent_coll_x,x
 .brushing_done
-	jmp .collision_checks_done
 
 .check_floss_collision
 	lda floss_status
 	and #$40
-	bne .floss_check_controller
+	bne .floss_check_ent_visible
 	jmp .flossing_done
-.floss_check_controller
-	lda controller1
-	and #FLOSS_BUTTON
-	bne .floss_check_visible
-	jmp .flossing_done
-.floss_check_visible
+.floss_check_ent_visible
 	; prep left edge collisions
 	lda ent_visible
 	cmp #$02
@@ -274,14 +265,14 @@ ent_food_update: subroutine
 	beq .floss_shake_right
 	jmp .flossing_done
 .floss_shake_left
-	dec ent_r4,x
+	dec ent_coll_x,x
 	bpl .dont_fix_shake_left
-	inc ent_r4,x
-	inc ent_r4,x
+	inc ent_coll_x,x
+	inc ent_coll_x,x
 .dont_fix_shake_left
 	jmp .flossing_done
 .floss_shake_right
-	inc ent_r4,x
+	inc ent_coll_x,x
 .flossing_done
 
 .collision_checks_done
@@ -324,11 +315,11 @@ ent_food_render: subroutine
 	sta temp01
 	ldy ent_spr_ptr
 	; recall ent position
-	lda ent_r3,x
+	lda ent_coll_visible,x
 	sta ent_visible
-	lda ent_r4,x
+	lda ent_coll_x,x
 	sta collision_0_x
-	lda ent_r5,x
+	lda ent_coll_y,x
 	sta collision_0_y
 	; check if in gap or not
 	lda ent_r0,x
@@ -340,15 +331,6 @@ ent_food_render: subroutine
 	jsr ent_render_generic_8x16
 
 	jmp ent_z_render_return
-
-
-
-
-
-
-
-
-
 
 
 
