@@ -27,7 +27,7 @@ ent_particle_spawn: subroutine
 	sta ent_r1,x
 	; egg
 	;inc ent_r0,x
-	lda #$ff
+	lda #$07
 	sta ent_hp,x
 .done
 	rts

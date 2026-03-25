@@ -26,6 +26,7 @@ state_game_update: subroutine
 	; game over all teeth gone
 	; next level all teeth clean or gone
 
+	jsr game_player_update
 	jsr ent_z_update
 
 	jsr hud_update
