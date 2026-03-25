@@ -114,6 +114,10 @@ ent_poop_render: subroutine
 	sta collision_0_x
 	lda ent_coll_y,x
 	sta collision_0_y
+	lda collision_0_w
+	sta ent_coll_w,x
+	lda collision_0_h
+	sta ent_coll_h,x
 
 	lda #$7c
 	sta temp00

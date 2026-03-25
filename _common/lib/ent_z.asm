@@ -154,6 +154,7 @@ ent_z_render_return:
 
 ent_z_despawn: subroutine
 	ent_despawn
+	ent_despawn_2
 	jmp ent_z_update_return
 
 

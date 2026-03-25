@@ -274,27 +274,35 @@ ent_grub_update: subroutine
 .frame_done
 
 	jsr ent_calc_position
+	; hitbox adjustments
+	lda ent_r3,x
+	and #$02
+	bne .hitbox_tall
+.hitbox_wide
+	lda collision_0_y
+	clc
+	adc #$06
+	sta ent_hitbox_y,x
+	lda #$0a
+	sta collision_0_h
+	jmp .hitbox_adjust_done
+.hitbox_tall
+	lda #$08
+	sta collision_0_w
+	lda collision_0_y
+	sta ent_hitbox_y,x
+.hitbox_adjust_done
+	; save hitbox to registers
 	lda ent_visible
 	sta ent_coll_visible,x
 	lda collision_0_x
 	sta ent_coll_x,x
 	lda collision_0_y
 	sta ent_coll_y,x
-
-	; hitbox adjustments
-	lda ent_r3,x
-	and #$02
-	bne .hitbox_tall
-.hitbox_wide
-	lda collision_0_x
-	clc
-	adc #$04
-	sta collision_0_x
-	jmp .hitbox_adjust_done
-.hitbox_tall
-	lda #$0a
-	sta collision_0_w
-.hitbox_adjust_done
+	lda collision_0_w
+	sta ent_coll_w,x
+	lda collision_0_h
+	sta ent_coll_h,x
 
 .check_brush_collision
 	lda controller1
@@ -310,12 +318,12 @@ ent_grub_update: subroutine
 	cmp brush_hit_x
 	bcs .brushing_done
 	clc
-	lda collision_0_y
+	lda ent_hitbox_y,x
 	adc collision_0_h
 	cmp brush_hit_y
 	bcc .brushing_done
 	clc
-	lda collision_0_y
+	lda ent_hitbox_y,x
 	cmp brush_hit_y
 	bcs .brushing_done
 .brush_collision

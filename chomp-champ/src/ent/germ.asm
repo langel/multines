@@ -70,6 +70,10 @@ ent_germ_spawn: subroutine
 ent_germ_update: subroutine
 
 	jsr ent_calc_position
+	lda collision_0_w
+	sta ent_coll_w,x
+	lda collision_0_h
+	sta ent_coll_h,x
 	lda collision_0_x
 	sta ent_coll_x,x
 	lda collision_0_y

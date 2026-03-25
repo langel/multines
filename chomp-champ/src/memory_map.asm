@@ -19,6 +19,10 @@
 
 */
 
+ent_hitbox_x        eqm $500
+ent_hitbox_y        eqm $520
+ent_coll_w          eqm $540
+ent_coll_h          eqm $560
 ent_coll_x          eqm $580
 ent_coll_y          eqm $5a0
 ent_coll_visible    eqm $5c0
