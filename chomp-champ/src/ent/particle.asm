@@ -64,6 +64,7 @@ ent_particle_spawn_from_egg: subroutine
 	sta ent_r1,x
 .done
 	ldx ent_slot
+	ldy ent_spr_ptr
 	rts
 
 
@@ -127,7 +128,7 @@ ent_particle_update: subroutine
 	bcc .dont_despawn
 	jmp ent_z_despawn
 .dont_despawn
-	jmp ent_z_update_return
+	jmp ent_particle_render
 
 .not_falling
 	dec ent_hp,x
@@ -149,11 +150,11 @@ ent_particle_update: subroutine
 	sta ent_r6,x
 .lives
 
-	jmp ent_z_update_return
 
 
 
 ent_particle_render: subroutine
+	ldy ent_spr_ptr
 	; always 2 sprites
 	
 	lda ent_r0,x
@@ -219,7 +220,7 @@ ent_particle_render: subroutine
 
 .sprite_done
 
-	jmp ent_z_render_return
+	jmp ent_z_update_return
 
 
 

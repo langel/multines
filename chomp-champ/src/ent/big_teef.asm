@@ -156,8 +156,7 @@ ent_big_teef_update: subroutine
 
 	rts
 
-	jmp ent_z_update_return
 	
 
 ent_big_teef_render: subroutine
-	jmp ent_z_render_return
+	jmp ent_z_update_return

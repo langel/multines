@@ -23,10 +23,40 @@ ent_z_update: subroutine
 	;lda #%11111110 ; emph
 	;lda #%00011000 ; diable left 8 pixels row
 	;sta PPU_MASK
+	
+	; clear sprite data
+	lda #$fe
+	ldy #$00
+.sprite_clear_loop
+	sta OAM_RAM,y
+	iny
+	sta OAM_RAM,y
+	iny
+	iny
+	iny
+	beq .sprite_clear_done
+	jmp .sprite_clear_loop
+.sprite_clear_done
 
-	; ents update
+	; ents update in z order
 	ldx #$00
+	stx ent_z_slot
+	ldy ent_ptr_start
+	sty ent_spr_ptr
+	lda #$00
+	sta ent_z_slot
+.sort_direction
+	lda wtf
+	lsr 
+	and #$01
+	shift_l 5
+	clc
+	adc #$a0
+	sta ent_z_ptr_lo
 .ent_update_loop
+	ldy ent_z_slot
+	lda (ent_z_ptr_lo),y
+	tax
 	stx ent_slot
 	lda ent_type,x
 	beq .ent_update_next
@@ -38,9 +68,12 @@ ent_z_update: subroutine
 	ldy ent_spr_ptr
 	jmp (temp00)
 ent_z_update_return:
+	sty ent_spr_ptr
 .ent_update_next
-	inx
-	cpx #ents_max+1
+	inc ent_z_slot
+	ldy ent_z_slot
+	ldx ent_slot
+	cpy #ents_max+1
 	bne .ent_update_loop
 
 	; sortup
@@ -93,56 +126,6 @@ ent_z_update_return:
 	cpy #ents_max
 	bne .sortdown_loop
 
-	; clear sprite data
-	lda #$fe
-	ldy #$00
-.sprite_clear_loop
-	sta OAM_RAM,y
-	iny
-	sta OAM_RAM,y
-	iny
-	iny
-	iny
-	beq .sprite_clear_done
-	jmp .sprite_clear_loop
-.sprite_clear_done
-
-	; ents render
-	ldx #$00
-	stx ent_z_slot
-	ldy ent_ptr_start
-	sty ent_spr_ptr
-	lda #$00
-	sta ent_z_slot
-.sort_direction
-	lda wtf
-	lsr
-	and #$01
-	shift_l 5
-	clc
-	adc #$a0
-	sta ent_z_ptr_lo
-.ent_render_loop
-	ldy ent_z_slot
-	lda (ent_z_ptr_lo),y
-	tax
-	stx ent_slot
-	lda ent_type,x
-	beq .ent_render_next
-	tay
-	lda ent_render_lo,y
-	sta temp00
-	lda ent_render_hi,y
-	sta temp01
-	ldy ent_spr_ptr
-	jmp (temp00)
-ent_z_render_return:
-	sty ent_spr_ptr
-.ent_render_next
-	inc ent_z_slot
-	ldy ent_z_slot
-	cpy #ents_max+1
-	bne .ent_render_loop
 
 .updates_done
 	; debug visualization off

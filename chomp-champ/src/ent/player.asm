@@ -588,7 +588,7 @@ ent_player_update: subroutine
 	adc #$20
 	ent_z_calc_sort_vals_9bit
 
-	jmp ent_z_update_return
+	jmp ent_player_render
 
 
 	; RENDER HANDLER
@@ -606,6 +606,7 @@ ent_player_render_hi:
 	byte >player_render_death
 
 ent_player_render:
+	ldy ent_spr_ptr
 	; run state updater
 	lda ent_r0,x
 	tax
@@ -723,7 +724,7 @@ player_render_idle: subroutine
 	clc
 	adc #$10
 	tay
-	jmp ent_z_render_return
+	jmp ent_z_update_return
 
 
 player_render_running: subroutine
@@ -873,7 +874,7 @@ player_render_running: subroutine
 	sta spr_y,y
 	inc_y 4
 .walking_done
-	jmp ent_z_render_return
+	jmp ent_z_update_return
 
 
 player_render_brushing: subroutine
@@ -1029,7 +1030,7 @@ player_render_brushing: subroutine
 	clc
 	adc #$18
 	tay
-	jmp ent_z_render_return
+	jmp ent_z_update_return
 
 
 player_render_flossing: subroutine
@@ -1231,12 +1232,12 @@ player_render_flossing: subroutine
 	lda temp02
 	sta spr_a,y
 	inc_y 4
-	jmp ent_z_render_return
+	jmp ent_z_update_return
 
 	
 
 
 player_render_death: subroutine
-	jmp ent_z_render_return
+	jmp ent_z_update_return
 
 

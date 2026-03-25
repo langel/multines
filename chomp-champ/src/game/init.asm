@@ -88,7 +88,6 @@ state_game_init: subroutine
 	stx state07
 	bpl .extra_germs
 
-
 	; XXX level init should do this
 	; create some tooth dirt
 	lda #$00

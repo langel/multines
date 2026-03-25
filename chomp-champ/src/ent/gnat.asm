@@ -246,11 +246,11 @@ ent_gnat_update: subroutine
 	adc #$16
 	ent_z_calc_sort_vals_9bit
 	
-	jmp ent_z_update_return
 
 
 
 ent_gnat_render: subroutine
+	ldy ent_spr_ptr
 	; RENDER
 	jsr ent_calc_position
 	; metasprite
@@ -271,5 +271,5 @@ ent_gnat_render: subroutine
 	sta temp01
 	jsr ent_render_generic_8x16
 
-	jmp ent_z_render_return
+	jmp ent_z_update_return
 

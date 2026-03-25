@@ -171,6 +171,7 @@ ent_calc_position: subroutine
 	; check y position
 	lda ent_y,x
 	sta collision_0_y
+	sta ent_pos_y
 	cmp #240 ; screen height
 	bcc .y_safe
 	cmp #$f0
@@ -182,6 +183,7 @@ ent_calc_position: subroutine
 	lda ent_x,x
 	sbc camera_x
 	sta collision_0_x
+	sta ent_pos_x
 	lda ent_x_hi,x
 	sbc camera_x_hi
 	beq .left_visible
@@ -206,12 +208,11 @@ ent_calc_position: subroutine
 .visibility_done
 	lda ent_visible
 	beq .collision_done
-	and #$03
 	cmp #$03
 	beq .collision_full
-.set_left
 	cmp #$01
-	bne .set_right
+	bne .set_right_only
+.set_left_only
 	sec
 	lda #$ff
 	sbc collision_0_x
@@ -219,10 +220,12 @@ ent_calc_position: subroutine
 	lda #$10
 	sta collision_0_h
 	rts
-.set_right
+.set_right_only
 	clc
-	lda collision_0_x
-	adc #$10
+	lda #$08
+	adc collision_0_x
+	sta collision_0_x
+	lda #$08
 	sta collision_0_w
 	lda #$10
 	sta collision_0_h
@@ -232,7 +235,9 @@ ent_calc_position: subroutine
 	lda collision_0_x
 	cmp #$f0
 	bcc .not_in_right_edge
-	adc #$10
+	lda #$00
+	sec
+	sbc collision_0_x
 	jmp .collision_full_width_clamped
 .not_in_right_edge
 	lda #$10
@@ -254,11 +259,11 @@ ent_render_generic_left:
 	and #$01
 	beq .left_done
 .left_x
-	lda collision_0_x
+	lda ent_pos_x
 	sta spr_x+$00,y
 	sta spr_x+$04,y
 .left_y
-	lda collision_0_y
+	lda ent_pos_y
 	sta spr_y+$00,y
 	clc
 	adc #$08
@@ -298,13 +303,13 @@ ent_render_generic_left:
 	and #$02
 	beq .done
 .right_x
-	lda collision_0_x
+	lda ent_pos_x
 	clc
 	adc #$08
 	sta spr_x+$00,y
 	sta spr_x+$04,y
 .right_y
-	lda collision_0_y
+	lda ent_pos_y
 	sta spr_y+$00,y
 	clc
 	adc #$08
@@ -349,10 +354,10 @@ ent_render_generic_8x16: subroutine
 	and #$01
 	beq .left_done
 .left_x
-	lda collision_0_x
+	lda ent_pos_x
 	sta spr_x,y
 .left_y
-	lda collision_0_y
+	lda ent_pos_y
 	sta spr_y,y
 	; sprite mirror check
 	lda temp01
@@ -379,12 +384,12 @@ ent_render_generic_8x16: subroutine
 	and #$02
 	beq .done
 .right_x
-	lda collision_0_x
+	lda ent_pos_x
 	clc
 	adc #$08
 	sta spr_x,y
 .right_y
-	lda collision_0_y
+	lda ent_pos_y
 	sta spr_y,y
 	; sprite mirror check
 	lda temp01

@@ -87,10 +87,10 @@ ent_poop_update: subroutine
 	beq .brush_shake_right
 	jmp .shake_done
 .brush_shake_left
-	dec ent_r4,x
+	dec ent_pos_x
 	jmp .shake_done
 .brush_shake_right
-	inc ent_r4,x
+	inc ent_pos_x
 .shake_done
 	dec ent_hp,x
 	lda ent_hp,x
@@ -103,21 +103,10 @@ ent_poop_update: subroutine
 	adc #$10
 	ent_z_calc_sort_vals_9bit
 
-	jmp ent_z_update_return
 
 
 ent_poop_render: subroutine
-	; recall ent position
-	lda ent_coll_visible,x
-	sta ent_visible
-	lda ent_coll_x,x
-	sta collision_0_x
-	lda ent_coll_y,x
-	sta collision_0_y
-	lda collision_0_w
-	sta ent_coll_w,x
-	lda collision_0_h
-	sta ent_coll_h,x
+	ldy ent_spr_ptr
 
 	lda #$7c
 	sta temp00
@@ -125,5 +114,5 @@ ent_poop_render: subroutine
 	sta temp01
 	jsr ent_render_generic_8x16
 
-	jmp ent_z_render_return
+	jmp ent_z_update_return
 

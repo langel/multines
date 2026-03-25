@@ -47,6 +47,7 @@ ent_eggs_spawn_from_poop: subroutine
 	sta ent_hp,y
 	lda #$ff
 	sta ent_r1,y
+	ent_despawn_2
 	rts
 
 
@@ -93,10 +94,11 @@ ent_eggs_update: subroutine
 	adc #$10
 	ent_z_calc_sort_vals_9bit
 
-	jmp ent_z_update_return
 
 
 ent_eggs_render: subroutine
+	ldy ent_spr_ptr
+
 	; add sine to origin
 	clc
 	lda ent_r4,x
@@ -115,9 +117,9 @@ ent_eggs_render: subroutine
 	sta spr_p,y
 	lda #$03
 	sta spr_a,y
-	lda collision_0_x
+	lda ent_pos_x
 	sta spr_x,y
-	lda collision_0_y
+	lda ent_pos_y
 	sta spr_y,y
 	inc_y 4
 .right_sprite
@@ -128,14 +130,14 @@ ent_eggs_render: subroutine
 	sta spr_p,y
 	lda #$43
 	sta spr_a,y
-	lda collision_0_x
+	lda ent_pos_x
 	clc
 	adc #$08
 	sta spr_x,y
-	lda collision_0_y
+	lda ent_pos_y
 	sta spr_y,y
 	inc_y 4
 .sprites_done
 
-	jmp ent_z_render_return
+	jmp ent_z_update_return
 

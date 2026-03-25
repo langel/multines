@@ -146,7 +146,7 @@ ent_food_update: subroutine
 	bcc .dont_despawn
 	jmp ent_z_despawn
 .dont_despawn
-	jmp ent_z_update_return
+	jmp ent_food_render
 
 
 .standard_behavior
@@ -192,10 +192,10 @@ ent_food_update: subroutine
 	beq .brush_shake_right
 	jmp .brushing_done
 .brush_shake_left
-	dec ent_coll_x,x
+	dec ent_pos_x
 	jmp .brushing_done
 .brush_shake_right
-	inc ent_coll_x,x
+	inc ent_pos_x
 .brushing_done
 
 .check_floss_collision
@@ -265,14 +265,14 @@ ent_food_update: subroutine
 	beq .floss_shake_right
 	jmp .flossing_done
 .floss_shake_left
-	dec ent_coll_x,x
+	dec ent_pos_x
 	bpl .dont_fix_shake_left
-	inc ent_coll_x,x
-	inc ent_coll_x,x
+	inc ent_pos_x
+	inc ent_pos_x
 .dont_fix_shake_left
 	jmp .flossing_done
 .floss_shake_right
-	inc ent_coll_x,x
+	inc ent_pos_x
 .flossing_done
 
 .collision_checks_done
@@ -298,7 +298,6 @@ ent_food_update: subroutine
 	sta ent_r7,x
 .lives
 	
-	jmp ent_z_update_return
 
 
 
@@ -313,14 +312,9 @@ ent_food_render: subroutine
 	sta temp00
 	lda ent_food_attr,y
 	sta temp01
+
 	ldy ent_spr_ptr
-	; recall ent position
-	lda ent_coll_visible,x
-	sta ent_visible
-	lda ent_coll_x,x
-	sta collision_0_x
-	lda ent_coll_y,x
-	sta collision_0_y
+
 	; check if in gap or not
 	lda ent_r0,x
 	bmi .standard
@@ -330,7 +324,7 @@ ent_food_render: subroutine
 .standard
 	jsr ent_render_generic_8x16
 
-	jmp ent_z_render_return
+	jmp ent_z_update_return
 
 
 
@@ -348,10 +342,10 @@ ent_food_gap_render: subroutine
 	and #$01
 	beq .left_done
 .left_x
-	lda collision_0_x
+	lda ent_pos_x
 	sta spr_x,y
 .left_y
-	lda collision_0_y
+	lda ent_pos_y
 	sta spr_y,y
 .left_sprite
 	lda temp00
@@ -376,12 +370,12 @@ ent_food_gap_render: subroutine
 	and #$02
 	beq .done
 .right_x
-	lda collision_0_x
+	lda ent_pos_x
 	clc
 	adc #$08
 	sta spr_x,y
 .right_y
-	lda collision_0_y
+	lda ent_pos_y
 	sta spr_y,y
 .right_sprite
 	lda temp00
@@ -404,4 +398,4 @@ ent_food_gap_render: subroutine
 	sta spr_a,y
 	inc_y 4
 .done
-	jmp ent_z_render_return
+	jmp ent_z_update_return

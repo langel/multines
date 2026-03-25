@@ -368,11 +368,11 @@ ent_grub_update: subroutine
 	adc #$10
 	ent_z_calc_sort_vals_9bit
 
-	jmp ent_z_update_return
 
 
 
 ent_grub_render: subroutine
+	ldy ent_spr_ptr
 	; sprite
 	lda ent_r3,x
 	asl
@@ -414,5 +414,5 @@ ent_grub_render: subroutine
 	jsr ent_render_generic_8x16
 
 .render_done
-	jmp ent_z_render_return
+	jmp ent_z_update_return
 

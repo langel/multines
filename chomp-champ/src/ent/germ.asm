@@ -269,7 +269,7 @@ ent_germ_update: subroutine
 	adc #$10
 	ent_z_calc_sort_vals
 	
-	jmp ent_z_update_return
+	jmp ent_germ_render
 
 
 
@@ -287,6 +287,7 @@ ent_germ_attr_table:
 	hex 01 01 01 41 41 41 01 01
 
 ent_germ_render: subroutine
+	ldy ent_spr_ptr
 	; RENDER
 	;jsr ent_calc_position
 	; metasprite
@@ -306,13 +307,7 @@ ent_germ_render: subroutine
 	ldx ent_slot
 	; setup generic renderer
 	sta temp01
-	lda ent_coll_visible,x
-	sta ent_visible
-	lda ent_coll_x,x
-	sta collision_0_x
-	lda ent_coll_y,x
-	sta collision_0_y
 	jsr ent_render_generic_8x16
 
-	jmp ent_z_render_return
+	jmp ent_z_update_return
 

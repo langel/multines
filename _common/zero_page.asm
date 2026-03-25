@@ -63,6 +63,8 @@ ent_visible      byte
 ent_z_slot       byte
 ent_z_ptr_lo     byte
 ent_z_ptr_hi     byte
+ent_pos_x        byte
+ent_pos_y        byte
 
 scroll_nm        byte
 scroll_x_hi      byte
