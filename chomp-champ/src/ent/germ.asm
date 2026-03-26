@@ -165,15 +165,14 @@ ent_germ_update: subroutine
 	lda germ_attackee
 	cmp ent_slot
 	beq .update_position
-	/*
 	lda wtf
-	and #$07
+	and #$03
 	sta temp00
 	txa
-	and #$07
+	and #$03
 	cmp temp00
 	bne .update_position
-	*/
+	; germs position for arctang24
 	lda ent_x_hi,x
 	lsr
 	lda ent_x,x

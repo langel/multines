@@ -517,7 +517,9 @@ game_player_update: subroutine
 	lda player_x
 	ror
 	sta collision_1_w
+	clc
 	lda player_y
+	adc #$10
 	lsr
 	sta collision_1_h
 
@@ -529,6 +531,7 @@ game_player_update: subroutine
 	lda player_y
 	clc
 	adc #$20
+	ldx #$00
 	ent_z_calc_sort_vals_9bit
 	
 	rts
