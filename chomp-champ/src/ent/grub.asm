@@ -304,7 +304,41 @@ ent_grub_update: subroutine
 	lda collision_0_h
 	sta ent_coll_h,x
 
-.check_brush_collision
+	; check player collision
+	lda ent_visible
+	beq .player_collision_done
+	lda player_is_dead
+	bne .player_collision_done
+	lda player_iframes
+	bne .player_collision_done
+	clc
+	lda collision_0_x
+	adc collision_0_w
+	cmp player_hit_x
+	bcc .player_collision_done
+	clc
+	lda collision_0_x
+	cmp player_hit_x
+	bcs .player_collision_done
+	clc
+	lda collision_0_y
+	adc collision_0_h
+	cmp player_hit_y
+	bcc .player_collision_done
+	clc
+	lda collision_0_y
+	cmp player_hit_y
+	bcs .player_collision_done
+.player_collides
+	lda #player_death_timer
+	sta player_is_dead
+	lda #$04
+	sta ent_r0
+	jsr ent_particle_spawn_from_baddie
+	jmp ent_z_update_return
+.player_collision_done
+
+	; check brush collision
 	lda controller1
 	and #BRUSH_BUTTON
 	beq .brushing_done
@@ -556,7 +590,6 @@ ent_grub_convergence: subroutine
 	sta ent_y,x
 
 	; selected grub becomes germ
-	ldy temp01
 	lda #ent_germ_id
 	sta ent_type,y
 	lda #$40
@@ -564,6 +597,7 @@ ent_grub_convergence: subroutine
 	lda #$ff
 	sta ent_r4,y
 	jsr rng_update
+	ldy temp01
 	lda rng_val0
 	sta ent_r2,y
 	and #$07

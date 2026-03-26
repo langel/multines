@@ -55,6 +55,8 @@ ent_poop_update: subroutine
 	sta ent_coll_y,x
 
 	; check player collision
+	lda ent_visible
+	beq .player_collision_done
 	lda player_is_dead
 	bne .player_collision_done
 	lda player_iframes
@@ -82,6 +84,8 @@ ent_poop_update: subroutine
 	sta player_is_dead
 	lda #$04
 	sta ent_r0
+	jsr ent_particle_spawn_from_baddie
+	jmp ent_z_update_return
 .player_collision_done
 
 	; check brush collision
