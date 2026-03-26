@@ -32,6 +32,8 @@ state_game_update: subroutine
 	jsr game_player_update
 	jsr ent_z_update
 
+	jsr ent_grub_convergence
+
 	jsr hud_update
 
 	jsr state_game_prerender

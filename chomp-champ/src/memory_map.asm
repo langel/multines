@@ -37,6 +37,7 @@ tooth_index             byte
 
 germ_attacked           byte
 germ_attackee           byte
+grub_converge_slot      byte
 
 hud_initted   byte
 game_level    byte

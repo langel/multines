@@ -416,3 +416,173 @@ ent_grub_render: subroutine
 .render_done
 	jmp ent_z_update_return
 
+
+
+
+
+ent_grub_convergence: subroutine
+	; temp00: start slot
+	; temp01: selected grub slot A
+	; temp02: search loop counter
+	; temp04: |dx|
+	; temp05: shared avg y
+	; temp06: shared avg x_hi
+	; temp07: shared avg x
+
+	lda grub_converge_slot
+	and #$1f
+	sta temp00
+	tax
+
+	lda #$20
+	sta temp02
+.find_next_grub
+	lda ent_type,x
+	cmp #ent_grub_id
+	beq .grub_found
+	inx
+	txa
+	and #$1f
+	tax
+	dec temp02
+	bne .find_next_grub
+	jmp .no_grubs
+
+.grub_found
+	stx temp01
+	txa
+	clc
+	adc #$01
+	and #$1f
+	sta grub_converge_slot
+
+	ldx #$00
+.compare_loop
+	cpx #$20
+	bne .compare_not_done
+	jmp .done
+.compare_not_done
+	cpx temp01
+	bne .compare_not_self
+	jmp .next_compare
+.compare_not_self
+	lda ent_type,x
+	cmp #ent_grub_id
+	beq .compare_is_grub
+	jmp .next_compare
+.compare_is_grub
+	ldy temp01
+
+	; x hi mismatch means distance is definitely >= 256
+	lda ent_x_hi,x
+	cmp ent_x_hi,y
+	beq .x_hi_match
+	jmp .next_compare
+.x_hi_match
+
+	; |dx|
+	sec
+	lda ent_x,x
+	sbc ent_x,y
+	bcs .x_abs_done
+	eor #$ff
+	clc
+	adc #$01
+.x_abs_done
+	sta temp04
+	cmp #$10
+	bcc .x_dist_ok
+	jmp .next_compare
+.x_dist_ok
+
+	; |dy|
+	sec
+	lda ent_y,x
+	sbc ent_y,y
+	bcs .y_abs_done
+	eor #$ff
+	clc
+	adc #$01
+.y_abs_done
+	cmp #$10
+	bcc .y_dist_ok
+	jmp .next_compare
+.y_dist_ok
+	clc
+	adc temp04
+	bcc .distance_no_overflow
+	jmp .next_compare
+.distance_no_overflow
+	cmp #$10
+	bcc .distance_ok
+	jmp .next_compare
+.distance_ok
+
+	; midpoint y = (yA + yB) >> 1
+	clc
+	lda ent_y,y
+	adc ent_y,x
+	ror
+	sta temp05
+
+	; midpoint x = (xA + xB) >> 1 (9-bit x)
+	clc
+	lda ent_x,y
+	adc ent_x,x
+	sta temp07
+	lda ent_x_hi,y
+	adc ent_x_hi,x
+	ror
+	sta temp06
+	lda temp07
+	ror
+	sta temp07
+
+	; apply midpoint to selected grub (A)
+	ldy temp01
+	lda temp07
+	sta ent_x,y
+	lda temp06
+	sta ent_x_hi,y
+	lda temp05
+	sta ent_y,y
+
+	; apply midpoint to matched grub (B)
+	lda temp07
+	sta ent_x,x
+	lda temp06
+	sta ent_x_hi,x
+	lda temp05
+	sta ent_y,x
+
+	; selected grub becomes germ
+	ldy temp01
+	lda #ent_germ_id
+	sta ent_type,y
+	lda #$40
+	sta ent_hp,y
+	lda #$ff
+	sta ent_r4,y
+	jsr rng_update
+	lda rng_val0
+	sta ent_r2,y
+	and #$07
+	sta ent_r3,y
+
+	; matched grub becomes particle
+	jsr ent_particle_spawn_from_baddie
+	jmp .done
+
+.next_compare
+	inx
+	jmp .compare_loop
+
+.no_grubs
+	lda temp00
+	clc
+	adc #$01
+	and #$1f
+	sta grub_converge_slot
+
+.done
+	rts
