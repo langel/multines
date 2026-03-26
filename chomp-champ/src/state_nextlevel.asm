@@ -17,7 +17,10 @@ state_nextlevel_init: subroutine
 	inx
 	cpx #$04
 	bne .pal_loop
+	
+	jsr sprites_clear
 
+/*
 	; clear ent ram
 	lda #$00
 	tax
@@ -27,18 +30,15 @@ state_nextlevel_init: subroutine
 	sta $500,x
 	inx
 	bne .clear_ent_ram
-
+*/
 
 	; draw next level screen
-	
 	lda #$08
 	sta temp00
 	lda #$00
 	sta temp01
 	lda #$20
 	jsr nametable_fill
-
-	jsr sprites_clear
 
 	; write level name
 	lda #$21

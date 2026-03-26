@@ -15,7 +15,7 @@ grub_dir_sprite:
 grub_dir_attr:
 	hex 02 02 42 42 02 02 82 82
 
-grub_hp                   eqm #$20
+grub_hp                   eqm #$0c
 grub_default_wait_length  eqm #$07
 grub_attacked_wait_length eqm #$01
 

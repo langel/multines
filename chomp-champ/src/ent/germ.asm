@@ -152,7 +152,7 @@ ent_germ_update: subroutine
 	stx germ_attackee
 	; randomize facing direction
 	lda wtf
-	and #$07
+	and #$03
 	bne .rando_dir_done
 	jsr rng_update
 	lda rng_val0
@@ -219,6 +219,7 @@ ent_germ_update: subroutine
 	jsr arctang24
 	tax
 	lda arctang24_to_dir8,x
+	and #$07
 	ldx ent_slot
 	sta ent_r3,x
 
@@ -259,6 +260,8 @@ ent_germ_update: subroutine
 
 	; bound x
 	lda ent_x_hi,x
+	and #$01
+	sta ent_x_hi,x
 	bne .bound_x_far_right
 .bound_x_far_left
 	lda ent_x,x

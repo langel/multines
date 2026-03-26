@@ -35,9 +35,11 @@ state_game_init: subroutine
 	cpx #25
 	bne .pal_loop
 	
-	jsr ent_z_init
-
 	jsr ent_player_init
+
+	lda #$00
+	sta germ_attacked
+	sta floss_status
 
 /*
 	jsr ent_germ_spawn

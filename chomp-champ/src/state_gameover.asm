@@ -99,7 +99,7 @@ state_gameover_init: subroutine
 
 	; write lifes dead
 	lda player_lives
-	bne .not_lifes_dead
+	bpl .not_lifes_dead
 	lda #$20
 	sta PPU_ADDR
 	lda #$8a
@@ -173,6 +173,7 @@ state_gameover_init: subroutine
 
 state_gameover_update: subroutine
 	jsr render_enable
+	jsr controller_read
 
 	clc
 	lda state00
@@ -182,11 +183,11 @@ state_gameover_update: subroutine
 	adc #$00
 	sta state01
 	cmp #$02
-	beq .start_a_game
+	beq .goto_title_screen
 
 	lda controller1_d
 	beq .dont_start
-.start_a_game
+.goto_title_screen
 	jsr state_title_init
 .dont_start
 

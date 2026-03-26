@@ -189,6 +189,8 @@ hud_update: subroutine
 
 	; lives sprites
 	ldx player_lives
+	dex ; dont show last life
+	bmi .lives_done
 	ldy #$e0
 .life_sprite_loop
 	; attr
@@ -214,7 +216,8 @@ hud_update: subroutine
 	sta spr_y+4,y
 	INC_Y 8
 	dex
-	bne .life_sprite_loop
+	bpl .life_sprite_loop
+.lives_done
 
 	; sprite 0
 	lda #$20

@@ -14,7 +14,7 @@ state_game_update: subroutine
 	jsr teeth_update
 	
 	lda player_lives
-	bne .not_gameover
+	bpl .not_gameover
 	jsr state_gameover_init
 .not_gameover
 

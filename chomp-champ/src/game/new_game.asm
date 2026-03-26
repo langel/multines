@@ -20,6 +20,8 @@ init_new_game: subroutine
 	inx
 	bne .clear_most_ram
 	
+	jsr ent_z_init
+
 	lda #$04
 	sta player_lives
 	

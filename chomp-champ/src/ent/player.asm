@@ -21,19 +21,21 @@ ent_player_init: subroutine
 	; player always anet slot 00
 	ldx #$00
 	lda #ent_player_id
-	sta ent_type,x
+	sta ent_type
+	lda #$00
+	sta player_x_hi
 	lda #$f7
 	sta player_x
 	lda #$7b
 	sta player_y
 	; reset registers
 	lda #$00
-	sta ent_r0,x
-	sta ent_r1,x
-	sta ent_r2,x
+	sta ent_r0
+	sta ent_r1
+	sta ent_r2
 	; player direction
 	lda #$ff
-	sta ent_r3,x
+	sta ent_r3
 	; reset velocity
 	lda #$00
 	sta pl_vel_h_hi
