@@ -114,6 +114,29 @@ ent_germ_update: subroutine
 	; set germs on offensive
 	lda #$7f
 	sta germ_attacked
+	stx germ_attackee
+	; randomize facing direction
+	lda wtf
+	and #$07
+	bne .rando_dir_done
+	jsr rng_update
+	lda rng_val0
+	and #$07
+	sta ent_r3,x
+.rando_dir_done
+	; move germ towards player
+	lda wtf
+	and #$03
+	bne .germ_attacked_done
+	lda ent_r3 ; player dir
+	bmi .germ_brushed_right
+.germ_brushed_left
+	dec ent_x,x
+	jmp .germ_attacked_done
+.germ_brushed_right
+	inc ent_x,x
+.germ_attacked_done
+	jmp .movement_done
 .brushing_done
 
 ; states
@@ -126,19 +149,46 @@ ent_germ_update: subroutine
 
 	; check germs_attack
 	lda germ_attacked
-	;beq .passive_mode
-	beq .mode_wandering
+	beq .update_position
 	sec
 	lda germ_attacked
 	sbc #$10
 	sta germ_attacked
-	bcs .stay_offensive
+	bcs .mode_offense
 	lda #$00
 	sta germ_attacked
-.stay_offensive
-	jmp .mode_offense
+	lda #$ff
+	sta germ_attackee
+	jmp .update_position
+	; target player
+.mode_offense
+	lda germ_attackee
+	cmp ent_slot
+	beq .update_position
+	/*
+	lda wtf
+	and #$07
+	sta temp00
+	txa
+	and #$07
+	cmp temp00
+	bne .update_position
+	*/
+	lda ent_x_hi,x
+	lsr
+	lda ent_x,x
+	ror
+	sta collision_1_x
+	lda ent_y,x
+	lsr
+	sta collision_1_y
+	jsr arctang24
+	tax
+	lda arctang24_to_dir8,x
+	ldx ent_slot
+	sta ent_r3,x
 
-.mode_wandering
+.update_position
 	; move according to dir
 	ldy ent_r3,x
 	clc
@@ -159,16 +209,6 @@ ent_germ_update: subroutine
 	adc ent_germ_y_dir_vel,y
 	sta ent_y,x
 	jmp .movement_done
-
-.mode_offense
-	lda wtf
-	and #$07
-	bne .offense_done
-	jsr rng_update
-	lda rng_val0
-	and #$07
-	sta ent_r3,x
-.offense_done
 
 .movement_done
 

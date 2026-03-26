@@ -21,6 +21,9 @@ state_game_update: subroutine
 .stay_in_game_state
 
 	jsr hud_sprite0
+	
+	;lda #%00011111 ; b/w
+	;sta PPU_MASK
 
 	; xxx need to check level status
 	; game over all teeth gone

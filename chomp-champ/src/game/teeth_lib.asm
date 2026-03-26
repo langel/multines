@@ -62,6 +62,8 @@ teeth_update: subroutine
 	; destroys x+y
 
 ;check_mouth_state BEGIN
+	; check for game over
+	; or next level
 	lda #$00
 	sta temp00 ; dead counter
 	sta temp01 ; clean counter
@@ -93,6 +95,7 @@ teeth_update: subroutine
 .not_nextlevel
 ;check_mouth_state FINISH
 
+	; add up dirt on current tooth
 	ldx tooth_index
 .next_tooth
 	inx

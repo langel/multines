@@ -34,10 +34,12 @@ temp05           byte
 temp06           byte
 temp07           byte
 
+; typically enemy collision data
 collision_0_x    byte
 collision_0_y    byte
 collision_0_w    byte
 collision_0_h    byte
+; player or another enemy data
 collision_1_x    byte
 collision_1_y    byte
 collision_1_w    byte

@@ -36,6 +36,7 @@ tooth_update_queue_size byte
 tooth_index             byte
 
 germ_attacked           byte
+germ_attackee           byte
 
 hud_initted   byte
 game_level    byte

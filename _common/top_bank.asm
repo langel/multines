@@ -13,6 +13,7 @@
 	include "./_common/lib/ent_z.asm"
 	include "./_common/lib/score.asm"
 	include "./_common/lib/sprite.asm"
+	include "./_common/lib/arctang24.asm"
 	include "./_common/lib/collision.asm"
 
 	org $f000

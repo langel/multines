@@ -511,6 +511,16 @@ game_player_update: subroutine
 	sta floss_hit_y
 .skip_flossing
 
+	; set arctang position
+	lda player_x_hi
+	lsr
+	lda player_x
+	ror
+	sta collision_1_w
+	lda player_y
+	lsr
+	sta collision_1_h
+
 	; set z position
 	lda player_x
 	sta ent_x

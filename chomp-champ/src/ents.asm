@@ -44,26 +44,3 @@ ent_update_hi:
 	byte >ent_eggs_update
 	byte >ent_particle_update
 
-ent_render_lo:
-	byte <do_nothing
-	byte <ent_big_teef_render
-	byte <ent_food_render
-	byte <ent_germ_render
-	byte <ent_gnat_render
-	byte <ent_player_render
-	byte <ent_poop_render
-	byte <ent_grub_render
-	byte <ent_eggs_render
-	byte <ent_particle_render
-ent_render_hi:
-	byte >do_nothing
-	byte >ent_big_teef_render
-	byte >ent_food_render
-	byte >ent_germ_render
-	byte >ent_gnat_render
-	byte >ent_player_render
-	byte >ent_poop_render
-	byte >ent_grub_render
-	byte >ent_eggs_render
-	byte >ent_particle_render
-
