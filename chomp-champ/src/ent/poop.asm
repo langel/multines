@@ -54,7 +54,37 @@ ent_poop_update: subroutine
 	lda collision_0_y
 	sta ent_coll_y,x
 
-.check_brush_collision
+	; check player collision
+	lda player_is_dead
+	bne .player_collision_done
+	lda player_iframes
+	bne .player_collision_done
+	clc
+	lda collision_0_x
+	adc collision_0_w
+	cmp player_hit_x
+	bcc .player_collision_done
+	clc
+	lda collision_0_x
+	cmp player_hit_x
+	bcs .player_collision_done
+	clc
+	lda collision_0_y
+	adc collision_0_h
+	cmp player_hit_y
+	bcc .player_collision_done
+	clc
+	lda collision_0_y
+	cmp player_hit_y
+	bcs .player_collision_done
+.player_collides
+	lda #player_death_timer
+	sta player_is_dead
+	lda #$04
+	sta ent_r0
+.player_collision_done
+
+	; check brush collision
 	lda controller1
 	and #BRUSH_BUTTON
 	beq .brushing_done

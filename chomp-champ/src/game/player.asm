@@ -1,7 +1,26 @@
 
+player_death_timer    eqm #$40
+player_iframes_timer  eqm #$40
 
 
 game_player_update: subroutine
+
+	lda player_is_dead
+	beq .not_dead
+	cmp #$01
+	bne .death_timer_running
+.next_life
+	dec player_lives	
+	lda #player_iframes_timer
+	sta player_iframes
+	lda #$00
+	sta ent_r0
+	sta player_is_dead
+	rts
+.death_timer_running
+	dec player_is_dead
+	rts
+.not_dead
 
 	; handle directional inputs
 	lda #$00
@@ -522,6 +541,18 @@ game_player_update: subroutine
 	adc #$10
 	lsr
 	sta collision_1_h
+
+	; set hit spot
+	lda player_x
+	sec
+	sbc camera_x
+	clc
+	adc #$08
+	sta player_hit_x
+	lda player_y
+	clc
+	adc #$18
+	sta player_hit_y
 
 	; set z position
 	lda player_x

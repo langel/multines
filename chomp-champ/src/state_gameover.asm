@@ -16,6 +16,13 @@ text_all_tooths_lost:
 	hex 6d 08 68 08 68 08 6d 08 61 08 6c 08 08
 	hex 65 08 68 08 6c 08 6d
 
+text_lifes_dead:
+	hex 65 08 62 08 
+	hex 5f 08 5e 08 
+	hex 6c 08 08
+	hex 5d 08 5e 08 5a 08 5d
+	hex 08 08
+
 
 state_gameover_init: subroutine
 
@@ -89,6 +96,22 @@ state_gameover_init: subroutine
 	sta PPU_DATA
 	sta PPU_DATA
 	sta PPU_DATA
+
+	; write lifes dead
+	lda player_lives
+	bne .not_lifes_dead
+	lda #$20
+	sta PPU_ADDR
+	lda #$8a
+	sta PPU_ADDR
+	ldx #$00
+.lifes_dead_loop
+	lda text_lifes_dead,x
+	sta PPU_DATA
+	inx
+	cpx #$14
+	bne .lifes_dead_loop
+.not_lifes_dead
 
 	; vertical texts
 	lda #CTRL_INC_32

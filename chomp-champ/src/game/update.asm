@@ -12,6 +12,11 @@ state_game_update: subroutine
 	;sta PPU_MASK
 
 	jsr teeth_update
+	
+	lda player_lives
+	bne .not_gameover
+	jsr state_gameover_init
+.not_gameover
 
 	; check if same state
 	lda state_update_id

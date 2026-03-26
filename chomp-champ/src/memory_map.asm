@@ -54,11 +54,13 @@ pl_vel_h_lo   byte
 pl_vel_v_hi   byte
 pl_vel_v_lo   byte
 
-player_lives  byte
-player_moving byte
+player_lives    byte
+player_moving   byte
+player_is_dead  byte
+player_iframes  byte
 
-floss_length  byte
-floss_status  byte
+floss_length    byte
+floss_status    byte
 ; N bit = increasing or decreasing
 ; bit 6 = target locked
 ; bit 0 = floss animating

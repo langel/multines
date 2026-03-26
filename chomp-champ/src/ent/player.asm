@@ -22,9 +22,9 @@ ent_player_init: subroutine
 	ldx #$00
 	lda #ent_player_id
 	sta ent_type,x
-	lda #$e0
+	lda #$f7
 	sta player_x
-	lda #$90
+	lda #$7b
 	sta player_y
 	; reset registers
 	lda #$00
@@ -40,6 +40,9 @@ ent_player_init: subroutine
 	sta pl_vel_h_lo
 	sta pl_vel_v_hi
 	sta pl_vel_v_lo
+	; escape baddies quickly
+	lda #$40
+	sta player_iframes
 	rts
 
 /*
@@ -60,10 +63,6 @@ player_fast_velocities:
 	hex 2c fd ; ordinal
 	hex 00 fe ; diagonal
 
-ent_player_update: subroutine
-
-	jmp ent_player_render
-
 
 	; RENDER HANDLER
 ent_player_render_lo:
@@ -78,6 +77,19 @@ ent_player_render_hi:
 	byte >player_render_brushing
 	byte >player_render_flossing
 	byte >player_render_death
+
+
+ent_player_update: subroutine
+	lda player_iframes
+	beq ent_player_render
+	lda player_iframes
+	dec player_iframes
+	shift_r 1
+	and #$01
+	beq ent_player_render
+
+	jmp ent_z_update_return
+
 
 ent_player_render:
 	ldy ent_spr_ptr
@@ -712,6 +724,36 @@ player_render_flossing: subroutine
 
 
 player_render_death: subroutine
+	lda player_x
+	sec
+	sbc camera_x
+	sta spr_x,y
+	sta spr_x+8,y
+	clc
+	adc #$08
+	sta spr_x+4,y
+	sta spr_x+12,y
+	lda player_y
+	sta spr_y+0,y
+	sta spr_y+4,y
+	clc
+	adc #$10
+	sta spr_y+8,y
+	sta spr_y+12,y
+	lda #$00
+	sta spr_a,y
+	sta spr_a+4,y
+	sta spr_a+8,y
+	sta spr_a+12,y
+	lda #$d8
+	sta spr_p,y
+	lda #$da
+	sta spr_p+4,y
+	lda #$f8
+	sta spr_p+8,y
+	lda #$fa
+	sta spr_p+12,y
+	inc_y 16
 	jmp ent_z_update_return
 
 
