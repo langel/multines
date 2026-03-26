@@ -493,9 +493,58 @@ state_game_prerender: subroutine
 	; set blackout status
 	ora #$80
 	sta tooth_total_dmg,x
+	; find food on this tooth and force it into falling mode
+	stx temp02 ; dead tooth id
+	sty temp01 ; preserve render queue cursor
+	ldy #$1f
+.food_loop
+	lda ent_type,y
+	cmp #ent_food_id
+	bne .next_ent
+	lda ent_r0,y
+	bmi .next_ent ; skip food already in falling state
+	; calculate food cell -> tooth id
+	lda ent_x_hi,y
+	lsr
+	lda ent_x,y
+	ror
+	clc
+	adc #$02
+	shift_r 3
+	sta temp04
+	sec
+	lda ent_y,y
+	sbc #$33
+	bmi .next_ent
+	shift_r 4
+	shift_l 5
+	clc
+	adc temp04
+	tax
+	lda tooth_cell2tooth,x
+	cmp temp02
+	bne .restore_tooth_slot
+	; matching tooth: put food in falling mode
+	tya
+	tax
+	lda #$80
+	sta ent_r0,x
+	sty temp05
+	jsr rng_update
+	ldy temp05
+	lda rng_val0
+	asl
+	sta ent_r6,x
+	lda #$fc
+	adc #$00
+	sta ent_r7,x
+.restore_tooth_slot
+	ldx temp02
+.next_ent
+	dey
+	bpl .food_loop
 	; dirty neighboring teeths
 	stx temp00
-	sty temp01
 	txa
 	shift_l 3
 	tay
