@@ -335,6 +335,7 @@ ent_grub_update: subroutine
 	lda #$04
 	sta ent_r0
 	jsr ent_particle_spawn_from_baddie
+	ldy ent_spr_ptr
 	jmp ent_z_update_return
 .player_collision_done
 

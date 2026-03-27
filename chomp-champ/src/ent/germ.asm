@@ -27,18 +27,18 @@ ent_germ_y_dir_vel:
 ent_germ_mirror_x:
 	hex 03 05 04 04 ; 00
 	hex 04 03 03 03 ; 01
-	hex ff ff ff ff ; 02
+	hex 00 04 00 04 ; 02
 	hex 00 01 01 01 ; 03
 	hex 01 07 00 00 ; 04
 	hex 00 07 07 07 ; 05
-	hex ff ff ff ff ; 06
+	hex 04 00 04 00 ; 06
 	hex 05 04 05 05 ; 07
 ent_germ_mirror_y:
-	hex ff ff ff ff ; 00
+	hex 02 06 02 06 ; 00
 	hex 06 07 07 07 ; 01
 	hex 05 07 06 06 ; 02
 	hex 05 06 05 05 ; 03
-	hex ff ff ff ff ; 04
+	hex 06 02 02 06 ; 04
 	hex 03 02 03 03 ; 05
 	hex 03 01 02 02 ; 06
 	hex 01 02 01 01 ; 07
@@ -219,7 +219,6 @@ ent_germ_update: subroutine
 	jsr arctang24
 	tax
 	lda arctang24_to_dir8,x
-	and #$07
 	ldx ent_slot
 	sta ent_r3,x
 

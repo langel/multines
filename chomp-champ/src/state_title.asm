@@ -5,6 +5,9 @@
 title_screen_palette:
 	hex 0f 15 25 14
 
+moufs_palette:
+	hex 0f 16 14 27
+
 title_screen_line_pal_base eqm $04
 
 title_copy_line:
@@ -24,10 +27,14 @@ state_title_init: subroutine
 
 	; setup pallete
 	ldx #$00
+	ldy #$0c
 .pal_loop
 	lda title_screen_palette,x
 	sta palette_cache,x
+	lda moufs_palette,x
+	sta palette_cache,y
 	inx
+	iny
 	cpx #$04
 	bne .pal_loop
 

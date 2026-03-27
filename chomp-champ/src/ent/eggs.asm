@@ -54,13 +54,58 @@ ent_eggs_spawn_from_poop: subroutine
 ent_eggs_update: subroutine
 	; update logic
 
+	; add sine to origin
+	clc
+	lda ent_r4,x
+	adc ent_r1,x
+	sta ent_x,x
+	lda ent_r5,x
+	adc #$00
+	sta ent_x_hi,x
+	jsr ent_calc_position
+	
+	; check brush collision
+	lda ent_visible
+	sta ent_coll_visible,x
+	beq .brushing_done
+	lda controller1
+	and #BRUSH_BUTTON
+	beq .brushing_done
+	clc
+	lda collision_0_x
+	adc collision_0_w
+	cmp brush_hit_x
+	bcc .brushing_done
+	clc
+	lda collision_0_x
+	cmp brush_hit_x
+	bcs .brushing_done
+	clc
+	lda collision_0_y
+	adc collision_0_h
+	cmp brush_hit_y
+	bcc .brushing_done
+	clc
+	lda collision_0_y
+	cmp brush_hit_y
+	bcs .brushing_done
+.brush_collision
+	lda ent_r0,x
+	sec
+	sbc #$07
+	bcc .hatch
+	sta ent_r0,x
+.brushing_done
+
 	dec ent_r0,x
 	bne .dont_hatch
 	; transform into grub
+.hatch
 	jsr ent_grub_spawn_from_egg
 	jsr ent_particle_spawn_from_egg
 	jmp ent_z_update_return
 .dont_hatch
+
 	; shake time
 	lda #$00
 	sta temp00
@@ -98,16 +143,6 @@ ent_eggs_update: subroutine
 
 ent_eggs_render: subroutine
 	ldy ent_spr_ptr
-
-	; add sine to origin
-	clc
-	lda ent_r4,x
-	adc ent_r1,x
-	sta ent_x,x
-	lda ent_r5,x
-	adc #$00
-	sta ent_x_hi,x
-	jsr ent_calc_position
 
 .left_sprite
 	lda ent_visible

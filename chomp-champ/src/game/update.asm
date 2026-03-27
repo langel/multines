@@ -25,6 +25,8 @@ state_game_update: subroutine
 	jmp nmi_update_done
 .stay_in_game_state
 
+	jsr ent_grub_convergence
+
 	jsr hud_sprite0
 	
 	;lda #%00011111 ; b/w
@@ -36,8 +38,6 @@ state_game_update: subroutine
 
 	jsr game_player_update
 	jsr ent_z_update
-
-	jsr ent_grub_convergence
 
 	jsr hud_update
 

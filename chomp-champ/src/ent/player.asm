@@ -727,6 +727,19 @@ player_render_flossing: subroutine
 
 player_render_death: subroutine
 	lda player_x
+	; move right if facing left
+	lda ent_r3
+	bpl .facing_right_adjust
+.facing_left_adjust
+	lda player_x
+	clc
+	adc #$02
+	jmp .facing_adjust_done
+.facing_right_adjust
+	lda player_x
+	sec
+	sbc #$02
+.facing_adjust_done
 	sec
 	sbc camera_x
 	sta spr_x,y
