@@ -32,7 +32,17 @@ teeth_init: subroutine
 	; save total ddmg
 	ldx tooth_index
 	sta tooth_total_dmg,x 
-	lda tooth_total_dmg,x 
+	lda tooth_total_dmg,x
+	bne .not_true_clean_init
+	lda #$01
+	sta tooth_true_clean,x
+	lda tooth_total_dmg,x
+	jmp .init_true_clean_done
+.not_true_clean_init
+	lda #$00
+	sta tooth_true_clean,x
+	lda tooth_total_dmg,x
+.init_true_clean_done
 	; render appropriately
 	bpl .render_dmg
 	jsr blackout_render
@@ -54,7 +64,6 @@ teeth_init: subroutine
 	rts
 
 
-
 teeth_update: subroutine
 	; adds up dirt value of all 16 cells of tooth_index based on frame counter
 	; temp00 = addend
@@ -74,7 +83,8 @@ teeth_update: subroutine
 	inc temp00
 	jmp .tooth_checked
 .not_dead
-	bne .tooth_checked
+	lda tooth_true_clean,x
+	beq .tooth_checked
 	inc temp01
 .tooth_checked
 	dex
@@ -132,6 +142,33 @@ teeth_update: subroutine
 	ldx tooth_index
 	sta tooth_total_dmg,x
 .tooth_lost
+	ldx tooth_index
+	lda tooth_total_dmg,x
+	bmi .mark_not_true_clean
+	bne .mark_not_true_clean
+	lda #$01
+	sta tooth_true_clean,x
+	ldy #$1f
+.food_check_loop
+	lda ent_type,y
+	cmp #ent_food_id
+	bne .food_check_next
+	lda ent_r0,y
+	bmi .food_check_next
+	lda ent_r4,y
+	cmp tooth_index
+	bne .food_check_next
+	lda #$00
+	sta tooth_true_clean,x
+	jmp .true_clean_done
+.food_check_next
+	dey
+	bpl .food_check_loop
+.true_clean_done
+	rts
+.mark_not_true_clean
+	lda #$00
+	sta tooth_true_clean,x
 	rts
 
 
@@ -150,9 +187,11 @@ gumline_render: subroutine
 	jmp .gumline_done
 .do_render
 	ldx tooth_index
+	lda tooth_true_clean,x
+	bne .gumline_is_clean
 	lda tooth_total_dmg,x
 	bne .gumline_has_dirt
-	jmp .gumline_is_clean
+	lda #$01 ; minimum dirt if food blocks clean state
 .gumline_has_dirt
 	shift_r 5
 	cmp #$03

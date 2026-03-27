@@ -19,6 +19,7 @@
 ;        #b0000x000 is in gap
 ;        #bxxxx0000 gap id
 ; ent_r2 attacked shake pos
+; ent_r4 cached tooth id (0..15, $ff invalid)
 ; ent_r6 z sort up
 ; ent_r7 z sort down
 
@@ -36,6 +37,33 @@ ent_food_gap_x_pos:
 	hex f7 37 77 b7 38 78 b8 f8
 
 ent_food_starting_hp   eqm #$10
+
+ent_food_cache_tooth_id: subroutine
+	; cache tooth id from current food position
+	lda ent_x_hi,x
+	lsr
+	lda ent_x,x
+	ror
+	clc
+	adc #$02
+	shift_r 3
+	sta temp00
+	lda ent_y,x
+	sec
+	sbc #$33
+	bmi .invalid
+	shift_r 4
+	shift_l 5
+	clc
+	adc temp00
+	tay
+	lda tooth_cell2tooth,y
+	sta ent_r4,x
+	rts
+.invalid
+	lda #$ff
+	sta ent_r4,x
+	rts
 
 
 ent_food_spawn: subroutine
@@ -63,9 +91,15 @@ ent_food_spawn: subroutine
 	; set state
 	lda #$00
 	sta ent_r0,x
-	; hit points?
+	; hit points
 	lda #ent_food_starting_hp
 	sta ent_hp,x
+	jsr ent_food_cache_tooth_id
+	lda ent_r4,x
+	bmi .done
+	tay
+	lda #$00
+	sta tooth_true_clean,y
 .done
 	rts
 
@@ -107,9 +141,31 @@ ent_food_spawn_in_gap: subroutine
 	; set state
 	lda #$01
 	sta ent_r0,x
+	; cache tooth id directly from gap id/row
+	lda ent_r1,x
+	and #$70
+	shift_r 4
+	sta temp00
+	lda ent_r1,x
+	and #$80
+	beq .cache_top_row_tooth
+	lda temp00
+	clc
+	adc #$08
+	sta ent_r4,x
+	jmp .cache_done
+.cache_top_row_tooth
+	lda temp00
+	sta ent_r4,x
+.cache_done
 	; hit points?
 	lda #ent_food_starting_hp
 	sta ent_hp,x
+	lda ent_r4,x
+	bmi .done
+	tay
+	lda #$00
+	sta tooth_true_clean,y
 .done
 	rts
 

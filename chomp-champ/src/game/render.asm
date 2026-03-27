@@ -342,9 +342,11 @@ state_game_prerender: subroutine
 	lda #$08 ; always update 8 tiles
 	PUSHY
 	ldx tooth_index
+	lda tooth_true_clean,x
+	bne .gumline_is_clean
 	lda tooth_total_dmg,x
 	bne .gumline_has_dirt
-	jmp .gumline_is_clean
+	lda #$01 ; minimum dirt if food blocks clean state
 .gumline_has_dirt
 	shift_r 5
 	cmp #$03
@@ -503,25 +505,7 @@ state_game_prerender: subroutine
 	bne .next_ent
 	lda ent_r0,y
 	bmi .next_ent ; skip food already in falling state
-	; calculate food cell -> tooth id
-	lda ent_x_hi,y
-	lsr
-	lda ent_x,y
-	ror
-	clc
-	adc #$02
-	shift_r 3
-	sta temp04
-	sec
-	lda ent_y,y
-	sbc #$33
-	bmi .next_ent
-	shift_r 4
-	shift_l 5
-	clc
-	adc temp04
-	tax
-	lda tooth_cell2tooth,x
+	lda ent_r4,y
 	cmp temp02
 	bne .restore_tooth_slot
 	; matching tooth: put food in falling mode

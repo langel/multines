@@ -46,7 +46,10 @@ ent_eggs_spawn_from_poop: subroutine
 	lda #$20
 	sta ent_hp,y
 	lda #$ff
+	sta ent_r0,y
+	lda #$00
 	sta ent_r1,y
+	sta ent_r3,y
 	ent_despawn_2
 	rts
 

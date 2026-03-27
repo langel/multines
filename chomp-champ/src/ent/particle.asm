@@ -45,12 +45,9 @@ ent_particle_spawn_from_egg: subroutine
 	sta ent_hp,x
 	; transfer egg position
 	ldy ent_slot
-	clc
 	lda ent_x,y
-	adc #$04
 	sta ent_x,x
 	lda ent_x_hi,y
-	adc #$00
 	sta ent_x_hi,x
 	lda ent_y,y
 	sta ent_y,x

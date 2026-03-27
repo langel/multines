@@ -49,8 +49,14 @@ ent_sully_cell: subroutine
 	lda tooth_total_dmg,x
 	; check tooth is missing
 	bmi .skip_cell_dmg
-	; check tooth is cleared
-	beq .skip_cell_dmg
+	; check tooth is truly clean
+	lda tooth_true_clean,x
+	beq .tooth_can_be_dirtied
+	ldy ent_slot
+	lda ent_type,y
+	cmp #ent_poop_id
+	bne .skip_cell_dmg
+.tooth_can_be_dirtied
 	; increase tooth damage
 	; but it maxes it
 	ldx temp01

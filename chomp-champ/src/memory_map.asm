@@ -31,6 +31,7 @@ tooth_cell_dmg      eqm $600
 tooth_total_dmg     eqm $700
 tooth_needs_update  eqm $720
 tooth_tile_cache    eqm $760
+tooth_true_clean    eqm $780
 
 tooth_update_queue_size byte
 tooth_index             byte
