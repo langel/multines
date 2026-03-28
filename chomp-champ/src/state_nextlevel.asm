@@ -106,7 +106,7 @@ state_nextlevel_update: subroutine
 	lda controller1_d
 	beq .dont_start
 .start_a_game
-	jsr state_game_init
+	jsr state_game_level_init
 .dont_start
 
 	jmp nmi_update_done

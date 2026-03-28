@@ -11,6 +11,12 @@ teeth_init: subroutine
 	stx tooth_index
 	stx temp01 ; cell table offset
 .each_tooth
+	; Persist missing teeth across levels:
+	; if tooth_total_dmg already has sign bit set, keep it missing.
+	ldx tooth_index
+	lda tooth_total_dmg,x
+	bmi .persist_missing_tooth
+
 	; total dmg and render cells
 	lda #$00
 	clc
@@ -63,6 +69,18 @@ teeth_init: subroutine
 	sta tooth_index
 	rts
 
+.persist_missing_tooth
+	; Skip damage recompute but keep cell-table offset aligned.
+	lda temp01
+	clc
+	adc #$10
+	sta temp01
+	; Missing teeth are never truly clean.
+	lda #$00
+	sta tooth_true_clean,x
+	jsr blackout_render
+	jmp .render_done
+
 
 teeth_update: subroutine
 	; adds up dirt value of all 16 cells of tooth_index based on frame counter
@@ -96,6 +114,7 @@ teeth_update: subroutine
 	jsr state_gameover_init
 .not_gameover
 	; check for next level
+	; authoritative condition: missing_teeth + truly_clean_teeth == 16
 	lda temp00
 	clc
 	adc temp01

@@ -28,7 +28,7 @@ HVRL PPPP
 |||| ||||
 |||| ++++- Select lower PRG 16k bank
 |||+------ Single nametable $2000
-||+------- Single nametalbe $2400
+||+------- Single nametable $2400
 |+-------- Vertical mirroring
 +--------- Horizontal mirroring
 ```
@@ -47,3 +47,12 @@ state controllers have 64 slots
 
 ## Bus Conflicts
 More research is required to make sure bus conflicts are not an issue in both emulation and hardware.
+
+# Potential Cart Layout
+```
+ 5 16k CHR grafx banks =  80kb
+10 16k PRG game banks  = 160kb
+ 1 16k PRG common bank =  16kb
+------------------------------
+       total cart size = 256kb
+```

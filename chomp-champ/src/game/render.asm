@@ -76,7 +76,9 @@ state_game_prerender: subroutine
 	; check for tooth blackout
 	ldx tooth_index
 	lda tooth_total_dmg,x
-	bmi .no_blackout
+	bpl .check_blackout_threshold
+	jmp .do_blackout
+.check_blackout_threshold
 	cmp #$40
 	bcc .no_blackout
 	jmp .do_blackout
@@ -425,6 +427,10 @@ state_game_prerender: subroutine
 	; lets dick around with attributes
 	ldx tooth_index
 	lda tooth_total_dmg,x
+	bpl .attr_tooth_alive
+	jmp .skip_black_out
+.attr_tooth_alive
+	lda tooth_total_dmg,x
 	shift_r 4
 	sta temp00
 	cmp #$04
@@ -492,6 +498,11 @@ state_game_prerender: subroutine
 	; tooth_total_dmg >= #$40
 	; routed here from top of prerender
 .do_blackout
+	; If tooth is already missing, render blackout visuals only.
+	; Neighbor dirtying should happen once on transition, not every frame.
+	bpl .blackout_transition
+	jmp .blackout_render_only
+.blackout_transition
 	; set blackout status
 	ora #$80
 	sta tooth_total_dmg,x
@@ -518,7 +529,8 @@ state_game_prerender: subroutine
 	DEADTOOTH_NEIGHBOR_DIRTEN
 	DEADTOOTH_NEIGHBOR_DIRTEN
 	ldx temp00
-	ldy temp01
+.blackout_render_only
+	ldy temp03
 	; gumline
 	lda #$08
 	PUSHY

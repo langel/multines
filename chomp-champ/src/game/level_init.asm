@@ -14,7 +14,7 @@ game_palette:
 	hex 13 23 34 ; berries?
 
 
-state_game_init: subroutine
+state_game_level_init: subroutine
 
 	jsr render_disable
 
@@ -89,6 +89,14 @@ state_game_init: subroutine
 	dex
 	stx state07
 	bpl .extra_germs
+
+	; clear tooth cell damage ram ($600-$6ff)
+	lda #$00
+	ldx #$00
+.clear_tooth_cell_ram
+	sta $600,x
+	inx
+	bne .clear_tooth_cell_ram
 
 	; XXX level init should do this
 	; create some tooth dirt
