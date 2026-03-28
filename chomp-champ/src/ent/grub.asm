@@ -59,14 +59,18 @@ ent_grub_spawn_from_egg: subroutine
 	lda rng_val1
 	and #$03
 	sta ent_r3,x
-	; copy position
+	; move right only when initial direction is up/down
+	lda ent_r3,x
+	and #$02
+	beq .spawn_pos_done
 	lda ent_x,x
 	clc
-	adc #$04
+	adc #$06
 	sta ent_x,x
 	lda ent_x_hi,x
 	adc #$00
 	sta ent_x_hi,x
+.spawn_pos_done
 
 	lda #grub_attacked_wait_length
 	sta ent_r1,x

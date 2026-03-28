@@ -116,6 +116,7 @@ ent_gnat_update: subroutine
 .poop_x_left
 	sec
 	lda ent_x,x
+	sbc #$01 ; landing offset
 	sbc ent_x,y
 	sta temp00
 	lda ent_x_hi,x
@@ -126,6 +127,7 @@ ent_gnat_update: subroutine
 .poop_x_right
 	sec
 	lda ent_x,y
+	sbc #$01 ; landing offset
 	sbc ent_x,x
 	sta temp00
 	lda ent_x_hi,y
@@ -158,6 +160,16 @@ ent_gnat_update: subroutine
 	beq .diving_done
 	inc ent_r1,x
 	ldy ent_r2,x
+	; ascend if poop gone
+	lda ent_type,y
+	cmp #ent_poop_id
+	beq .stay_diving
+	lda ent_r3,x
+	and #%00000001
+	ora #%00001000
+	sta ent_r3,x
+	jmp .diving_done
+.stay_diving
 	lda ent_r1,x
 	cmp ent_y,y
 	bne .diving_done
