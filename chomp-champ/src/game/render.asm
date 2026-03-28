@@ -336,19 +336,19 @@ state_game_prerender: subroutine
 	; update gumline tiles
 	ldx tooth_index
 	lda tooth_total_dmg,x
+	; do not render blackout teeth
 	bpl .gumline_update
 	jmp .gumline_done
 .gumline_update
 	lda #$08 ; always update 8 tiles
 	PUSHY
-	ldx tooth_index
 	lda tooth_true_clean,x
 	bne .gumline_is_clean
 	lda tooth_total_dmg,x
 	bne .gumline_has_dirt
 	lda #$01 ; minimum dirt if food blocks clean state
 .gumline_has_dirt
-	shift_r 5
+	shift_r 4
 	cmp #$03
 	bcc .dont_threshold
 	lda #$03
@@ -495,38 +495,6 @@ state_game_prerender: subroutine
 	; set blackout status
 	ora #$80
 	sta tooth_total_dmg,x
-	; find food on this tooth and force it into falling mode
-	stx temp02 ; dead tooth id
-	sty temp01 ; preserve render queue cursor
-	ldy #$1f
-.food_loop
-	lda ent_type,y
-	cmp #ent_food_id
-	bne .next_ent
-	lda ent_r0,y
-	bmi .next_ent ; skip food already in falling state
-	lda ent_r4,y
-	cmp temp02
-	bne .restore_tooth_slot
-	; matching tooth: put food in falling mode
-	tya
-	tax
-	lda #$80
-	sta ent_r0,x
-	sty temp05
-	jsr rng_update
-	ldy temp05
-	lda rng_val0
-	asl
-	sta ent_r6,x
-	lda #$fc
-	adc #$00
-	sta ent_r7,x
-.restore_tooth_slot
-	ldx temp02
-.next_ent
-	dey
-	bpl .food_loop
 	; dirty neighboring teeths
 	stx temp00
 	txa

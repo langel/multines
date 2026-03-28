@@ -157,7 +157,11 @@ teeth_update: subroutine
 	bmi .food_check_next
 	lda ent_r4,y
 	cmp tooth_index
+	beq .food_blocks_clean
+	lda ent_r5,y
+	cmp tooth_index
 	bne .food_check_next
+.food_blocks_clean
 	lda #$00
 	sta tooth_true_clean,x
 	jmp .true_clean_done
@@ -175,37 +179,33 @@ teeth_update: subroutine
 
 
 
-
+	; XXX this should probably be cached!
+	; this is prelevel rendering?!?!
 gumline_render: subroutine
-	; references tooth_index
-
 	; update gumline tiles
+	; references tooth_index
 	ldx tooth_index
 	lda tooth_total_dmg,x
 	bpl .do_render
 	; dont bother on blackout
 	jmp .gumline_done
 .do_render
-	ldx tooth_index
 	lda tooth_true_clean,x
 	bne .gumline_is_clean
-	lda tooth_total_dmg,x
-	bne .gumline_has_dirt
-	lda #$01 ; minimum dirt if food blocks clean state
 .gumline_has_dirt
-	shift_r 5
+	lda tooth_total_dmg,x
+	shift_r 4
 	cmp #$03
 	bcc .dont_threshold
 	lda #$03
 .dont_threshold
 	tay ; tile dmg group value
-	ldx tooth_index
 	lda gumline_nm_addr_hi,x
 	sta PPU_ADDR
 	lda gumline_nm_addr_lo,x
 	sta PPU_ADDR
 	; which row?
-	lda tooth_index
+	txa
 	and #$08
 	bne .gumline_bottom_row
 .gumline_top_row
@@ -256,7 +256,6 @@ gumline_render: subroutine
 	cpx #$08
 	bne .gumline_clean_bottom
 .gumline_done
-
 	rts
 
 
