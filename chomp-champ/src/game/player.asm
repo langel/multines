@@ -270,9 +270,9 @@ game_player_update: subroutine
 	jmp .bind_x_done
 .screen_2
 	lda player_x
-	cmp #$e0
+	cmp #$e8
 	bcc .bind_x_done
-	lda #$e0
+	lda #$e7
 	sta player_x
 	lda #$01
 	sta player_x_hi

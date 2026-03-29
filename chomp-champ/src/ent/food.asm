@@ -317,6 +317,7 @@ ent_food_update: subroutine
 .brush_shake_right
 	inc ent_pos_x
 .brushing_done
+	jmp .collision_checks_done
 
 .check_floss_collision
 	lda floss_status
@@ -497,6 +498,12 @@ ent_food_gap_render: subroutine
 	sta temp02
 	jmp .behind_side_done
 .left_is_behind
+	; check for rightmost gap
+	lda ent_r1,x
+	shift_r 4
+	and #$07
+	cmp #$07
+	beq .right_is_behind
 	lda #$00
 	sta temp02
 .behind_side_done

@@ -1,10 +1,5 @@
 ; sets up playfield for level
 ;
-; todo
-;	- add random dirt
-;	- add food/germs/etc
-;	- add dirt around food
-;	- create each level population tables or w/e
 
 teeth_init_playfield: subroutine
 	lda #$20
@@ -135,7 +130,7 @@ teeth_init_playfield: subroutine
 
 
 level_dirty:
-	; render dirty teeth cells
+	; render dirty teeth cells into nametables
 	lda #$00
 	sta tooth_index
 	sta state00 ; cell counter

@@ -51,11 +51,8 @@ teeth_init: subroutine
 .init_true_clean_done
 	; render appropriately
 	bpl .render_dmg
-	jsr blackout_render
 	jmp .render_done
 .render_dmg
-	jsr gumline_render
-	jsr celldirt_render
 .render_done
 
 	; next tooth
@@ -78,7 +75,6 @@ teeth_init: subroutine
 	; Missing teeth are never truly clean.
 	lda #$00
 	sta tooth_true_clean,x
-	jsr blackout_render
 	jmp .render_done
 
 
@@ -196,93 +192,3 @@ teeth_update: subroutine
 
 
 
-
-
-	; XXX this should probably be cached!
-	; this is prelevel rendering?!?!
-gumline_render: subroutine
-	; update gumline tiles
-	; references tooth_index
-	ldx tooth_index
-	lda tooth_total_dmg,x
-	bpl .do_render
-	; dont bother on blackout
-	jmp .gumline_done
-.do_render
-	lda tooth_true_clean,x
-	bne .gumline_is_clean
-.gumline_has_dirt
-	lda tooth_total_dmg,x
-	shift_r 4
-	cmp #$03
-	bcc .dont_threshold
-	lda #$03
-.dont_threshold
-	tay ; tile dmg group value
-	lda gumline_nm_addr_hi,x
-	sta PPU_ADDR
-	lda gumline_nm_addr_lo,x
-	sta PPU_ADDR
-	; which row?
-	txa
-	and #$08
-	bne .gumline_bottom_row
-.gumline_top_row
-	lda gumline_top_row_tile_id,y
-	jmp .gumline_tile_ready
-.gumline_bottom_row
-	lda gumline_bottom_row_tile_id,y
-.gumline_tile_ready
-	tax
-	stx PPU_DATA
-	inx
-	stx PPU_DATA
-	inx
-	stx PPU_DATA
-	inx
-	stx PPU_DATA
-	inx
-	stx PPU_DATA
-	inx
-	stx PPU_DATA
-	inx
-	stx PPU_DATA
-	inx
-	stx PPU_DATA
-	jmp .gumline_done
-.gumline_is_clean
-	ldx tooth_index
-	lda gumline_nm_addr_hi,x
-	sta PPU_ADDR
-	lda gumline_nm_addr_lo,x
-	sta PPU_ADDR
-	; which row?
-	ldx #$00
-	lda tooth_index
-	and #$08
-	bne .gumline_clean_bottom
-.gumline_clean_top
-	lda tooth_row_upper_top,x
-	sta PPU_DATA
-	inx
-	cpx #$08
-	bne .gumline_clean_top
-	jmp .gumline_done
-.gumline_clean_bottom
-	lda tooth_row_lower_bottom,x
-	sta PPU_DATA
-	inx
-	cpx #$08
-	bne .gumline_clean_bottom
-.gumline_done
-	rts
-
-
-
-celldirt_render: subroutine
-	rts
-
-
-
-blackout_render: subroutine
-	rts

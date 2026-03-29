@@ -9,6 +9,7 @@ state_game_render_id           eqm $04
 state_gameover_update_id       eqm $05
 state_nextlevel_update_id      eqm $06
 state_congration_update_id     eqm $07
+state_demo_update_id           eqm $08
 
 	org $8080
 state_table_lo:
@@ -20,6 +21,7 @@ state_table_lo:
 	byte <#state_gameover_update
 	byte <#state_nextlevel_update
 	byte <#state_congration_update
+	byte <#state_demo_update
 
 	org $80c0
 state_table_hi:
@@ -31,6 +33,7 @@ state_table_hi:
 	byte >#state_gameover_update
 	byte >#state_nextlevel_update
 	byte >#state_congration_update
+	byte >#state_demo_update
 
 
 	org $8100

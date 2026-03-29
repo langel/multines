@@ -235,7 +235,8 @@ ent_calc_position: subroutine
 	lda collision_0_x
 	cmp #$f0
 	bcc .not_in_right_edge
-	lda #$00
+	; Clamp width so collision_0_x + collision_0_w never wraps.
+	lda #$ff
 	sec
 	sbc collision_0_x
 	jmp .collision_full_width_clamped
