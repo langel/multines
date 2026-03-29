@@ -14,8 +14,8 @@
 ; ent_r7 z sort down
 
 player_speed    eqm #$01
-BRUSH_BUTTON    eqm BUTTON_A
-FLOSS_BUTTON    eqm BUTTON_B
+BRUSH_BUTTON    eqm BUTTON_B
+FLOSS_BUTTON    eqm BUTTON_A
 
 ent_player_init: subroutine
 	; player always anet slot 00

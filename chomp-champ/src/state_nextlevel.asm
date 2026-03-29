@@ -84,6 +84,9 @@ state_nextlevel_init: subroutine
 	sta ppu_ctrl_ora
 	sta scroll_nm
 	sta scroll_x
+	lda #$ec
+	sta scroll_y
+
 	jsr render_enable
 
 	rts

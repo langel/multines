@@ -162,6 +162,7 @@ state_gameover_init: subroutine
 	sta ppu_ctrl_ora
 	sta scroll_nm
 	sta scroll_x
+	sta scroll_y
 	jsr render_enable
 
 	lda #$00

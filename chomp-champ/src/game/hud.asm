@@ -206,12 +206,12 @@ hud_update: subroutine
 	txa
 	shift_l 4
 	clc
-	adc #$10
+	adc #$20
 	sta spr_x,y
 	adc #$08
 	sta spr_x+4,y
 	; y
-	lda #$0e
+	lda #$12
 	sta spr_y,y
 	sta spr_y+4,y
 	INC_Y 8
@@ -226,7 +226,7 @@ hud_update: subroutine
 	sta spr_p
 	lda #$ba
 	sta spr_x
-	lda #$1d
+	lda #$21
 	sta spr_y
 	; enable hud split-scroll
 	lda #$01
@@ -253,7 +253,7 @@ hud_update: subroutine
 	clc
 	adc #$9d
 	sta spr_x+4
-	lda #$20
+	lda #$24
 	sta spr_y+4
 
 	rts
