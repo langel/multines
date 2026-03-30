@@ -2,7 +2,6 @@
 
 ent_random_spawn_pos: subroutine
 .reroll
-	lda #$00
 	jsr rng_update
 	; x
 	lda rng_val0
@@ -11,6 +10,13 @@ ent_random_spawn_pos: subroutine
 	lda #$00
 	rol
 	sta ent_x_hi,x
+	; keep x <= $01f0
+	lda ent_x_hi,x
+	beq .x_ok
+	lda ent_x,x
+	cmp #$f1
+	bcs .reroll
+.x_ok
 	; y
 	lda rng_val1
 	lsr
