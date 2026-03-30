@@ -35,6 +35,7 @@ tooth_true_clean    eqm $780
 
 tooth_update_queue_size byte
 tooth_index             byte
+cell_sweep              byte
 
 germ_attacked           byte
 germ_attackee           byte

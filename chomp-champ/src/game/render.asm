@@ -112,7 +112,6 @@ state_game_prerender: subroutine
 .render_dirt
 	sta temp01
 	tya
-	adc rng_val0
 	sta temp00
 	; cell quadrant 0
 	and #$03
@@ -332,6 +331,46 @@ state_game_prerender: subroutine
 .do_loop
 	jmp .queue_loop
 .tooth_cells_done
+	ldy temp03
+	; Queue safety net: if queue is empty, enqueue one 4-cell chunk
+	; from the sweep cursor for a non-missing, non-truly-clean tooth.
+	lda tooth_update_queue_size
+	bne .cell_sweep_done
+	lda cell_sweep
+	sta temp00
+	lsr
+	lsr
+	tax
+	lda tooth_total_dmg,x
+	bmi .advance_cell_sweep
+	lda tooth_true_clean,x
+	bne .advance_cell_sweep
+	lda temp00
+	and #$03
+	asl
+	asl
+	sta temp01
+	txa
+	shift_l 4
+	clc
+	adc temp01
+	tax
+	ldy #$00
+.cell_sweep_queue_4
+	lda teeth_cell_tables,x
+	sta tooth_needs_update,y
+	inx
+	iny
+	cpy #$04
+	bne .cell_sweep_queue_4
+	lda #$04
+	sta tooth_update_queue_size
+.advance_cell_sweep
+	inc cell_sweep
+	lda cell_sweep
+	and #$3f
+	sta cell_sweep
+.cell_sweep_done
 	ldy temp03
 
 

@@ -43,6 +43,10 @@ ent_sully_cell: subroutine
 	lda ent_y,x
 	sec
 	sbc #$33
+	cmp #$80
+	bcc .y_post_sub_ok
+	lda #$7f
+.y_post_sub_ok
 	shift_r 4
 	shift_l 5
 	clc

@@ -47,6 +47,7 @@ state_game_level_init: subroutine
 	; DIRT
 	lda #$00
 	sta tooth_index
+	sta cell_sweep
 	lda game_level
 	asl ; x2!!
 	sta temp07
