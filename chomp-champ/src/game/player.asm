@@ -424,29 +424,6 @@ game_player_update: subroutine
 	beq .floss_state_done
 .floss_increase
 	inc floss_length
-	; check on top of living tooth
-	; calc tooth id
-	; (player_x / 64) +
-	; (player_y > 100) * 8
-	lda player_x_hi
-	lsr
-	lda player_x
-	ror
-	shift_r 5
-	sta temp00
-	lda player_y
-	cmp #$70
-	bcc .flossing_top_row
-.flossing_bottom_row
-	lda #$08
-	clc
-	adc temp00
-	sta temp00
-.flossing_top_row
-	ldx temp00
-	lda tooth_total_dmg,x
-	bmi .no_gap
-	bpl .floss_check_for_gap
 	; if tooth dead can't find gap
 .floss_check_for_gap
 	ldx ent_slot
