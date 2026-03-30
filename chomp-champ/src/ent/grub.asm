@@ -220,6 +220,7 @@ ent_grub_update: subroutine
 	adc #$04
 	sta ent_y,x
 	; get next dir
+	jsr rng_update
 	lda rng_val0
 	and #$01
 	bne .turn_down
@@ -244,6 +245,7 @@ ent_grub_update: subroutine
 	sbc #$04
 	sta ent_y,x
 	; get next dir
+	jsr rng_update
 	lda rng_val0
 	and #$01
 	bne .turn_right
