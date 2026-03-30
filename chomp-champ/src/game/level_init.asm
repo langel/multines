@@ -168,8 +168,8 @@ state_game_level_init: subroutine
 
 
 
-	jsr teeth_init_playfield
 	jsr teeth_init
+	jsr teeth_init_playfield
 	jsr hud_init
 	
 	jsr render_enable
