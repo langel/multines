@@ -14,6 +14,32 @@ game_palette:
 	hex 13 23 34 ; berries?
 
 
+food_level_pop:
+	hex 02 00 03 02 03 01
+	hex 02 03 02 01 05 03
+	hex 02 05 03 05 02 01
+	hex 02 01 02 04 03 03
+	hex 05 03
+food_gap_level_pop:
+	hex 00 02 01 03 02 03
+	hex 02 01 03 02 03 02
+	hex 03 04 03 05 02 04
+	hex 05 03 03 04 03 04
+	hex 03 05
+germ_level_pop:
+	hex 00 00 01 00 01 02
+	hex 01 01 01 00 02 04
+	hex 02 02 02 01 03 05
+	hex 01 01 02 01 03 06
+	hex 04 04
+grub_level_pop:
+	hex 00 00 00 01 01 02
+	hex 00 00 00 05 01 02
+	hex 01 01 01 09 01 02
+	hex 03 04 05 07 04 05
+	hex 06 07
+
+
 state_game_level_init: subroutine
 
 	jsr render_disable
@@ -107,7 +133,7 @@ state_game_level_init: subroutine
 
 	; GNAT
 	lda game_level
-	cmp #$08
+	cmp #$07
 	bne .no_gnat
 	jsr ent_gnat_spawn
 .no_gnat
@@ -126,46 +152,52 @@ state_game_level_init: subroutine
 .no_eggs
 
 	; GERMS
-	lda game_level
-	cmp #$04
-	bcc .skip_germ
+	ldx game_level
+	dex
+	lda germ_level_pop,x
+	beq .germs_done
+	sta state00
+.germs_loop
 	jsr ent_germ_spawn
-	lda game_level
-	and #$07
-	shift_r 2
-	beq .skip_germ
-	jsr ent_germ_spawn
-.skip_germ
+	dec state00
+	bne .germs_loop
+.germs_done
 
 	; GRUBS
-	lda game_level
-	cmp #$0a
-	bcc .no_grubs
-	and #$07
-	eor #$07
-	sta temp07
+	ldx game_level
+	dex
+	lda grub_level_pop,x
+	beq .grubs_done
+	sta state00
 .grubs_loop
 	jsr ent_grub_spawn
-	dec temp07
-	bpl .grubs_loop
-.no_grubs
+	dec state00
+	bne .grubs_loop
+.grubs_done
 
-	; FOOD
-	lda game_level
-	asl
-	clc
-	adc #64
-	shift_r 4
-	sta temp07
-.food_loop
-	jsr ent_food_spawn
-	lda game_level
-	cmp #$01
-	beq .skip_gaps
+	; GAP FOODS
+	ldx game_level
+	dex
+	lda food_gap_level_pop,x
+	beq .food_gaps_done
+	sta state00
+.food_gaps_loop
 	jsr ent_food_spawn_in_gap
-.skip_gaps
-	dec temp07
-	bne .food_loop
+	dec state00
+	bne .food_gaps_loop
+.food_gaps_done
+
+	; FOODS
+	ldx game_level
+	dex
+	lda food_level_pop,x
+	beq .foods_done
+	sta state00
+.foods_loop
+	jsr ent_food_spawn
+	dec state00
+	bne .foods_loop
+.foods_done
 
 
 

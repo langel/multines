@@ -26,7 +26,7 @@ ent_player_init: subroutine
 	sta player_x_hi
 	lda #$f7
 	sta player_x
-	lda #$7b
+	lda #$7f
 	sta player_y
 	; reset registers
 	lda #$00
