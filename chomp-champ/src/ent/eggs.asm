@@ -13,17 +13,12 @@ ent_eggs_spawn: subroutine
 	lda #ent_eggs_id
 	sta ent_type,x
 	;position
-	lda #$f5
-	sta ent_x,x
-	sta ent_r4,x
-	lda #$00
-	sta ent_x_hi,x
-	sta ent_r5,x
-	lda #$a0
-	sta ent_y,x
+	jsr ent_random_spawn_pos
 	; shake props
-	lda #$40
-	sta ent_r4
+	lda ent_x,x
+	sta ent_r4,x
+	lda ent_x_hi,x
+	sta ent_r5,x
 .done
 	rts
 

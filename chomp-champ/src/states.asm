@@ -39,9 +39,9 @@ state_table_hi:
 	org $8100
 	; bootup state initializer
 state_init: subroutine
-	;jsr state_title_init
+	jsr state_title_init
 	;jsr state_game_level_init
-	jsr init_new_game
+	;jsr init_new_game
 	;jsr state_gameover_init
 	;jsr state_nextlevel_init
 	;jsr state_congration_init

@@ -17,6 +17,7 @@ title_copy_line:
 state_title_init: subroutine
 
 	jsr render_disable
+	jsr sprites_clear
 
 	lda #CTRL_8x8
 	sta ppu_ctrl_ora
@@ -199,7 +200,9 @@ state_title_update: subroutine
 	adc #$00
 	sta state07
 	cmp #$02
-	beq .start_a_game
+	bne .not_demo_time
+	jsr state_demo_init
+.not_demo_time
 
 	lda controller1_d
 	beq .dont_start

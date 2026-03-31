@@ -27,8 +27,8 @@ food_gap_level_pop:
 	hex 05 03 03 04 03 04
 	hex 03 05
 germ_level_pop:
-	hex 00 00 01 00 01 02
-	hex 01 01 01 00 02 04
+	hex 00 00 01 00 01 03
+	hex 02 02 03 01 02 04
 	hex 02 02 02 01 03 05
 	hex 01 01 02 01 03 06
 	hex 04 04

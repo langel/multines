@@ -131,7 +131,7 @@ ent_food_spawn_in_gap: subroutine
 	sta ent_x_hi,x
 	lda ent_food_gap_x_pos,y
 	sta ent_x,x
-	; y positio
+	; y position
 	jsr rng_update
 	lda ent_r1,x
 	and #$80
@@ -149,9 +149,9 @@ ent_food_spawn_in_gap: subroutine
 	adc #$e0
 	tay
 	lda sine_table,y
-	sta temp00
+	sta temp07
 	lda #$b0
-	sbc temp00
+	sbc temp07
 .row_found
 	sta ent_y,x
 	; set subtype

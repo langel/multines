@@ -24,6 +24,8 @@ state_demo_init: subroutine
 
 	jsr ent_germ_spawn
 	jsr ent_germ_spawn
+	jsr ent_germ_spawn
+	jsr ent_germ_spawn
 	jsr ent_food_spawn
 	jsr ent_food_spawn
 	jsr ent_food_spawn
@@ -34,6 +36,13 @@ state_demo_init: subroutine
 	jsr ent_gnat_spawn
 	jsr ent_poop_spawn
 	jsr ent_grub_spawn
+	jsr ent_eggs_spawn
+	lda #$1b
+	sta ent_x,x
+	lda #$01
+	sta ent_x_hi,x
+	lda #$a0
+	sta ent_y,x
 
 	; create some tooth dirt
 	lda #$00
@@ -70,6 +79,9 @@ state_demo_update: subroutine
 	jsr render_enable
 	jsr controller_read
 
+	lda controller1_d
+	bne .to_title_screen
+
 	jsr teeth_update
 	jsr hud_sprite0
 	lda #$00
@@ -79,6 +91,13 @@ state_demo_update: subroutine
 	jsr ent_z_update
 	jsr hud_update
 	jsr state_game_prerender
+
+	lda player_is_dead
+	cmp #$01
+	bne .not_end
+.to_title_screen
+	jsr state_title_init
+.not_end
 
 	jmp nmi_update_done
 	
