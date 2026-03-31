@@ -84,6 +84,43 @@ controller1      byte
 controller1_d    byte
 controller2      byte
 controller2_d    byte
-	
+
+
+
+apu_pu1_counter		byte
+apu_pu1_envelope	byte
+apu_pu1_last_hi		byte
+apu_tri_counter		byte ; !!! this order for x offset
+apu_pu2_counter		byte
+apu_pu2_envelope	byte
+apu_pu2_last_hi		byte
+apu_noi_counter		byte ; !!! must update apu_env_run if moved
+apu_noi_envelope	byte
+
+; apu variables
+apu_rng0		byte
+apu_rng1		byte
+apu_temp		byte
+sfx_temp00		byte
+sfx_temp01		byte
+
+sfx_phase_next_counter	byte
+; counters to mask other channel audio
+sfx_pu1_counter		byte
+sfx_pu2_counter		byte
+sfx_noi_counter		byte
+; table offsets for update subroutines
+sfx_pu2_update_type	byte
+sfx_noi_update_type	byte
+
+audio_song_id		byte
+audio_frame_counter     byte
+audio_root_tone         byte
+audio_pattern_pos	byte
+audio_pattern_num       byte
+pitch_mod_lo  byte
+pitch_mod_hi  byte
+
+
 
 end_of_common_ram:

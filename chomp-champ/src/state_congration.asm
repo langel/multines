@@ -54,6 +54,8 @@ state_congration_init: subroutine
 	sta scroll_nm
 	sta scroll_x
 	sta scroll_y
+
+	jsr apu_init
 	
 	jsr render_enable
 
@@ -64,6 +66,15 @@ state_congration_init: subroutine
 
 state_congration_update: subroutine
 	jsr render_enable
+
+	jsr apu_update
+
+
+	lda wtf
+	cmp #$20
+	bne .no_sound
+	jsr sfx_player_death
+.no_sound
 
 	jmp nmi_update_done
 

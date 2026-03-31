@@ -15,6 +15,9 @@
 	include "./_common/lib/sprite.asm"
 	include "./_common/lib/arctang24.asm"
 	include "./_common/lib/collision.asm"
+	
+	include "./_common/lib/apu_engine.asm"
+	include "./_common/lib/apu_sfx.asm"
 
 	org $f000
 	include "./_common/lib/nametable.asm"
