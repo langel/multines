@@ -13,10 +13,13 @@ state_demo_init: subroutine
 
 	lda #$00
 	sta germ_attacked
+	; kill big teef
+	sta $031f
 
 	; fresh demo?
 	lda player_lives
 	beq .start_fresh_demo
+	bmi .start_fresh_demo
 	jmp .done_fresh_demo
 
 .start_fresh_demo
@@ -69,7 +72,7 @@ state_demo_init: subroutine
 	jsr teeth_init
 	jsr teeth_init_playfield
 	jsr hud_init
-
+	
 	jsr render_enable
 	rts
 
@@ -83,7 +86,9 @@ state_demo_update: subroutine
 	bne .to_title_screen
 
 	jsr teeth_update
+	jsr ent_grub_convergence
 	jsr hud_sprite0
+
 	lda #$00
 	sta controller1
 	sta controller1_d
@@ -98,6 +103,23 @@ state_demo_update: subroutine
 .to_title_screen
 	jsr state_title_init
 .not_end
+
+	ldy #$00
+	ldx #$0f
+.dead_teeth_loop
+	lda tooth_total_dmg,x
+	bpl .not_dead
+	iny
+.not_dead
+	dex
+	bpl .dead_teeth_loop
+	cpy #$0f
+	bne .not_gameover
+	lda #$00
+	sta player_lives
+	jsr state_title_init
+.not_gameover
+
 
 	jmp nmi_update_done
 	

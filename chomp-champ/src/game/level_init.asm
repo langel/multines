@@ -35,9 +35,10 @@ germ_level_pop:
 grub_level_pop:
 	hex 00 00 00 01 01 02
 	hex 00 00 00 05 01 02
-	hex 01 01 01 09 01 02
+	hex 01 01 01 06 01 02
 	hex 03 04 05 07 04 05
 	hex 06 07
+
 
 
 state_game_level_init: subroutine
@@ -66,70 +67,36 @@ state_game_level_init: subroutine
 	lda #$00
 	sta germ_attacked
 	sta floss_status
-
-
-
-	; build level here
-	; DIRT
-	lda #$00
 	sta tooth_index
 	sta cell_sweep
+
+
+
+	; DIRT
 	lda game_level
 	asl ; x2!!
 	sta temp07
 .dirty_loops
 	jsr rng_update
-	; 1st dirtied cell from rng_val0
 	lda rng_val0
-	sta temp00
-	jsr .apply_random_dirt
-	; 2nd dirtied cell from rng_val1
-	lda rng_val1
-	sta temp00
-	jsr .apply_random_dirt
-	dec temp07
-	bne .dirty_loops
-	jmp .level_dirt_done
-.apply_random_dirt
-	; temp00 random byte
-	; top nibble: number of non-missing teeth to skip
-	; low nibble: cell id (0..15) within target tooth
-	lda temp00
-	and #$f0
-	shift_r 4
-	sta temp01 ; skip count
-	lda temp00
 	and #$0f
-	sta temp02 ; cell index in tooth
-	lda #$ff
-	sta temp03 ; runaway guard for all-missing edge case
-.seek_target_tooth
-	ldx tooth_index
+	tax
 	lda tooth_total_dmg,x
-	bmi .next_tooth
-	lda temp01
-	beq .target_found
-	dec temp01
-.next_tooth
-	inc tooth_index
-	lda tooth_index
-	and #$0f
-	sta tooth_index
-	dec temp03
-	bne .seek_target_tooth
-	rts
-.target_found
-	ldx tooth_index
+	bmi .missing_tooth
 	txa
 	shift_l 4
+	sta temp00
+	lda rng_val1
+	and #$0f
 	clc
-	adc temp02
+	adc temp00
 	tay
 	lda teeth_cell_tables,y
 	tax
 	inc $600,x
-	rts
-.level_dirt_done
+.missing_tooth
+	dec temp07
+	bne .dirty_loops
 
 	; GNAT
 	lda game_level

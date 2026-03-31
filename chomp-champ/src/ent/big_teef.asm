@@ -21,8 +21,7 @@ big_teef_attrs:
 
 
 ent_big_teef_spawn: subroutine
-	jsr ent_find_slot
-	bmi .done
+	ldx #$1f
 	lda #ent_big_teef_id
 	sta ent_type,x
 
