@@ -53,6 +53,8 @@ ent_z_update: subroutine
 	clc
 	adc #$a0
 	sta ent_z_ptr_lo
+	lda #$00
+	sta ent_z_ptr_hi
 .ent_update_loop
 	ldy ent_z_slot
 	lda (ent_z_ptr_lo),y
@@ -72,7 +74,6 @@ ent_z_update_return:
 .ent_update_next
 	inc ent_z_slot
 	ldy ent_z_slot
-	ldx ent_slot
 	cpy #ents_max+1
 	bne .ent_update_loop
 

@@ -260,9 +260,9 @@ game_player_update: subroutine
 	bne .screen_2
 .screen_1
 	lda player_x
-	cmp #$0c
+	cmp #$0d
 	bcs .bind_x_done
-	lda #$0c
+	lda #$0d
 	sta player_x
 	lda #$00
 	sta player_x_hi
@@ -270,9 +270,9 @@ game_player_update: subroutine
 	jmp .bind_x_done
 .screen_2
 	lda player_x
-	cmp #$e8
+	cmp #$e4
 	bcc .bind_x_done
-	lda #$e7
+	lda #$e4
 	sta player_x
 	lda #$01
 	sta player_x_hi

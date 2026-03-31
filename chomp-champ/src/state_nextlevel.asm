@@ -20,18 +20,6 @@ state_nextlevel_init: subroutine
 	
 	jsr sprites_clear
 
-/*
-	; clear ent ram
-	lda #$00
-	tax
-.clear_ent_ram
-	sta $300,x
-	sta $400,x
-	sta $500,x
-	inx
-	bne .clear_ent_ram
-*/
-
 	; draw next level screen
 	lda #$08
 	sta temp00
@@ -83,9 +71,6 @@ state_nextlevel_init: subroutine
 	lda #$00
 	sta ppu_ctrl_ora
 	sta scroll_nm
-	sta scroll_x
-	lda #$ec
-	sta scroll_y
 
 	jsr render_enable
 
@@ -107,6 +92,7 @@ state_nextlevel_update: subroutine
 	beq .start_a_game
 
 	lda controller1_d
+	and #$f0
 	beq .dont_start
 .start_a_game
 	jsr state_game_level_init

@@ -30,6 +30,10 @@ hud_dmg_to_tile: subroutine
 
 hud_init: subroutine
 
+	; set correct y scroll
+	lda #$ec
+	sta scroll_y
+	
 	; reset hud split-scroll
 	lda #$00
 	sta hud_initted

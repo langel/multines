@@ -3,6 +3,25 @@ state_demo_init: subroutine
 	jsr render_disable
 	jsr sprites_clear
 
+	ldx #state_game_render_id
+	jsr state_set_render_routine
+	ldx #state_demo_update_id
+	jsr state_set_update_routine
+
+	lda #CTRL_8x16
+	sta ppu_ctrl_ora
+
+	lda #$00
+	sta germ_attacked
+
+	; fresh demo?
+	lda player_lives
+	beq .start_fresh_demo
+	jmp .done_fresh_demo
+
+.start_fresh_demo
+	jsr chompchamp_new_game
+
 	jsr ent_germ_spawn
 	jsr ent_germ_spawn
 	jsr ent_food_spawn
@@ -16,24 +35,6 @@ state_demo_init: subroutine
 	jsr ent_poop_spawn
 	jsr ent_grub_spawn
 
-	ldx game_level
-	stx state07
-.extra_germs
-	jsr ent_germ_spawn
-	ldx state07
-	dex
-	stx state07
-	bpl .extra_germs
-
-	; clear tooth cell damage ram ($600-$6ff)
-	lda #$00
-	ldx #$00
-.clear_tooth_cell_ram
-	sta $600,x
-	inx
-	bne .clear_tooth_cell_ram
-
-	; XXX level init should do this
 	; create some tooth dirt
 	lda #$00
 .dirt_loop
@@ -43,10 +44,42 @@ state_demo_init: subroutine
 	clc
 	adc #$0b
 	bcc .dirt_loop
+.done_fresh_demo
+
+	; load palette
+	ldx #$00
+.pal_loop
+	lda game_palette,x
+	sta palette_cache,x
+	inx
+	cpx #25
+	bne .pal_loop
+	
+	jsr ent_player_init
+
+	jsr teeth_init
+	jsr teeth_init_playfield
+	jsr hud_init
+
+	jsr render_enable
 	rts
+
+
 
 state_demo_update: subroutine
 	jsr render_enable
+	jsr controller_read
+
+	jsr teeth_update
+	jsr hud_sprite0
+	lda #$00
+	sta controller1
+	sta controller1_d
+	jsr game_player_update
+	jsr ent_z_update
+	jsr hud_update
+	jsr state_game_prerender
+
 	jmp nmi_update_done
 	
 
