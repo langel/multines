@@ -103,6 +103,8 @@ apu_rng1		byte
 apu_temp		byte
 sfx_temp00		byte
 sfx_temp01		byte
+sfx_temp02		byte
+sfx_temp03		byte
 
 sfx_phase_next_counter	byte
 ; counters to mask other channel audio

@@ -370,16 +370,25 @@ player_render_brushing: subroutine
 	inc ent_r2,x
 	lda ent_r2,x
 	cmp #$03
-	bcc .not_next_frame
+	bcc .anim_done
 	lda #$00
 	sta ent_r2,x
 	inc ent_r1,x
 	lda ent_r1,x
 	cmp #$04
-	bcc .not_next_frame
+	bcc .dont_wrap_frame
 	lda #$00
 	sta ent_r1,x
-.not_next_frame
+.dont_wrap_frame
+	; sfx
+	bne .not_upward
+	jsr sfx_brush_up
+	jmp .anim_done
+.not_upward
+	cmp #$02
+	bne .anim_done
+	jsr sfx_brush_down
+.anim_done
 	; bound frame counter
 	lda ent_r1,x
 	cmp #$04

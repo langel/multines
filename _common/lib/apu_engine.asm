@@ -41,30 +41,34 @@ APU_DMC_CTRL    	= $4010
 APU_CHAN_CTRL   	= $4015
 APU_FRAME       	= $4017
 
-apu_cache		= $0140
+apu_cache		= $0160
   
   
 apu_init: subroutine
-        ; Init $4000-4013
-        ldy #$13
+	; Init $4000-4013
+	ldy #$13
 .loop  
 	lda apu_init_register_values,y
-        sta apu_cache,y
-        sta $4000,y
-        dey
-        bpl .loop
-        ; We have to skip over $4014 (OAMDMA)
-        lda #$0f
-        sta $4015
-        lda #$40
-        sta $4017
+	sta apu_cache,y
+	sta $4000,y
+	dey
+	bpl .loop
+	; We have to skip over $4014 (OAMDMA)
+	lda #$0f
+	sta $4015
+	lda #$40
+	sta $4017
+	; clear sfx updates
+	lda #$00
+	sta sfx_pu2_update_type
+	sta sfx_noi_update_type
 apu_rng_reset:
-        ; seed rng
-        lda #$11
-        sta apu_rng0
-        lda #$7f
+	; seed rng
+	lda #$11
+	sta apu_rng0
+	lda #$7f
 	sta apu_rng1
-        rts
+	rts
         
         
 apu_init_register_values:

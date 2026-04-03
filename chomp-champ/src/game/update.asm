@@ -27,6 +27,8 @@ state_game_update: subroutine
 
 	jsr ent_grub_convergence
 
+	jsr apu_update
+
 	jsr hud_sprite0
 	
 	;lda #%00011111 ; b/w

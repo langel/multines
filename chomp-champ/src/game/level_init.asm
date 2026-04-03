@@ -62,6 +62,7 @@ state_game_level_init: subroutine
 	cpx #25
 	bne .pal_loop
 	
+	jsr apu_init
 	jsr ent_player_init
 
 	lda #$00

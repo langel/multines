@@ -73,7 +73,7 @@ state_congration_update: subroutine
 	lda wtf
 	cmp #$20
 	bne .no_sound
-	jsr sfx_player_death
+	jsr sfx_brush_down
 .no_sound
 
 	jmp nmi_update_done

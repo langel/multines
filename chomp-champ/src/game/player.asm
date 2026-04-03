@@ -18,6 +18,10 @@ game_player_update: subroutine
 	sta player_is_dead
 	rts
 .death_timer_running
+	cmp #$40
+	bne .sfx_running
+	jsr sfx_player_death
+.sfx_running
 	dec player_is_dead
 	rts
 .not_dead
@@ -402,8 +406,13 @@ game_player_update: subroutine
 	lda controller1
 	and #FLOSS_BUTTON
 	bne .floss_button_pressed
+	lda floss_status
+	bne .floss_disable
+	jmp .skip_flossing
+.floss_disable
 	lda #$00
 	sta floss_status
+	sta sfx_pu2_update_type
 	jmp .skip_flossing
 .floss_button_pressed
 	lda controller1_d
@@ -413,6 +422,7 @@ game_player_update: subroutine
 	sta floss_length
 	lda #$01
 	sta floss_status
+	jsr sfx_tingler
 .not_initial_press
 	lda floss_status
 	sta $188
@@ -464,6 +474,7 @@ game_player_update: subroutine
 	bne .floss_state_done
 	lda #$00
 	sta floss_status
+	sta sfx_pu2_update_type
 	jmp .skip_flossing
 .floss_state_done
 	; check for tooth row gap if has target

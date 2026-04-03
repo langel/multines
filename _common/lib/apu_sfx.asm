@@ -60,6 +60,9 @@ sfx_update_table_lo:
 	byte #<sfx_powerup_battery_update ; 3
 	byte #<sfx_powerup_1up_update     ; 
 	byte #<sfx_phase_next_update      ; 
+	byte #<sfx_tingler_update      ; 
+	byte #<sfx_brush_up_update
+	byte #<sfx_brush_down_update
 sfx_update_table_hi:
 	byte #>do_nothing                 ; 0
 	byte #>sfx_player_death_update    ; 1
@@ -67,6 +70,13 @@ sfx_update_table_hi:
 	byte #>sfx_powerup_battery_update ; 3
 	byte #>sfx_powerup_1up_update     ; 
 	byte #>sfx_phase_next_update      ; 
+	byte #>sfx_tingler_update
+	byte #>sfx_brush_up_update
+	byte #>sfx_brush_down_update
+
+sfx_tingler_id           equ $06
+sfx_brush_up_id          equ $07
+sfx_brush_down_id        equ $08
         
         
 sfx_update_delegator: subroutine
@@ -77,8 +87,133 @@ sfx_update_delegator: subroutine
 	lda #sfx_update_table_hi,y
 	sta temp01
 	jmp (temp00)
+
+sfx_pu2_update_stop: subroutine
+	lda #$00
+	sta sfx_pu2_update_type
+	rts
+sfx_noi_update_stop: subroutine
+	lda #%00010000
+	sta apu_cache+$c
+	lda #$00
+	sta sfx_noi_update_type
+	rts
         
         
+sfx_tingler_notes:
+	;   E  B  D  A  C  G  D  A
+	hex 4c 47 4a 45 48 43 4a 45
+	;   E  B  D  A# C  G  D  A#
+	hex 4c 47 4a 46 48 43 4a 46
+	;   E  B  A  C# C  G  A  C#
+	hex 4c 47 45 49 48 43 45 49
+	;   E  B  G# C# C  G  G# C#
+	hex 4c 47 44 49 48 43 44 49
+sfx_tingler: subroutine
+	lda sfx_pu2_counter
+	bne .done
+	lda #$00
+	sta sfx_temp00
+	sta sfx_temp01
+	sta sfx_temp02
+	sta sfx_temp03
+	lda #sfx_tingler_id
+	sta sfx_pu2_update_type
+.done
+	rts
+sfx_tingler_update: subroutine
+	lda sfx_temp00
+	cmp #$05
+	bne .not_next
+	lda #$00
+	sta sfx_temp00
+	; pulse 2
+	lda sfx_temp02
+	shift_l 3
+	sta temp00
+	jsr rng_update
+	lda rng_val0
+	and #$07
+	clc
+	adc temp00
+	tay
+	lda sfx_tingler_notes,y
+	tax
+	lda #%10000011
+	sta $4004
+	lda #$00
+	sta $4005
+	lda periodTableLo,x
+	sta $4006
+	lda periodTableHi,x
+   ora #%01000000
+	sta $4007
+	; next note
+	inc sfx_temp01
+	lda sfx_temp01
+	cmp #$10
+	bne .not_next
+	lda #$00
+	sta sfx_temp01
+	inc sfx_temp02
+	lda sfx_temp02
+	cmp #$04
+	bne .not_next
+	lda #$00
+	sta sfx_temp02
+.not_next
+	inc sfx_temp00
+	rts
+
+
+sfx_brush_up: subroutine
+	lda #$00
+	sta sfx_temp00
+	lda #$0a
+	sta sfx_temp01
+	lda #sfx_brush_up_id
+	sta sfx_noi_update_type
+	rts
+sfx_brush_up_update: subroutine
+	inc sfx_temp00
+	lda sfx_temp00
+	and #$03
+	bne .not_next
+	dec sfx_temp01
+	lda sfx_temp01
+	cmp #$08
+	bne .not_next
+	jmp sfx_noi_update_clear 
+.not_next
+	lda #%00011010
+	sta apu_cache+$c
+	lda sfx_temp01
+	sta apu_cache+$e
+	rts
+sfx_brush_down: subroutine
+	lda #$00
+	sta sfx_temp00
+	lda #$04
+	sta sfx_temp01
+	lda #sfx_brush_down_id
+	sta sfx_noi_update_type
+	rts
+sfx_brush_down_update: subroutine
+	inc sfx_temp00
+	lda sfx_temp00
+	and #$03
+	bne .not_next
+	inc sfx_temp01
+	lda sfx_temp01
+	cmp #$06
+	bne .not_next
+	jmp sfx_noi_update_clear 
+.not_next
+	lda #%00011010
+	sta apu_cache+$c
+	lda sfx_temp01
+	sta apu_cache+$e
+	rts
 
 ; sound test 00
 sfx_pewpew: subroutine
