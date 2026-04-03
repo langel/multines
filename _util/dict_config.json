@@ -1,0 +1,24 @@
+{
+	"dictionaryBaseAddress": "0x9000",
+	"dictionaryMaxBytes": 4096,
+	"tokenHiByteMin": "0x80",
+	"tokenHiByteMax": "0xef",
+	"controlBytes": {
+		"newline": "0xf0",
+		"endOfPassage": "0xf1"
+	},
+	"selection": {
+		"minWordLength": 3,
+		"minFrequency": 2,
+		"maxEntries": 256
+	},
+	"dictionaryOutputFile": "_common/generated/dictionary.asm",
+	"games": [
+		{
+			"id": "chomp-champ",
+			"enabled": true,
+			"inputFile": "chomp-champ/util/text_dict_input.json",
+			"outputFile": "chomp-champ/util/generated/dict_text.asm"
+		}
+	]
+}

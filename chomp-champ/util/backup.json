@@ -1,0 +1,23 @@
+{
+	"alphabet": {
+		"0x3f": " ",
+		"0x40": "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+		"0x5a": "'",
+		"0x5b": ".",
+		"0x5c": ",",
+		"0x5d": "!",
+		"0x5e": "?",
+		"0x5f": "-"
+	},
+	"passages": {
+		"title_prompt": "CHOMP CHAMP\nPRESS START TO CHOMP",
+		"intro_rules": "CHOMP THE PLAQUE\nAVOID THE CAVITY",
+		"status_hint": "CHOMP FAST FOR BONUS\nCHOMP CLEAN TO WIN",
+		"week_00": "THE DENTIST LOVED MY TEETH\nAND SAID HE WOULD SEE ME\nIN SIX MONTHS. TOO SOON!!",
+		"week_01": "FOOD AND MY TEETH GET\nALONG SO WELL\nWE GOTTA FLOSS!!",
+		"week_02": "I FEEL A TINGLE.\nIS IT THE FLOSS?\nIS IT A NEW FRIEND?",
+		"week_03": "I CAN'T RIGHT NOW.\nTHE DENTIST WILL FORGIVE.",
+		"week_04": "YOU ARE THE CHAMP\n   OF MY CHOMPS.",
+		"week_05": "THE TINGLES CONTINUE.\nMY TEETH DO TINGLE.\nPLEASE STOP THE TINGLE!"
+	}
+}
