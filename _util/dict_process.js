@@ -76,19 +76,153 @@ function toAsmHexLines(bytes, indent = "\thex ", rowBytes = 16) {
 }
 
 function toAsmHexLinesSplitAfterByte(bytes, splitByte, indent = "\thex ", fallbackRowBytes = 16) {
+	const rows = splitBytesAfterByte(bytes, splitByte, fallbackRowBytes);
+	return rows.map((row) => `${indent}${row.map((b) => toHex(b)).join("")}`);
+}
+
+function splitBytesAfterByte(bytes, splitByte, fallbackRowBytes = 16) {
 	const lines = [];
 	let current = [];
 	for (const value of bytes) {
 		current.push(value);
 		if (value === splitByte) {
-			lines.push(`${indent}${current.map((b) => toHex(b)).join("")}`);
+			lines.push(current);
 			current = [];
 		}
 	}
 	if (current.length > 0) {
-		lines.push(...toAsmHexLines(current, indent, fallbackRowBytes));
+		for (let i = 0; i < current.length; i += fallbackRowBytes) {
+			lines.push(current.slice(i, i + fallbackRowBytes));
+		}
 	}
-	return lines.length === 0 ? [`${indent}`] : lines;
+	return lines.length === 0 ? [[]] : lines;
+}
+
+function getTokenSuffixString(tokenClass) {
+	if (tokenClass === 0) return "";
+	if (tokenClass === 1) return "_";
+	if (tokenClass === 2) return ".";
+	if (tokenClass === 3) return "!";
+	if (tokenClass === 4) return "?";
+	if (tokenClass === 5) return "S";
+	if (tokenClass === 6) return "R";
+	return "";
+}
+
+function decodeRowUnitsFromPassageBytes(passageBytes, dictionaryWordByAddress, config) {
+	const units = [];
+	for (let i = 0; i < passageBytes.length; i++) {
+		const byte = passageBytes[i];
+		if (byte >= config.tokenHiByteMin && byte <= config.tokenHiByteMax && i + 1 < passageBytes.length) {
+			const tokenLo = passageBytes[i + 1];
+			const tokenDelta = byte - config.tokenHiByteMin;
+			const tokenClass = tokenDelta >> 4;
+			const pageOffset = tokenDelta & 0x0f;
+			const dictAddr = (((config.dictionaryBaseAddress >> 8) + pageOffset) << 8) | tokenLo;
+			const baseWord = dictionaryWordByAddress.get(dictAddr) || `<?>$${toHex(dictAddr, 4)}`;
+			const commentText = `${baseWord}${getTokenSuffixString(tokenClass)}`;
+			units.push({
+				hex: `${toHex(byte)}${toHex(tokenLo)}`,
+				comment: commentText,
+				byteLength: 2,
+				forcesLineBreak: false,
+			});
+			i += 1;
+			continue;
+		}
+
+		if (byte >= 0x00 && byte <= 0x3f) {
+			const ch = String.fromCharCode(byte + ASCII_TABLE_START);
+			const shown = ch === " " ? "_" : ch;
+			units.push({
+				hex: toHex(byte),
+				comment: `${shown} `,
+				byteLength: 1,
+				forcesLineBreak: false,
+			});
+			continue;
+		}
+
+		if (byte >= 0x40 && byte <= 0x7f) {
+			const ch = String.fromCharCode((byte - 0x40) + ASCII_TABLE_START);
+			const shown = ch === " " ? "_" : ch;
+			units.push({
+				hex: toHex(byte),
+				comment: `${shown}_`,
+				byteLength: 1,
+				forcesLineBreak: false,
+			});
+			continue;
+		}
+
+		if (byte === config.newlineByte) {
+			units.push({
+				hex: toHex(byte),
+				comment: "\\n",
+				byteLength: 1,
+				forcesLineBreak: true,
+			});
+			continue;
+		}
+
+		if (byte === config.endOfPassageByte) {
+			units.push({
+				hex: toHex(byte),
+				comment: "\\p",
+				byteLength: 1,
+				forcesLineBreak: false,
+			});
+			continue;
+		}
+
+		units.push({
+			hex: toHex(byte),
+			comment: "??",
+			byteLength: 1,
+			forcesLineBreak: false,
+		});
+	}
+	return units;
+}
+
+function splitUnitsIntoRows(units, maxBytesPerRow = 16) {
+	const rows = [];
+	let row = [];
+	let byteBudget = 0;
+
+	for (const unit of units) {
+		if (row.length > 0 && byteBudget + unit.byteLength > maxBytesPerRow) {
+			rows.push(row);
+			row = [];
+			byteBudget = 0;
+		}
+		row.push(unit);
+		byteBudget += unit.byteLength;
+		if (unit.forcesLineBreak) {
+			rows.push(row);
+			row = [];
+			byteBudget = 0;
+		}
+	}
+
+	if (row.length > 0) {
+		rows.push(row);
+	}
+	return rows;
+}
+
+function renderAlignedRow(rowUnits) {
+	const hexParts = [];
+	const commentParts = [];
+	for (const unit of rowUnits) {
+		const width = Math.max(unit.hex.length, unit.comment.length);
+		hexParts.push(unit.hex.padEnd(width, " "));
+		commentParts.push(unit.comment.padEnd(width, " "));
+	}
+	return {
+		commentLine: `\t;   ${commentParts.join(" ")}`,
+		hexLine: `\thex ${hexParts.join(" ")}`,
+	};
 }
 
 function sanitizeLabel(input) {
@@ -746,6 +880,11 @@ function createAlphabetLookupTable(game) {
 }
 
 function emitGameAsm(game, config) {
+	const dictionaryWordByAddress = new Map();
+	for (const entry of game.dictionaryEntries || []) {
+		dictionaryWordByAddress.set(entry.address, entry.word);
+	}
+
 	const labelRoot = sanitizeLabel(game.gameLabel);
 	const lines = [];
 	lines.push("; AUTO-GENERATED FILE. DO NOT EDIT.");
@@ -767,7 +906,13 @@ function emitGameAsm(game, config) {
 	game.encodedPassages.forEach((passage, index) => {
 		lines.push(`\t; passage ${index} (${passage.id}) bytes=${passage.byteLength} lines=${passage.sourceLines.length}`);
 		lines.push(`${labelRoot}_passage_${toHex(index)}:`);
-		lines.push(...toAsmHexLinesSplitAfterByte(passage.bytes, config.newlineByte));
+		const units = decodeRowUnitsFromPassageBytes(passage.bytes, dictionaryWordByAddress, config);
+		const rows = splitUnitsIntoRows(units, 16);
+		for (const row of rows) {
+			const rendered = renderAlignedRow(row);
+			lines.push(rendered.commentLine);
+			lines.push(rendered.hexLine);
+		}
 		lines.push("");
 	});
 
@@ -856,7 +1001,10 @@ function run() {
 	writeOutput(config.dictionaryOutputFile, emitDictionaryAsm(dictionary, config), "master dictionary asm");
 
 	info("Encoding game passages...");
-	const encodedGames = gamesPayload.map((game) => encodeGame(game, dictionary.byNormalized, config));
+	const encodedGames = gamesPayload.map((game) => ({
+		...encodeGame(game, dictionary.byNormalized, config),
+		dictionaryEntries: dictionary.entries,
+	}));
 	for (const game of encodedGames) {
 		writeOutput(game.outputPath, emitGameAsm(game, config), `encoded text asm (${game.gameId})`);
 	}

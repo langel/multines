@@ -11,7 +11,7 @@ Run from repo root:
 Outputs:
 
 - Master dictionary asm: `_common/generated/dictionary.asm`
-- Per-game encoded text asm: `<game>/util/generated/dict_text.asm`
+- Per-game encoded text asm: `<game>/src/generated/dict_text.asm`
 
 Rules enforced by the processor:
 

@@ -27,54 +27,80 @@ chomp_champ_passage_ptr_hi:
 
 	; passage 0 (title_prompt) bytes=20 lines=2
 chomp_champ_passage_00:
-	hex 9000801ff0
-	hex 30322533733334213274346f8000f1
+	;   CHOMP_ CHAMP \n
+	hex 9000   801f  f0
+	;   P  R  E  S  S_ S  T  A  R  T_ T  O_ CHOMP \p
+	hex 30 32 25 33 73 33 34 21 32 74 34 6f 8000  f1
 
 	; passage 1 (intro_rules) bytes=25 lines=2
 chomp_champ_passage_01:
-	hex 9000900d302c21313525f0
-	hex 21362f2964900d232136293439f1
+	;   CHOMP_ THE_ P  L  A  Q  U  E  \n
+	hex 9000   900d 30 2c 21 31 35 25 f0
+	;   A  V  O  I  D_ THE_ C  A  V  I  T  Y  \p
+	hex 21 36 2f 29 64 900d 23 21 36 29 34 39 f1
 
 	; passage 2 (status_hint) bytes=28 lines=2
 chomp_champ_passage_02:
-	hex 900026213374262f72222f2e3533f0
-	hex 9000232c25216e346f37292ef1
+	;   CHOMP_ F  A  S  T_ F  O  R_ B  O  N  U  S  \n
+	hex 9000   26 21 33 74 26 2f 72 22 2f 2e 35 33 f0
+	;   CHOMP_ C  L  E  A  N_ T  O_ W  I  N  \p
+	hex 9000   23 2c 25 21 6e 34 6f 37 29 2e f1
 
 	; passage 3 (week_00) bytes=55 lines=3
 chomp_champ_passage_03:
-	hex 900d90172c2f3625642d798011f0
-	hex 902b332129642865372f352c643325652d25f0
-	hex 296e3329782d2f2e3428334e342f6f33
-	hex 2f2f2e0101f1
+	;   THE_ DENTIST_ L  O  V  E  D_ M  Y_ TEETH \n
+	hex 900d 9017     2c 2f 36 25 64 2d 79 8011  f0
+	;   AND_ S  A  I  D_ H  E_ W  O  U  L  D_ S  E  E_
+	hex 902b 33 21 29 64 28 65 37 2f 35 2c 64 33 25 65
+	;   M  E  \n
+	hex 2d 25 f0
+	;   I  N_ S  I  X_ M  O  N  T  H  S  ._ T  O  O_ S 
+	hex 29 6e 33 29 78 2d 2f 2e 34 28 33 4e 34 2f 6f 33
+	;   O  O  N  !  !  \p
+	hex 2f 2f 2e 01 01 f1
 
 	; passage 4 (week_01) bytes=37 lines=3
 chomp_champ_passage_04:
-	hex 262f2f64902b2d799011272534f0
-	hex 212c2f2e67336f37252c2cf0
-	hex 3765272f343461b02501f1
+	;   F  O  O  D_ AND_ M  Y_ TEETH_ G  E  T  \n
+	hex 26 2f 2f 64 902b 2d 79 9011   27 25 34 f0
+	;   A  L  O  N  G_ S  O_ W  E  L  L  \n
+	hex 21 2c 2f 2e 67 33 6f 37 25 2c 2c f0
+	;   W  E_ G  O  T  T  A_ FLOSS! !  \p
+	hex 37 65 27 2f 34 34 61 b025   01 f1
 
 	; passage 5 (week_02) bytes=34 lines=3
 chomp_champ_passage_05:
-	hex 692625256c61a006f0
-	hex 29732974900dc025f0
-	hex 29732974612e2577263229252e241ff1
+	;   I_ F  E  E  L_ A_ TINGLE. \n
+	hex 69 26 25 25 6c 61 a006    f0
+	;   I  S_ I  T_ THE_ FLOSS? \n
+	hex 29 73 29 74 900d c025   f0
+	;   I  S_ I  T_ A_ N  E  W_ F  R  I  E  N  D  ?  \p
+	hex 29 73 29 74 61 2e 25 77 26 32 29 25 2e 24 1f f1
 
 	; passage 6 (week_03) bytes=33 lines=2
 chomp_champ_passage_06:
-	hex 6923212e1e7432292728742e2f370ef0
-	hex 900d901737292c6c262f32272936250e
+	;   I_ C  A  N  >  T_ R  I  G  H  T_ N  O  W  .  \n
+	hex 69 23 21 2e 1e 74 32 29 27 28 74 2e 2f 37 0e f0
+	;   THE_ DENTIST_ W  I  L  L_ F  O  R  G  I  V  E  . 
+	hex 900d 9017     37 29 2c 6c 26 2f 32 27 29 36 25 0e
+	;   \p
 	hex f1
 
 	; passage 7 (week_04) bytes=21 lines=2
 chomp_champ_passage_07:
-	hex 392f75213265900d801ff0
-	hex 40002f662d79d0000ef1
+	;   Y  O  U_ A  R  E_ THE_ CHAMP \n
+	hex 39 2f 75 21 32 65 900d 801f  f0
+	;   __ _  O  F_ M  Y_ CHOMPS .  \p
+	hex 40 00 2f 66 2d 79 d000   0e f1
 
 	; passage 8 (week_05) bytes=39 lines=3
 chomp_champ_passage_08:
-	hex 900dd00600232f2e34292e35250ef0
-	hex 2d799011246fa006f0
-	hex 302c2521336533342f70900db006f1
+	;   THE_ TINGLES _  C  O  N  T  I  N  U  E  .  \n
+	hex 900d d006    00 23 2f 2e 34 29 2e 35 25 0e f0
+	;   M  Y_ TEETH_ D  O_ TINGLE. \n
+	hex 2d 79 9011   24 6f a006    f0
+	;   P  L  E  A  S  E_ S  T  O  P_ THE_ TINGLE! \p
+	hex 30 2c 25 21 33 65 33 34 2f 70 900d b006    f1
 
 chomp_champ_alphabet_table: ; ASCII($20-$5f) -> pattern_id, $ff unmapped
 	hex 0879ffffffffffffffffffffff7476ff

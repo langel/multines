@@ -54,6 +54,9 @@ cart_start: subroutine
 	include "src/ent/poop.asm"
 	include "src/palette.asm"
 
+	org $b000
+	include "src/generated/dict_text.asm"
+
 	org $b700
 	include "src/game/tooth_tables_2.asm"
 	include "src/game/teeth_tables.asm"

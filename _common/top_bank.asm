@@ -19,6 +19,9 @@
 	include "./_common/lib/apu_engine.asm"
 	include "./_common/lib/apu_sfx.asm"
 
+	org $d000
+	include "./_common/generated/dictionary.asm"
+
 	org $f000
 	include "./_common/lib/nametable.asm"
 

@@ -1,5 +1,5 @@
 {
-	"dictionaryBaseAddress": "0x9000",
+	"dictionaryBaseAddress": "0xd000",
 	"dictionaryMaxBytes": 4096,
 	"tokenHiByteMin": "0x80",
 	"tokenHiByteMax": "0xef",
@@ -18,7 +18,7 @@
 			"id": "chomp-champ",
 			"enabled": true,
 			"inputFile": "chomp-champ/util/text_dict_input.json",
-			"outputFile": "chomp-champ/util/generated/dict_text.asm"
+			"outputFile": "chomp-champ/src/generated/dict_text.asm"
 		}
 	]
 }
