@@ -6,6 +6,8 @@ const path = require("path");
 
 const ROOT_DIR = path.resolve(__dirname, "..");
 const DEFAULT_CONFIG_PATH = path.join(__dirname, "dict_config.json");
+const DEFAULT_GAME_INPUT_FILE = "util/text_dict_input.json";
+const DEFAULT_GAME_OUTPUT_FILE = "src/generated/dict_text.asm";
 const ASCII_TABLE_START = 0x20;
 const ASCII_TABLE_SIZE = 0x40;
 const TOKEN_PAGE_SPAN = 0x10;
@@ -283,29 +285,53 @@ function validateConfig(config, configPath) {
 	const dictionaryOutputFile = typeof config.dictionaryOutputFile === "string"
 		? config.dictionaryOutputFile
 		: "_common/generated/dictionary.asm";
+	const gameInputFile = typeof config.gameInputFile === "string" && config.gameInputFile.trim()
+		? config.gameInputFile.trim()
+		: DEFAULT_GAME_INPUT_FILE;
+	const gameOutputFile = typeof config.gameOutputFile === "string" && config.gameOutputFile.trim()
+		? config.gameOutputFile.trim()
+		: DEFAULT_GAME_OUTPUT_FILE;
 	if (!Array.isArray(config.games) || config.games.length === 0) {
 		fail("Config requires a non-empty games array.");
 	}
 
 	const games = config.games
-		.filter((game) => game && typeof game === "object" && game.enabled !== false)
+		.filter((game) => game !== null && game !== undefined)
 		.map((game, index) => {
+			if (typeof game === "string" && game.trim()) {
+				const gameDir = game.trim();
+				const gameName = path.basename(gameDir);
+				return {
+					id: gameName,
+					idLabel: sanitizeLabel(gameName),
+					inputFile: path.resolve(ROOT_DIR, gameDir, gameInputFile),
+					outputFile: path.resolve(ROOT_DIR, gameDir, gameOutputFile),
+					gameDir: path.resolve(ROOT_DIR, gameDir),
+				};
+			}
+
+			// Backward-compatible object support
+			if (!game || typeof game !== "object") {
+				fail(`games[${index}] must be a game directory string.`);
+			}
+			if (game.enabled === false) {
+				return null;
+			}
 			if (typeof game.id !== "string" || !game.id.trim()) {
 				fail(`games[${index}].id must be a non-empty string.`);
 			}
-			if (typeof game.inputFile !== "string" || !game.inputFile.trim()) {
-				fail(`games[${index}].inputFile must be a non-empty string.`);
-			}
-			if (typeof game.outputFile !== "string" || !game.outputFile.trim()) {
-				fail(`games[${index}].outputFile must be a non-empty string.`);
-			}
+			const gameDir = typeof game.gameDir === "string" && game.gameDir.trim()
+				? game.gameDir.trim()
+				: game.id.trim();
 			return {
-				id: game.id,
-				idLabel: sanitizeLabel(game.id),
-				inputFile: path.resolve(ROOT_DIR, game.inputFile),
-				outputFile: path.resolve(ROOT_DIR, game.outputFile),
+				id: game.id.trim(),
+				idLabel: sanitizeLabel(game.id.trim()),
+				inputFile: path.resolve(ROOT_DIR, gameDir, gameInputFile),
+				outputFile: path.resolve(ROOT_DIR, gameDir, gameOutputFile),
+				gameDir: path.resolve(ROOT_DIR, gameDir),
 			};
-		});
+		})
+		.filter(Boolean);
 
 	if (games.length === 0) {
 		fail("All configured games are disabled. Enable at least one game.");
@@ -324,6 +350,28 @@ function validateConfig(config, configPath) {
 		dictionaryOutputFile: path.resolve(ROOT_DIR, dictionaryOutputFile),
 		games,
 	};
+}
+
+function buildExampleGameInput(gameId) {
+	return {
+		alphabet: {
+			"0x08": " ",
+			"0x50": "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ-@.<>!?",
+		},
+		passages: {
+			example_intro: `${gameId.toUpperCase()}\nADD YOUR PASSAGES HERE`,
+		},
+	};
+}
+
+function ensureGameInputFile(game) {
+	if (fs.existsSync(game.inputFile)) {
+		return;
+	}
+	ensureDirForFile(game.inputFile);
+	const template = buildExampleGameInput(game.id);
+	fs.writeFileSync(game.inputFile, `${JSON.stringify(template, null, "\t")}\n`, "utf8");
+	info(`Created missing input template: ${path.relative(ROOT_DIR, game.inputFile)}`);
 }
 
 function registerGlyph(gameId, glyphToPattern, usedPatternToGlyph, glyph, patternId, sourceLabel) {
@@ -957,6 +1005,7 @@ function run() {
 	info(`Loading game specs (${config.games.length} enabled)...`);
 
 	const gamesPayload = config.games.map((game) => {
+		ensureGameInputFile(game);
 		const payload = readJsonFile(game.inputFile, `game input for ${game.id}`);
 		const validated = validateGameInput(game, payload);
 		info(`Loaded game "${game.id}" with ${validated.passages.length} passages.`);

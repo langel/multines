@@ -13,12 +13,10 @@
 		"maxEntries": 256
 	},
 	"dictionaryOutputFile": "_common/generated/dictionary.asm",
+	"gameInputFile": "util/text_dict_input.json",
+	"gameOutputFile": "src/generated/dict_text.asm",
 	"games": [
-		{
-			"id": "chomp-champ",
-			"enabled": true,
-			"inputFile": "chomp-champ/util/text_dict_input.json",
-			"outputFile": "chomp-champ/src/generated/dict_text.asm"
-		}
+		"chomp-champ",
+		"moon-jockey"
 	]
 }

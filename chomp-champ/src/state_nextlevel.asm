@@ -39,10 +39,6 @@ state_nextlevel_init: subroutine
 	sta temp03
 	lda #%000000001
 	sta temp04
-	lda #<chomp_champ_alphabet_table
-	sta temp06
-	lda #>chomp_champ_alphabet_table
-	sta temp07
 	jsr dict_text_plot
 
 	; write level name

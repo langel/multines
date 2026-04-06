@@ -33,6 +33,8 @@ temp04           byte
 temp05           byte
 temp06           byte
 temp07           byte
+alphabet_table_lo byte
+alphabet_table_hi byte
 
 ; typically enemy collision data
 collision_0_x    byte

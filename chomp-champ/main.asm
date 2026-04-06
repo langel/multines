@@ -25,7 +25,6 @@ cart_start: subroutine
 	jsr state_init
 .idle_cpu
 	jmp .idle_cpu
-	;   $8080
 	include "src/states.asm"
 	include "src/state_title.asm"
 	include "src/state_congration.asm"

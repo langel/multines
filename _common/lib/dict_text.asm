@@ -9,7 +9,8 @@
 ;                    bit2: PPU increment (0=1, 1=32)
 ;                    bit1: put a space between every character
 ;                    bit0: add blank line between lines
-;   temp06..temp07 = pointer to game alphabet table (ASCII $20-$5f -> tile id)
+;   alphabet_table_lo/alphabet_table_hi = pointer to game alphabet table
+;                                          (ASCII $20-$5f -> tile id)
 ;
 ; Scratch:
 ;   temp05 bit0 = previous emitted char was space
@@ -241,7 +242,7 @@ dict_emit_ascii_char: subroutine
 dict_emit_offset_char: subroutine
 	; A = ASCII offset in $00-$3f
 	tay
-	lda (temp06),y
+	lda (alphabet_table_lo),y
 	; fall through
 
 dict_emit_tile: subroutine
@@ -256,7 +257,7 @@ dict_emit_tile: subroutine
 	; detect whether emitted char is a space tile (alphabet offset 0)
 	ldy #$00
 	txa
-	cmp (temp06),y
+	cmp (alphabet_table_lo),y
 	beq .space_char
 
 	; not a source space: clear spacing state
@@ -278,7 +279,7 @@ dict_emit_tile: subroutine
 	lda temp04
 	and #%00000010
 	bne .bit3_consecutive_done
-	lda (temp06),y
+	lda (alphabet_table_lo),y
 	sta PPU_DATA
 .bit3_consecutive_done
 	lda #$01
@@ -314,7 +315,7 @@ dict_emit_tile: subroutine
 
 .emit_bit1_space
 	ldy #$00
-	lda (temp06),y
+	lda (alphabet_table_lo),y
 	sta PPU_DATA
 	lda temp05
 	and #$01

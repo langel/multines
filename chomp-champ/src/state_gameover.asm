@@ -7,21 +7,6 @@ palette_game_over:
 	hex 15 16 14
 	hex 0f 27 0f
 
-text_game_over:
-	hex 60 08 5a 08 66 08 5e 08 
-	hex 08 68 08 6f 08 5e 08 6b
-
-text_all_tooths_lost:
-	hex 5a 08 65 08 65 08 08
-	hex 6d 08 68 08 68 08 6d 08 61 08 6c 08 08
-	hex 65 08 68 08 6c 08 6d
-
-text_lifes_dead:
-	hex 65 08 62 08 
-	hex 5f 08 5e 08 
-	hex 6c 08 08
-	hex 5d 08 5e 08 5a 08 5d
-	hex 08 08
 
 
 state_gameover_init: subroutine
@@ -70,18 +55,6 @@ state_gameover_init: subroutine
 	sta temp03
 	jsr metapattern_to_nametable_8x16
 
-	; write all tooths lost
-	lda #$20
-	sta PPU_ADDR
-	lda #$83
-	sta PPU_ADDR
-	ldx #$00
-.all_tooths_lost_loop
-	lda text_all_tooths_lost,x
-	sta PPU_DATA
-	inx
-	cpx #$1b
-	bne .all_tooths_lost_loop
 	; attri
 	lda #$23
 	sta PPU_ADDR
@@ -100,35 +73,51 @@ state_gameover_init: subroutine
 	; write lifes dead
 	lda player_lives
 	bpl .not_lifes_dead
+	lda #<chomp_champ_passage_03
+	sta temp00
+	lda #>chomp_champ_passage_03
+	sta temp01
+	lda #$83
+	sta temp02
 	lda #$20
-	sta PPU_ADDR
-	lda #$8a
-	sta PPU_ADDR
-	ldx #$00
-.lifes_dead_loop
-	lda text_lifes_dead,x
-	sta PPU_DATA
-	inx
-	cpx #$14
-	bne .lifes_dead_loop
+	sta temp03
+	lda #%00001010
+	sta temp04
+	jsr dict_text_plot
+	jmp .lost_why_done
 .not_lifes_dead
 
+	; write all tooths lost
+	lda #<chomp_champ_passage_02
+	sta temp00
+	lda #>chomp_champ_passage_02
+	sta temp01
+	lda #$83
+	sta temp02
+	lda #$20
+	sta temp03
+	lda #%00001010
+	sta temp04
+	jsr dict_text_plot
+.lost_why_done
+	
 	; vertical texts
 	lda #CTRL_INC_32
 	sta PPU_CTRL
 
 	; write game over
-	lda #$21
-	sta PPU_ADDR
+	lda #<chomp_champ_passage_01
+	sta temp00
+	lda #>chomp_champ_passage_01
+	sta temp01
 	lda #$3a
-	sta PPU_ADDR
-	ldx #$00
-.game_over_loop
-	lda text_game_over,x
-	sta PPU_DATA
-	inx
-	cpx #$10
-	bne .game_over_loop
+	sta temp02
+	lda #$21
+	sta temp03
+	lda #%00001110
+	sta temp04
+	jsr dict_text_plot
+
 	; attr
 	lda #$23
 	sta PPU_ADDR

@@ -10,9 +10,6 @@ moufs_palette:
 
 title_screen_line_pal_base eqm $04
 
-title_copy_line:
-	hex 65 68 5b 65 5a 6c 6d 08 77 75 78 08 66 66 71 71 6f 74 66 66 71 71 62 6f
-
 
 state_title_init: subroutine
 
@@ -80,21 +77,17 @@ state_title_init: subroutine
 	bne .load_champ
 
 	; load copy line
-	lda #$23
-	sta PPU_ADDR
-	lda #$64
-	sta PPU_ADDR
-	lda #<title_copy_line
+	lda #<chomp_champ_passage_00
 	sta temp00
-	lda #>title_copy_line
+	lda #>chomp_champ_passage_00
 	sta temp01
-	ldy #$00
-.load_copy
-	lda (temp00),y
-	sta PPU_DATA
-	iny
-	cpy #$18
-	bne .load_copy
+	lda #$64
+	sta temp02
+	lda #$23
+	sta temp03
+	lda #%000000001
+	sta temp04
+	jsr dict_text_plot
 
 	; setup big teef
 	lda #$68

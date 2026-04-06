@@ -4,6 +4,10 @@
 		"0x50": "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ-@.<>!?"
 	},
 	"passages": {
+		"copy_line": "LOBLAST <@> MMXXV-MMXXIV",
+		"game_over": "GAME OVER",
+		"all_tooths_lost": "ALL TOOTHS LOST",
+		"all_lifes_lost": "ALL LIFES LOST",
 		"title_prompt": "CHOMP  CHAMP\nPRESS START TO CHOMP",
 		"intro_rules": "CHOMP THE PLAQUE\nAVOID THE CAVITY",
 		"status_hint": "CHOMP FAST FOR BONUS\nCHOMP CLEAN TO WIN",

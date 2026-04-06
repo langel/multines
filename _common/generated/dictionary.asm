@@ -27,11 +27,23 @@ dictionary_data:
 	hex 055445455448
 	; "DENTIST" @ $d017 token=$80$17 freq=2 score=5
 	hex 0744454e54495354
-	; "CHAMP" @ $d01f token=$80$1f freq=2 score=3
+	; "LOBLAST" @ $d01f token=$80$1f freq=2 score=5
+	hex 074c4f424c415354
+	; "MMXXIV" @ $d027 token=$80$27 freq=2 score=4
+	hex 064d4d58584956
+	; "CHAMP" @ $d02e token=$80$2e freq=2 score=3
 	hex 054348414d50
-	; "FLOSS" @ $d025 token=$80$25 freq=2 score=3
+	; "FLOSS" @ $d034 token=$80$34 freq=2 score=3
 	hex 05464c4f5353
-	; "AND" @ $d02b token=$80$2b freq=2 score=1
+	; "GAME" @ $d03a token=$80$3a freq=2 score=2
+	hex 0447414d45
+	; "LOST" @ $d03f token=$80$3f freq=2 score=2
+	hex 044c4f5354
+	; "OVER" @ $d044 token=$80$44 freq=2 score=2
+	hex 044f564552
+	; "ALL" @ $d049 token=$80$49 freq=2 score=1
+	hex 03414c4c
+	; "AND" @ $d04d token=$80$4d freq=2 score=1
 	hex 03414e44
 
-dictionary_data_end: ; $d02f
+dictionary_data_end: ; $d051
