@@ -84,8 +84,7 @@ state_nextlevel_init: subroutine
 	lda #$00
 	sta ppu_ctrl_ora
 	sta scroll_nm
-
-	jsr render_enable
+	NMI_ENABLE
 
 	rts
 

@@ -57,7 +57,7 @@ state_congration_init: subroutine
 
 	jsr apu_init
 	
-	jsr render_enable
+	NMI_ENABLE
 
 	rts
 

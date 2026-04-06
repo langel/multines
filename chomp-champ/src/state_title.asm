@@ -104,7 +104,8 @@ state_title_init: subroutine
 	jsr state_set_render_routine
 	ldx #state_title_update_id
 	jsr state_set_update_routine
-	jsr render_enable
+
+	NMI_ENABLE
 
 	rts
 	

@@ -73,7 +73,8 @@ state_demo_init: subroutine
 	jsr teeth_init_playfield
 	jsr hud_init
 	
-	jsr render_enable
+	NMI_ENABLE
+
 	rts
 
 

@@ -152,7 +152,7 @@ state_gameover_init: subroutine
 	sta scroll_nm
 	sta scroll_x
 	sta scroll_y
-	jsr render_enable
+	NMI_ENABLE
 
 	lda #$00
 	sta state00
