@@ -29,9 +29,9 @@ state_nextlevel_init: subroutine
 	jsr nametable_fill
 
 	; smoke test dictionary text plotting
-	lda #<chomp_champ_passage_03
+	lda #<chomp_champ_passage_07
 	sta temp00
-	lda #>chomp_champ_passage_03
+	lda #>chomp_champ_passage_07
 	sta temp01
 	lda #$44
 	sta temp02

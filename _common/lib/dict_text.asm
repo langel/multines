@@ -15,6 +15,10 @@
 ; Scratch:
 ;   temp05 bit0 = previous emitted char was space
 ;   temp05 bit6 = previous non-space emitted a bit1-injected space
+;   temp06      = saved X register inside dict_emit_tile
+;
+; Clobbers:
+;   dict_emit_offset_char / dict_emit_tile clobber X and Y
 ;
 
 dict_text_plot: subroutine
@@ -85,8 +89,6 @@ dict_text_plot: subroutine
 	lda (temp00),y
 	sta temp02              ; dictionary pointer lo
 	pla                     ; token hi
-	tax
-	txa
 	and #$0f
 	clc
 	adc #>DICT_BASE_ADDR
@@ -247,16 +249,11 @@ dict_emit_offset_char: subroutine
 
 dict_emit_tile: subroutine
 	; A = tile id to emit with spacing options
-	tay
-	txa
-	pha
-	tya
+	stx temp06
 	sta PPU_DATA
-	tax
 
 	; detect whether emitted char is a space tile (alphabet offset 0)
 	ldy #$00
-	txa
 	cmp (alphabet_table_lo),y
 	beq .space_char
 
@@ -328,6 +325,5 @@ dict_emit_tile: subroutine
 	sta temp05
 
 .done
-	pla
-	tax
+	ldx temp06
 	rts
