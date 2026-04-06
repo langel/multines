@@ -1,0 +1,11 @@
+{
+	"alphabet": {
+		"0x08": " ",
+		"0x50": "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ-@.<>!?"
+	},
+	"passages": {
+		"example_intro": "MOON-JOCKEY\nADD YOUR PASSAGES HERE",
+		"copy_line": "LOBLAST <@> MMXXIV",
+		"game_over": "GAME OVER"
+	}
+}
