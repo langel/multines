@@ -28,6 +28,23 @@ state_nextlevel_init: subroutine
 	lda #$20
 	jsr nametable_fill
 
+	; smoke test dictionary text plotting
+	lda #<chomp_champ_passage_03
+	sta temp00
+	lda #>chomp_champ_passage_03
+	sta temp01
+	lda #$44
+	sta temp02
+	lda #$21
+	sta temp03
+	lda #%000000001
+	sta temp04
+	lda #<chomp_champ_alphabet_table
+	sta temp06
+	lda #>chomp_champ_alphabet_table
+	sta temp07
+	jsr dict_text_plot
+
 	; write level name
 	lda #$21
 	sta PPU_ADDR

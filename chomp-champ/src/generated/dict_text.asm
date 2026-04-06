@@ -25,10 +25,10 @@ chomp_champ_passage_ptr_hi:
 	byte #>chomp_champ_passage_07
 	byte #>chomp_champ_passage_08
 
-	; passage 0 (title_prompt) bytes=20 lines=2
+	; passage 0 (title_prompt) bytes=21 lines=2
 chomp_champ_passage_00:
-	;   CHOMP_ CHAMP \n
-	hex 9000   801f  f0
+	;   CHOMP_ _  CHAMP \n
+	hex 9000   00 801f  f0
 	;   P  R  E  S  S_ S  T  A  R  T_ T  O_ CHOMP \p
 	hex 30 32 25 33 73 33 34 21 32 74 34 6f 8000  f1
 
@@ -109,9 +109,9 @@ chomp_champ_alphabet_table: ; ASCII($20-$5f) -> pattern_id, $ff unmapped
 	hex 696a6b6c6d6e6f70717273ffffffffff
 
 chomp_champ_passage_count EQM 9
-; raw_bytes=438
-; encoded_bytes=292
-; gross_text_savings=146 (33.33%)
+; raw_bytes=439
+; encoded_bytes=293
+; gross_text_savings=146 (33.26%)
 ; replaced_words=29
 ; replaced_words_with_space=18
 ; replaced_words_with_period=2
