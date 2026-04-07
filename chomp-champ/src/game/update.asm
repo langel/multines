@@ -5,6 +5,14 @@ state_game_update: subroutine
 
 	jsr controller_read
 
+	lda controller1_d
+	and #BUTTON_START
+	beq .no_start_button
+	inc is_paused
+	ldx #state_hud_render_id
+	jsr state_set_render_routine
+.no_start_button
+
 	; debug visualization on
 	;lda #%00011111 ; b/w
 	;lda #%11111110 ; emph
@@ -37,6 +45,8 @@ state_game_update: subroutine
 	; xxx need to check level status
 	; game over all teeth gone
 	; next level all teeth clean or gone
+	lda is_paused
+	bne .gameloop_done
 
 	jsr game_player_update
 	jsr ent_z_update
@@ -44,6 +54,7 @@ state_game_update: subroutine
 	jsr hud_update
 
 	jsr state_game_prerender
+.gameloop_done
 
 	; debug visualization off
 	;lda #%00011110

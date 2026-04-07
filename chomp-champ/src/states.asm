@@ -11,6 +11,7 @@ state_nextlevel_update_id      eqm $06
 state_congration_update_id     eqm $07
 state_demo_update_id           eqm $08
 state_continue_update_id       eqm $09
+state_hud_render_id            eqm $0a
 
 
 	org $8030
@@ -25,6 +26,7 @@ state_table_lo:
 	byte <#state_congration_update
 	byte <#state_demo_update
 	byte <#state_continue_update
+	byte <#state_hud_render
 
 	org $8040
 state_table_hi:
@@ -38,6 +40,7 @@ state_table_hi:
 	byte >#state_congration_update
 	byte >#state_demo_update
 	byte >#state_continue_update
+	byte >#state_hud_render
 
 
 	org $8050

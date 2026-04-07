@@ -9,6 +9,7 @@
 		"game_over": "GAME OVER",
 		"continue": "CONTINUE?",
 		"yeah": "YEAH",
-		"nope": "NOPE"
+		"nope": "NOPE",
+		"paused": "PAUSED"
 	}
 }

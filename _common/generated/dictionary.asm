@@ -33,23 +33,27 @@ dictionary_data:
 	hex 074c4f424c415354
 	; "MMXXIV" @ $d030 token=$80$30 freq=2 score=4
 	hex 064d4d58584956
-	; "CHAMP" @ $d037 token=$80$37 freq=2 score=3
+	; "PAUSED" @ $d037 token=$80$37 freq=2 score=4
+	hex 06504155534544
+	; "CHAMP" @ $d03e token=$80$3e freq=2 score=3
 	hex 054348414d50
-	; "FLOSS" @ $d03d token=$80$3d freq=2 score=3
+	; "FLOSS" @ $d044 token=$80$44 freq=2 score=3
 	hex 05464c4f5353
-	; "GAME" @ $d043 token=$80$43 freq=2 score=2
+	; "GAME" @ $d04a token=$80$4a freq=2 score=2
 	hex 0447414d45
-	; "LOST" @ $d048 token=$80$48 freq=2 score=2
+	; "LOST" @ $d04f token=$80$4f freq=2 score=2
 	hex 044c4f5354
-	; "NOPE" @ $d04d token=$80$4d freq=2 score=2
+	; "NOPE" @ $d054 token=$80$54 freq=2 score=2
 	hex 044e4f5045
-	; "OVER" @ $d052 token=$80$52 freq=2 score=2
+	; "OVER" @ $d059 token=$80$59 freq=2 score=2
 	hex 044f564552
-	; "YEAH" @ $d057 token=$80$57 freq=2 score=2
+	; "WEEK" @ $d05e token=$80$5e freq=2 score=2
+	hex 045745454b
+	; "YEAH" @ $d063 token=$80$63 freq=2 score=2
 	hex 0459454148
-	; "ALL" @ $d05c token=$80$5c freq=2 score=1
+	; "ALL" @ $d068 token=$80$68 freq=2 score=1
 	hex 03414c4c
-	; "AND" @ $d060 token=$80$60 freq=2 score=1
+	; "AND" @ $d06c token=$80$6c freq=2 score=1
 	hex 03414e44
 
-dictionary_data_end: ; $d064
+dictionary_data_end: ; $d070

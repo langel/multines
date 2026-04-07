@@ -11,6 +11,8 @@
 		"continue": "CONTINUE?",
 		"yeah": "YEAH",
 		"nope": "NOPE",
+		"week": " WEEK ",
+		"paused": "PAUSED",
 		"title_prompt": "CHOMP  CHAMP\nPRESS START TO CHOMP",
 		"intro_rules": "CHOMP THE PLAQUE\nAVOID THE CAVITY",
 		"status_hint": "CHOMP FAST FOR BONUS\nCHOMP CLEAN TO WIN",
@@ -19,6 +21,7 @@
 		"week_02": "I FEEL A TINGLE.\nIS IT THE FLOSS?\nIS IT A NEW FRIEND?",
 		"week_03": "I CAN>T RIGHT NOW.\nTHE DENTIST WILL FORGIVE.",
 		"week_04": "YOU ARE THE CHAMP\n   OF MY CHOMPS.",
-		"week_05": "THE TINGLES CONTINUE.\nMY TEETH DO TINGLE.\nPLEASE STOP THE TINGLE!"
+		"week_05": "THE TINGLES CONTINUE.\nMY TEETH DO TINGLE.\nPLEASE STOP THE TINGLE!",
+		"week_06": "THIS WEEK WE SHOULD DO\nA BETTER JOB THAN NORMAL."
 	}
 }

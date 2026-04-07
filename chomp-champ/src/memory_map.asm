@@ -45,6 +45,7 @@ germ_attackee           byte
 grub_converge_slot      byte
 
 hud_initted   byte
+is_paused     byte
 
 ; used instead of ent registers
 player_x_hi   byte

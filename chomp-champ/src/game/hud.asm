@@ -57,7 +57,7 @@ hud_init: subroutine
 	sta $ea
 
 	; top teeth meter
-	PPU_ADDR_SET $2054
+	PPU_ADDR_SET $2055
 	ldx #$00
 .top_teeth_loop
 	lda tooth_total_dmg,x
@@ -70,7 +70,7 @@ hud_init: subroutine
 	bne .top_teeth_loop
 
 	; bottom teeth meter
-	PPU_ADDR_SET $2074
+	PPU_ADDR_SET $2075
 .bottom_teeth_loop
 	lda tooth_total_dmg,x
 	jsr hud_dmg_to_tile
@@ -80,6 +80,17 @@ hud_init: subroutine
 	inx
 	cpx #$10
 	bne .bottom_teeth_loop
+
+	; nm attributes for level marker
+	lda #$23
+	sta PPU_ADDR
+	lda #$c3
+	sta PPU_ADDR
+	lda #%01010101
+	sta PPU_DATA
+	sta PPU_DATA
+	; write level indicator
+	jsr hud_write_week
 
 	rts
 
@@ -171,7 +182,7 @@ hud_update: subroutine
 .top_row_tooth
 	txa
 	clc
-	adc #$54
+	adc #$55
 	sta hud_tooth_addr
 	lda tooth_total_dmg,x
 	jsr hud_dmg_to_tile
@@ -182,7 +193,7 @@ hud_update: subroutine
 .bottom_row_tooth
 	txa
 	clc
-	adc #$6c
+	adc #$6d
 	sta hud_tooth_addr
 	lda tooth_total_dmg,x
 	jsr hud_dmg_to_tile
@@ -210,7 +221,7 @@ hud_update: subroutine
 	txa
 	shift_l 4
 	clc
-	adc #$20
+	adc #$18
 	sta spr_x,y
 	adc #$08
 	sta spr_x+4,y
@@ -263,6 +274,10 @@ hud_update: subroutine
 	rts
 
 
+state_hud_render: subroutine
+	jsr hud_render
+	jmp nmi_render_done
+
 
 hud_render: subroutine
 
@@ -273,4 +288,62 @@ hud_render: subroutine
 	lda hud_tooth_tile
 	sta PPU_DATA
 
+	lda is_paused
+	beq .paused_done
+	cmp #$01
+	beq .write_paused
+	cmp #$02
+	beq .paused_done
+	lda #$00
+	sta is_paused
+	jsr hud_write_week
+	ldx #state_game_render_id
+	jsr state_set_render_routine
+	jmp .paused_done
+.write_paused
+	; "PAUSED"
+	lda #<chomp_champ_passage_08
+	sta temp00
+	lda #>chomp_champ_passage_08
+	sta temp01
+	lda #$4d
+	sta temp02
+	lda #$20
+	sta temp03
+	lda #%000000000
+	sta temp04
+	jsr dict_text_plot
+	inc is_paused
+.paused_done
+
+	rts
+
+
+hud_write_week: subroutine
+	; "WEEK"
+	lda #<chomp_champ_passage_07
+	sta temp00
+	lda #>chomp_champ_passage_07
+	sta temp01
+	lda #$4d
+	sta temp02
+	lda #$20
+	sta temp03
+	lda #%000000000
+	sta temp04
+	jsr dict_text_plot
+	; level integer
+	lda #$20
+	sta PPU_ADDR
+	lda #$6f
+	sta PPU_ADDR
+	ldx game_level
+	clc
+	lda zero_pad_10s_table,x
+	adc #$50
+	sta PPU_DATA
+	clc
+	lda zero_pad_01s_table,x
+	adc #$50
+	sta PPU_DATA
 	rts

@@ -11,6 +11,7 @@ moon_jockey_passage_ptr_lo:
 	byte #<moon_jockey_passage_03
 	byte #<moon_jockey_passage_04
 	byte #<moon_jockey_passage_05
+	byte #<moon_jockey_passage_06
 moon_jockey_passage_ptr_hi:
 	byte #>moon_jockey_passage_00
 	byte #>moon_jockey_passage_01
@@ -18,6 +19,7 @@ moon_jockey_passage_ptr_hi:
 	byte #>moon_jockey_passage_03
 	byte #>moon_jockey_passage_04
 	byte #>moon_jockey_passage_05
+	byte #>moon_jockey_passage_06
 
 	; passage 0 (example_intro) bytes=32 lines=2
 moon_jockey_passage_00:
@@ -36,7 +38,7 @@ moon_jockey_passage_01:
 	; passage 2 (game_over) bytes=5 lines=1
 moon_jockey_passage_02:
 	;   GAME_ OVER \p
-	hex 9043  8052 f1
+	hex 904a  8059 f1
 
 	; passage 3 (continue) bytes=3 lines=1
 moon_jockey_passage_03:
@@ -46,12 +48,17 @@ moon_jockey_passage_03:
 	; passage 4 (yeah) bytes=3 lines=1
 moon_jockey_passage_04:
 	;   YEAH \p
-	hex 8057 f1
+	hex 8063 f1
 
 	; passage 5 (nope) bytes=3 lines=1
 moon_jockey_passage_05:
 	;   NOPE \p
-	hex 804d f1
+	hex 8054 f1
+
+	; passage 6 (paused) bytes=3 lines=1
+moon_jockey_passage_06:
+	;   PAUSED \p
+	hex 8037   f1
 
 moon_jockey_alphabet_table: ; ASCII($20-$5f) -> pattern_id, $ff unmapped
 	hex 0879ffffffffffffffffffffff7476ff
@@ -59,11 +66,11 @@ moon_jockey_alphabet_table: ; ASCII($20-$5f) -> pattern_id, $ff unmapped
 	hex 755a5b5c5d5e5f606162636465666768
 	hex 696a6b6c6d6e6f70717273ffffffffff
 
-moon_jockey_passage_count EQM 6
-; raw_bytes=84
-; encoded_bytes=54
-; gross_text_savings=30 (35.71%)
-; replaced_words=7
+moon_jockey_passage_count EQM 7
+; raw_bytes=91
+; encoded_bytes=57
+; gross_text_savings=34 (37.36%)
+; replaced_words=8
 ; replaced_words_with_space=2
 ; replaced_words_with_period=0
 ; replaced_words_with_exclaim=0

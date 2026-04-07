@@ -6,7 +6,7 @@ init_new_game: subroutine
 	
 	jsr chompchamp_reset_game
 	
-	lda #$14
+	lda #$00
 	sta game_level
 
 	lda #$02
