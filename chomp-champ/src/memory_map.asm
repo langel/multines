@@ -33,6 +33,9 @@ tooth_needs_update  eqm $720
 tooth_tile_cache    eqm $760
 tooth_true_clean    eqm $780
 
+game_level          eqm $1e0
+continues           eqm $1e1
+
 tooth_update_queue_size byte
 tooth_index             byte
 cell_sweep              byte
@@ -42,7 +45,6 @@ germ_attackee           byte
 grub_converge_slot      byte
 
 hud_initted   byte
-game_level    byte
 
 ; used instead of ent registers
 player_x_hi   byte

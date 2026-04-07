@@ -10,6 +10,8 @@ state_gameover_update_id       eqm $05
 state_nextlevel_update_id      eqm $06
 state_congration_update_id     eqm $07
 state_demo_update_id           eqm $08
+state_continue_update_id       eqm $09
+
 
 	org $8030
 state_table_lo:
@@ -22,6 +24,7 @@ state_table_lo:
 	byte <#state_nextlevel_update
 	byte <#state_congration_update
 	byte <#state_demo_update
+	byte <#state_continue_update
 
 	org $8040
 state_table_hi:
@@ -34,6 +37,7 @@ state_table_hi:
 	byte >#state_nextlevel_update
 	byte >#state_congration_update
 	byte >#state_demo_update
+	byte >#state_continue_update
 
 
 	org $8050
@@ -53,6 +57,7 @@ state_init: subroutine
 	;jsr state_gameover_init
 	;jsr state_nextlevel_init
 	;jsr state_congration_init
+	;jsr state_continue_init
 	;jsr state_demo_init
 
 	rts

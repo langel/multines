@@ -178,7 +178,7 @@ state_gameover_update: subroutine
 	lda controller1_d
 	beq .dont_start
 .goto_title_screen
-	jsr state_title_init
+	jsr state_continue_init
 .dont_start
 
 	jmp nmi_update_done

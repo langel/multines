@@ -23,7 +23,7 @@ state_demo_init: subroutine
 	jmp .done_fresh_demo
 
 .start_fresh_demo
-	jsr chompchamp_new_game
+	jsr chompchamp_reset_game
 
 	jsr ent_germ_spawn
 	jsr ent_germ_spawn

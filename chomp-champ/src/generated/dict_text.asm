@@ -18,6 +18,9 @@ chomp_champ_passage_ptr_lo:
 	byte #<chomp_champ_passage_0a
 	byte #<chomp_champ_passage_0b
 	byte #<chomp_champ_passage_0c
+	byte #<chomp_champ_passage_0d
+	byte #<chomp_champ_passage_0e
+	byte #<chomp_champ_passage_0f
 chomp_champ_passage_ptr_hi:
 	byte #>chomp_champ_passage_00
 	byte #>chomp_champ_passage_01
@@ -32,54 +35,72 @@ chomp_champ_passage_ptr_hi:
 	byte #>chomp_champ_passage_0a
 	byte #>chomp_champ_passage_0b
 	byte #>chomp_champ_passage_0c
+	byte #>chomp_champ_passage_0d
+	byte #>chomp_champ_passage_0e
+	byte #>chomp_champ_passage_0f
 
 	; passage 0 (copy_line) bytes=14 lines=1
 chomp_champ_passage_00:
 	;   LOBLAST_ <  @  >_ M  M  X  X  V  -  MMXXIV \p
-	hex 901f     1c 20 5e 2d 2d 38 38 36 0d 8027   f1
+	hex 9028     1c 20 5e 2d 2d 38 38 36 0d 8030   f1
 
 	; passage 1 (game_over) bytes=5 lines=1
 chomp_champ_passage_01:
 	;   GAME_ OVER \p
-	hex 903a  8044 f1
+	hex 9043  8052 f1
 
 	; passage 2 (all_tooths_lost) bytes=11 lines=1
 chomp_champ_passage_02:
 	;   ALL_ T  O  O  T  H  S_ LOST \p
-	hex 9049 34 2f 2f 34 28 73 803f f1
+	hex 905c 34 2f 2f 34 28 73 8048 f1
 
 	; passage 3 (all_lifes_lost) bytes=10 lines=1
 chomp_champ_passage_03:
 	;   ALL_ L  I  F  E  S_ LOST \p
-	hex 9049 2c 29 26 25 73 803f f1
+	hex 905c 2c 29 26 25 73 8048 f1
 
-	; passage 4 (title_prompt) bytes=21 lines=2
+	; passage 4 (continue) bytes=3 lines=1
 chomp_champ_passage_04:
+	;   CONTINUE? \p
+	hex c006      f1
+
+	; passage 5 (yeah) bytes=3 lines=1
+chomp_champ_passage_05:
+	;   YEAH \p
+	hex 8057 f1
+
+	; passage 6 (nope) bytes=3 lines=1
+chomp_champ_passage_06:
+	;   NOPE \p
+	hex 804d f1
+
+	; passage 7 (title_prompt) bytes=21 lines=2
+chomp_champ_passage_07:
 	;   CHOMP_ _  CHAMP \n
-	hex 9000   00 802e  f0
+	hex 9000   00 8037  f0
 	;   P  R  E  S  S_ S  T  A  R  T_ T  O_ CHOMP \p
 	hex 30 32 25 33 73 33 34 21 32 74 34 6f 8000  f1
 
-	; passage 5 (intro_rules) bytes=25 lines=2
-chomp_champ_passage_05:
+	; passage 8 (intro_rules) bytes=25 lines=2
+chomp_champ_passage_08:
 	;   CHOMP_ THE_ P  L  A  Q  U  E  \n
-	hex 9000   900d 30 2c 21 31 35 25 f0
+	hex 9000   9016 30 2c 21 31 35 25 f0
 	;   A  V  O  I  D_ THE_ C  A  V  I  T  Y  \p
-	hex 21 36 2f 29 64 900d 23 21 36 29 34 39 f1
+	hex 21 36 2f 29 64 9016 23 21 36 29 34 39 f1
 
-	; passage 6 (status_hint) bytes=28 lines=2
-chomp_champ_passage_06:
+	; passage 9 (status_hint) bytes=28 lines=2
+chomp_champ_passage_09:
 	;   CHOMP_ F  A  S  T_ F  O  R_ B  O  N  U  S  \n
 	hex 9000   26 21 33 74 26 2f 72 22 2f 2e 35 33 f0
 	;   CHOMP_ C  L  E  A  N_ T  O_ W  I  N  \p
 	hex 9000   23 2c 25 21 6e 34 6f 37 29 2e f1
 
-	; passage 7 (week_00) bytes=55 lines=3
-chomp_champ_passage_07:
+	; passage 10 (week_00) bytes=55 lines=3
+chomp_champ_passage_0a:
 	;   THE_ DENTIST_ L  O  V  E  D_ M  Y_ TEETH \n
-	hex 900d 9017     2c 2f 36 25 64 2d 79 8011  f0
+	hex 9016 9020     2c 2f 36 25 64 2d 79 801a  f0
 	;   AND_ S  A  I  D_ H  E_ W  O  U  L  D_ S  E  E_
-	hex 904d 33 21 29 64 28 65 37 2f 35 2c 64 33 25 65
+	hex 9060 33 21 29 64 28 65 37 2f 35 2c 64 33 25 65
 	;   M  E  \n
 	hex 2d 25 f0
 	;   I  N_ S  I  X_ M  O  N  T  H  S  ._ T  O  O_ S 
@@ -87,48 +108,48 @@ chomp_champ_passage_07:
 	;   O  O  N  !  !  \p
 	hex 2f 2f 2e 01 01 f1
 
-	; passage 8 (week_01) bytes=37 lines=3
-chomp_champ_passage_08:
+	; passage 11 (week_01) bytes=37 lines=3
+chomp_champ_passage_0b:
 	;   F  O  O  D_ AND_ M  Y_ TEETH_ G  E  T  \n
-	hex 26 2f 2f 64 904d 2d 79 9011   27 25 34 f0
+	hex 26 2f 2f 64 9060 2d 79 901a   27 25 34 f0
 	;   A  L  O  N  G_ S  O_ W  E  L  L  \n
 	hex 21 2c 2f 2e 67 33 6f 37 25 2c 2c f0
 	;   W  E_ G  O  T  T  A_ FLOSS! !  \p
-	hex 37 65 27 2f 34 34 61 b034   01 f1
+	hex 37 65 27 2f 34 34 61 b03d   01 f1
 
-	; passage 9 (week_02) bytes=34 lines=3
-chomp_champ_passage_09:
+	; passage 12 (week_02) bytes=34 lines=3
+chomp_champ_passage_0c:
 	;   I_ F  E  E  L_ A_ TINGLE. \n
-	hex 69 26 25 25 6c 61 a006    f0
+	hex 69 26 25 25 6c 61 a00f    f0
 	;   I  S_ I  T_ THE_ FLOSS? \n
-	hex 29 73 29 74 900d c034   f0
+	hex 29 73 29 74 9016 c03d   f0
 	;   I  S_ I  T_ A_ N  E  W_ F  R  I  E  N  D  ?  \p
 	hex 29 73 29 74 61 2e 25 77 26 32 29 25 2e 24 1f f1
 
-	; passage 10 (week_03) bytes=33 lines=2
-chomp_champ_passage_0a:
+	; passage 13 (week_03) bytes=33 lines=2
+chomp_champ_passage_0d:
 	;   I_ C  A  N  >  T_ R  I  G  H  T_ N  O  W  .  \n
 	hex 69 23 21 2e 1e 74 32 29 27 28 74 2e 2f 37 0e f0
 	;   THE_ DENTIST_ W  I  L  L_ F  O  R  G  I  V  E  . 
-	hex 900d 9017     37 29 2c 6c 26 2f 32 27 29 36 25 0e
+	hex 9016 9020     37 29 2c 6c 26 2f 32 27 29 36 25 0e
 	;   \p
 	hex f1
 
-	; passage 11 (week_04) bytes=21 lines=2
-chomp_champ_passage_0b:
+	; passage 14 (week_04) bytes=21 lines=2
+chomp_champ_passage_0e:
 	;   Y  O  U_ A  R  E_ THE_ CHAMP \n
-	hex 39 2f 75 21 32 65 900d 802e  f0
+	hex 39 2f 75 21 32 65 9016 8037  f0
 	;   __ _  O  F_ M  Y_ CHOMPS .  \p
 	hex 40 00 2f 66 2d 79 d000   0e f1
 
-	; passage 12 (week_05) bytes=39 lines=3
-chomp_champ_passage_0c:
-	;   THE_ TINGLES _  C  O  N  T  I  N  U  E  .  \n
-	hex 900d d006    00 23 2f 2e 34 29 2e 35 25 0e f0
+	; passage 15 (week_05) bytes=32 lines=3
+chomp_champ_passage_0f:
+	;   THE_ TINGLES _  CONTINUE. \n
+	hex 9016 d00f    00 a006      f0
 	;   M  Y_ TEETH_ D  O_ TINGLE. \n
-	hex 2d 79 9011   24 6f a006    f0
+	hex 2d 79 901a   24 6f a00f    f0
 	;   P  L  E  A  S  E_ S  T  O  P_ THE_ TINGLE! \p
-	hex 30 2c 25 21 33 65 33 34 2f 70 900d b006    f1
+	hex 30 2c 25 21 33 65 33 34 2f 70 9016 b00f    f1
 
 chomp_champ_alphabet_table: ; ASCII($20-$5f) -> pattern_id, $ff unmapped
 	hex 0879ffffffffffffffffffffff7476ff
@@ -136,15 +157,15 @@ chomp_champ_alphabet_table: ; ASCII($20-$5f) -> pattern_id, $ff unmapped
 	hex 755a5b5c5d5e5f606162636465666768
 	hex 696a6b6c6d6e6f70717273ffffffffff
 
-chomp_champ_passage_count EQM 13
-; raw_bytes=505
-; encoded_bytes=333
-; gross_text_savings=172 (34.06%)
-; replaced_words=37
+chomp_champ_passage_count EQM 16
+; raw_bytes=525
+; encoded_bytes=335
+; gross_text_savings=190 (36.19%)
+; replaced_words=41
 ; replaced_words_with_space=22
-; replaced_words_with_period=2
+; replaced_words_with_period=3
 ; replaced_words_with_exclaim=2
-; replaced_words_with_question=1
+; replaced_words_with_question=2
 ; replaced_words_with_s=2
 ; replaced_words_with_r=0
 ; replaced_chars_with_space=49

@@ -52,6 +52,9 @@ state_game_level_init: subroutine
 
 	lda #CTRL_8x16
 	sta ppu_ctrl_ora
+	lda #$00
+	sta scroll_x
+	sta scroll_y
 
 	; load palette
 	ldx #$00

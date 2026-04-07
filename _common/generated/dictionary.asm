@@ -19,31 +19,37 @@ DICT_END_OF_PASSAGE_BYTE EQM $f1
 dictionary_data:
 	; "CHOMP" @ $d000 token=$80$00 freq=5 score=12
 	hex 0543484f4d50
-	; "TINGLE" @ $d006 token=$80$06 freq=3 score=8
+	; "CONTINUE" @ $d006 token=$80$06 freq=3 score=12
+	hex 08434f4e54494e5545
+	; "TINGLE" @ $d00f token=$80$0f freq=3 score=8
 	hex 0654494e474c45
-	; "THE" @ $d00d token=$80$0d freq=8 score=7
+	; "THE" @ $d016 token=$80$16 freq=8 score=7
 	hex 03544845
-	; "TEETH" @ $d011 token=$80$11 freq=3 score=6
+	; "TEETH" @ $d01a token=$80$1a freq=3 score=6
 	hex 055445455448
-	; "DENTIST" @ $d017 token=$80$17 freq=2 score=5
+	; "DENTIST" @ $d020 token=$80$20 freq=2 score=5
 	hex 0744454e54495354
-	; "LOBLAST" @ $d01f token=$80$1f freq=2 score=5
+	; "LOBLAST" @ $d028 token=$80$28 freq=2 score=5
 	hex 074c4f424c415354
-	; "MMXXIV" @ $d027 token=$80$27 freq=2 score=4
+	; "MMXXIV" @ $d030 token=$80$30 freq=2 score=4
 	hex 064d4d58584956
-	; "CHAMP" @ $d02e token=$80$2e freq=2 score=3
+	; "CHAMP" @ $d037 token=$80$37 freq=2 score=3
 	hex 054348414d50
-	; "FLOSS" @ $d034 token=$80$34 freq=2 score=3
+	; "FLOSS" @ $d03d token=$80$3d freq=2 score=3
 	hex 05464c4f5353
-	; "GAME" @ $d03a token=$80$3a freq=2 score=2
+	; "GAME" @ $d043 token=$80$43 freq=2 score=2
 	hex 0447414d45
-	; "LOST" @ $d03f token=$80$3f freq=2 score=2
+	; "LOST" @ $d048 token=$80$48 freq=2 score=2
 	hex 044c4f5354
-	; "OVER" @ $d044 token=$80$44 freq=2 score=2
+	; "NOPE" @ $d04d token=$80$4d freq=2 score=2
+	hex 044e4f5045
+	; "OVER" @ $d052 token=$80$52 freq=2 score=2
 	hex 044f564552
-	; "ALL" @ $d049 token=$80$49 freq=2 score=1
+	; "YEAH" @ $d057 token=$80$57 freq=2 score=2
+	hex 0459454148
+	; "ALL" @ $d05c token=$80$5c freq=2 score=1
 	hex 03414c4c
-	; "AND" @ $d04d token=$80$4d freq=2 score=1
+	; "AND" @ $d060 token=$80$60 freq=2 score=1
 	hex 03414e44
 
-dictionary_data_end: ; $d051
+dictionary_data_end: ; $d064

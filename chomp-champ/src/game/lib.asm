@@ -1,5 +1,5 @@
 
-chompchamp_new_game: subroutine
+chompchamp_reset_game: subroutine
 	; clear some ram
 	lda #$00
 	ldx <#end_of_common_ram
