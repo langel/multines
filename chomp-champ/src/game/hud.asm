@@ -50,11 +50,14 @@ hud_init: subroutine
 
 	; overwrite bg palette 0
 	lda #$04
-	sta $e8
+	sta $f1
 	lda #$27
-	sta $e9
+	sta $f2
 	lda #$32
-	sta $ea
+	sta $f3
+
+	; write level indicator
+	jsr hud_write_week
 
 	; top teeth meter
 	PPU_ADDR_SET $2055
@@ -81,28 +84,46 @@ hud_init: subroutine
 	cpx #$10
 	bne .bottom_teeth_loop
 
-	; nm attributes for level marker
+	; teeth meter attributes
 	lda #$23
 	sta PPU_ADDR
-	lda #$c3
+	lda #$c5
 	sta PPU_ADDR
-	lda #%01010101
+	lda #%11111111
 	sta PPU_DATA
 	sta PPU_DATA
-	; write level indicator
-	jsr hud_write_week
+	sta PPU_DATA
 
 	rts
 
 
 hud_sprite0: subroutine
-	; cache palette in zp
-	lda game_palette+1
+	; cache palette values in zp
+	lda #$15
 	sta temp00
-	lda game_palette+2
+	lda #$0f
 	sta temp01
-	lda game_palette+3
+	lda #$08
 	sta temp02
+	; fine scrolling cache
+	lda camera_nm
+	lsr
+	lda #$00
+	rol
+	shift_l 2
+	sta temp04
+	lda #$20 ; y offset
+	sta temp05
+	and #%11111000
+	shift_l 2
+	sta temp04 ; temp
+	ldx camera_x
+	stx temp06
+	txa
+	shift_r 3
+	ora temp04 
+	sta temp07
+
 	; check if it setup
 	lda hud_initted
 	bne .wait0
@@ -115,48 +136,38 @@ hud_sprite0: subroutine
 	bit PPU_STATUS
 	beq .wait1
 
+	; load up palette values
+	ldx temp01
+	ldy temp02
 	; disable rendering
 	lda #$00
+	nop
 	sta PPU_CTRL
 	sta PPU_MASK
 	; update palette
 	lda #$3f
 	sta PPU_ADDR
-	lda #$01
+	lda #$0d
 	sta PPU_ADDR
 	lda temp00
 	sta PPU_DATA
-	lda temp01
-	sta PPU_DATA
-	lda temp02
-	sta PPU_DATA
+	stx PPU_DATA
+	sty PPU_DATA
 
-	ldx #02
-.scanline_wait
+	; wait for next scanline
+	ldx #$0a
+.scan_wait
 	dex
-	bne .scanline_wait
-	nop
-	nop
-	nop
-	nop
-	
-	; fine scrolling method
-	lda camera_nm
-	lsr
-	lda #$00
-	rol
-	shift_l 2
+	bne .scan_wait
+
+	; fine scrolling write
+	lda temp04
 	sta PPU_ADDR
-	lda #$20 ; y offset
+	lda temp05
 	sta PPU_SCROLL
-	and #%11111000
-	shift_l 2
-	sta temp00
-	ldx camera_x
-	txa
-	shift_r 3
-	ora temp00
-	stx PPU_SCROLL
+	lda temp06
+	sta PPU_SCROLL
+	lda temp07
 	sta PPU_ADDR
 
 	; enable rendering
@@ -239,7 +250,7 @@ hud_update: subroutine
 	sta spr_a
 	lda #$10
 	sta spr_p
-	lda #$ba
+	lda #$a9
 	sta spr_x
 	lda #$21
 	sta spr_y
