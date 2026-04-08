@@ -73,6 +73,8 @@ registers_clear: subroutine
 	sta temp03
 	sta temp04
 	sta temp05
+	sta temp06
+	sta temp07
 	sta state00
 	sta state01
 	sta state02

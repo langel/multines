@@ -1,9 +1,17 @@
-
+; state00 pointer position
+; state01 germ x pos
+; state02 germ velocity lo
+; state03 germ velocity hi
+; state04 germ y pos lo
+; state05 germ y pos hi
+; state06 germ anim frame
+; state07 germ anim counter
 
 state_continue_init: subroutine
 
 	jsr render_disable
 	jsr sprites_clear
+	jsr registers_clear
 
 	; check for continues
 	lda continues
@@ -56,18 +64,48 @@ state_continue_init: subroutine
 	sta temp03
 	jsr dict_text_plot
 
-	; palette
+	; bg palette
 	lda #$0f
 	sta $e7
-	lda #$01
-	sta $e8
-	sta $f4
-	lda #$21
-	sta $e9
-	sta $f5
-	lda #$22
-	sta $ea
-	sta $f6
+	lda #$27
+	sta $ec
+	lda #$2a
+	sta $ef
+	lda #$16
+	sta $f2
+	; sprite palette
+	ldx #$00
+.pal_loop
+	lda game_palette+13,x
+	sta $f4,x
+	inx
+	cpx #$06
+	bne .pal_loop
+	; continue attr
+	ldx #$23
+	stx PPU_ADDR
+	lda #$ca
+	sta PPU_ADDR
+	lda #%01010101
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	; yeah attr
+	stx PPU_ADDR
+	lda #$db
+	sta PPU_ADDR
+	lda #%10101010
+	sta PPU_DATA
+	sta PPU_DATA
+	; nope attr
+	stx PPU_ADDR
+	lda #$e3
+	sta PPU_ADDR
+	lda #%11111111
+	sta PPU_DATA
+	sta PPU_DATA
 
 	lda #CTRL_8x16
 	sta ppu_ctrl_ora
@@ -140,5 +178,78 @@ state_continue_update: subroutine
 	adc #$62
 	sta spr_y
 	sta spr_y+4
+
+	; bouncing germ
+	lda state05
+	cmp #$e0
+	bcc .skip_velocity_reset
+	jsr rng_update
+	lda rng_val0
+	sta state02
+	lda rng_val1
+	and #$07
+	sta state03
+	lda #$e0
+	sta state05
+.skip_velocity_reset	
+	; animation
+	inc state07
+	lda state07
+	cmp #$05
+	bne .anim_done
+	lda #$00
+	sta state07
+	lda state06
+	clc
+	adc #$04
+	sta state06
+	cmp #$34
+	bne .anim_done
+	lda #$00
+	sta state06
+.anim_done
+	clc
+	lda state06
+	adc #$40
+	sta spr_p+8
+	adc #$02
+	sta spr_p+12
+	; attr
+	lda state03
+	bpl .not_falling
+	lda #$a1
+	bne .set_a
+.not_falling
+	lda #$01
+.set_a
+	sta spr_a+8
+	sta spr_a+12
+	; x axis stuff
+	inc state01
+	ldx state01
+	lda sine_table,x
+	ldx #$f7
+	jsr shift_percent
+	sta spr_x+8
+	clc
+	adc #$08
+	sta spr_x+12
+	; y axis stuff
+	sec
+	lda state04
+	sbc state02
+	sta state04
+	lda state05
+	sbc state03
+	sta state05
+	sta spr_y+8
+	sta spr_y+12
+	sec
+	lda state02
+	sbc #$30
+	sta state02
+	lda state03
+	sbc #$00
+	sta state03
 
 	jmp nmi_update_done

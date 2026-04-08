@@ -60,8 +60,8 @@ state_init: subroutine
 	;jsr state_gameover_init
 	;jsr state_nextlevel_init
 	;jsr state_congration_init
-	;jsr state_continue_init
-	jsr state_demo_init
+	jsr state_continue_init
+	;jsr state_demo_init
 
 	rts
 
