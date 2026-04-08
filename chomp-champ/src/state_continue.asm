@@ -192,7 +192,23 @@ state_continue_update: subroutine
 	lda #$e0
 	sta state05
 .skip_velocity_reset	
-	; animation
+	; x axis stuff
+	inc state01
+	ldx state01
+	lda sine_table,x
+	ldx #$f7
+	jsr shift_percent
+	sta ent_pos_x 
+	; y axis stuff
+	sec
+	lda state04
+	sbc state02
+	sta state04
+	lda state05
+	sbc state03
+	sta state05
+	sta ent_pos_y
+	; sprite animation
 	inc state07
 	lda state07
 	cmp #$05
@@ -211,39 +227,20 @@ state_continue_update: subroutine
 	clc
 	lda state06
 	adc #$40
-	sta spr_p+8
-	adc #$02
-	sta spr_p+12
+	sta temp00 ; sprite id
 	; attr
-	lda state03
-	bpl .not_falling
-	lda #$a1
-	bne .set_a
-.not_falling
-	lda #$01
-.set_a
-	sta spr_a+8
-	sta spr_a+12
-	; x axis stuff
-	inc state01
-	ldx state01
-	lda sine_table,x
-	ldx #$f7
-	jsr shift_percent
-	sta spr_x+8
 	clc
-	adc #$08
-	sta spr_x+12
-	; y axis stuff
-	sec
-	lda state04
-	sbc state02
-	sta state04
-	lda state05
-	sbc state03
-	sta state05
-	sta spr_y+8
-	sta spr_y+12
+	lda #$21
+	ldx state03
+	bpl .not_falling
+	adc #$80
+.not_falling
+	ldx wtf
+	bmi .not_mirrored
+	adc #$40
+.not_mirrored
+	sta temp01 ; attr val
+	; adjust y velocity
 	sec
 	lda state02
 	sbc #$30
@@ -251,5 +248,10 @@ state_continue_update: subroutine
 	lda state03
 	sbc #$00
 	sta state03
+
+	lda #$03
+	sta ent_visible
+	ldy #$08
+	jsr ent_render_generic_8x16
 
 	jmp nmi_update_done
