@@ -21,44 +21,44 @@ moon_jockey_passage_ptr_hi:
 	byte #>moon_jockey_passage_05
 	byte #>moon_jockey_passage_06
 
-	; passage 0 (example_intro) bytes=32 lines=2
+	; passage 0 (example_intro) bytes=31 lines=2
 moon_jockey_passage_00:
 	;   M  O  O  N  -  J  O  C  K  E  Y  \n
 	hex 2d 2f 2f 2e 0d 2a 2f 23 2b 25 39 f0
-	;   A  D  D_ Y  O  U  R_ P  A  S  S  A  G  E  S_ H 
-	hex 21 24 64 39 2f 35 72 30 21 33 33 21 27 25 73 28
-	;   E  R  E  \p
-	hex 25 32 25 f1
+	;   A  D  D_ YOUR _  P  A  S  S  A  G  E  S_ H  E 
+	hex 21 24 64 e0d9 00 30 21 33 33 21 27 25 73 28 25
+	;   R  E  \p
+	hex 32 25 f1
 
 	; passage 1 (copy_line) bytes=8 lines=1
 moon_jockey_passage_01:
-	;   LOBLAST_ <  @  >_ MMXXIV \p
-	hex 9028     1c 20 5e 8030   f1
+	;   LOBLAST_ <  @  >_ MMXXVI \p
+	hex 9055     1c 20 5e 806f   f1
 
 	; passage 2 (game_over) bytes=5 lines=1
 moon_jockey_passage_02:
 	;   GAME_ OVER \p
-	hex 904a  8059 f1
+	hex 909e  80ad f1
 
 	; passage 3 (continue) bytes=3 lines=1
 moon_jockey_passage_03:
 	;   CONTINUE? \p
-	hex c006      f1
+	hex c023      f1
 
 	; passage 4 (yeah) bytes=3 lines=1
 moon_jockey_passage_04:
 	;   YEAH \p
-	hex 8063 f1
+	hex 80bc f1
 
 	; passage 5 (nope) bytes=3 lines=1
 moon_jockey_passage_05:
 	;   NOPE \p
-	hex 8054 f1
+	hex 80a8 f1
 
 	; passage 6 (paused) bytes=3 lines=1
 moon_jockey_passage_06:
 	;   PAUSED \p
-	hex 8037   f1
+	hex 807d   f1
 
 moon_jockey_alphabet_table: ; ASCII($20-$5f) -> pattern_id, $ff unmapped
 	hex 0879ffffffffffffffffffffff7476ff
@@ -68,13 +68,13 @@ moon_jockey_alphabet_table: ; ASCII($20-$5f) -> pattern_id, $ff unmapped
 
 moon_jockey_passage_count EQM 7
 ; raw_bytes=91
-; encoded_bytes=57
-; gross_text_savings=34 (37.36%)
-; replaced_words=8
+; encoded_bytes=56
+; gross_text_savings=35 (38.46%)
+; replaced_words=9
 ; replaced_words_with_space=2
 ; replaced_words_with_period=0
 ; replaced_words_with_exclaim=0
 ; replaced_words_with_question=1
 ; replaced_words_with_s=0
-; replaced_words_with_r=0
-; replaced_chars_with_space=4
+; replaced_words_with_r=1
+; replaced_chars_with_space=3

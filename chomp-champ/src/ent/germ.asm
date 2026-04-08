@@ -356,7 +356,7 @@ ent_germ_frame_table:
 	hex 4c 50 4c 54
 	hex 58 5c 58 60
 	hex 64 68 64 6c
-	hex 70 74 70 78
+	hex 70 74 70 74
 	hex 64 68 64 6c
 
 ent_germ_attr_table:
@@ -375,11 +375,17 @@ ent_germ_render: subroutine
 	tax
 	lda ent_germ_frame_table,x
 	sta temp00
+	cpx #$1b
+	bne .attr_normal
+	lda #$41
+	bne .attr_found
 	; attr
+.attr_normal
 	ldx ent_slot
 	lda ent_r3,x
 	tax
 	lda ent_germ_attr_table,x
+.attr_found
 	ldx ent_slot
 	; setup generic renderer
 	sta temp01

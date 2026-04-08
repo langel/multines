@@ -17,43 +17,81 @@ DICT_END_OF_PASSAGE_BYTE EQM $f1
 ; Token hi usage: $80-$8f=word, $90-$9f=word+space, $a0-$af=word+period, $b0-$bf=word+!, $c0-$cf=word+?, $d0-$df=word+S, $e0-$ef=word+R.
 
 dictionary_data:
-	; "CHOMP" @ $d000 token=$80$00 freq=5 score=12
-	hex 0543484f4d50
-	; "CONTINUE" @ $d006 token=$80$06 freq=3 score=12
-	hex 08434f4e54494e5545
-	; "TINGLE" @ $d00f token=$80$0f freq=3 score=8
-	hex 0654494e474c45
-	; "THE" @ $d016 token=$80$16 freq=8 score=7
-	hex 03544845
-	; "TEETH" @ $d01a token=$80$1a freq=3 score=6
+	; "TEETH" @ $d000 token=$80$00 freq=12 score=33
 	hex 055445455448
-	; "DENTIST" @ $d020 token=$80$20 freq=2 score=5
+	; "DENTIST" @ $d006 token=$80$06 freq=5 score=20
 	hex 0744454e54495354
-	; "LOBLAST" @ $d028 token=$80$28 freq=2 score=5
-	hex 074c4f424c415354
-	; "MMXXIV" @ $d030 token=$80$30 freq=2 score=4
-	hex 064d4d58584956
-	; "PAUSED" @ $d037 token=$80$37 freq=2 score=4
-	hex 06504155534544
-	; "CHAMP" @ $d03e token=$80$3e freq=2 score=3
-	hex 054348414d50
-	; "FLOSS" @ $d044 token=$80$44 freq=2 score=3
+	; "TOOTHPASTE" @ $d00e token=$80$0e freq=3 score=16
+	hex 0a544f4f54485041535445
+	; "THE" @ $d019 token=$80$19 freq=16 score=15
+	hex 03544845
+	; "TOOTH" @ $d01d token=$80$1d freq=5 score=12
+	hex 05544f4f5448
+	; "CONTINUE" @ $d023 token=$80$23 freq=3 score=12
+	hex 08434f4e54494e5545
+	; "TINGLES" @ $d02c token=$80$2c freq=3 score=10
+	hex 0754494e474c4553
+	; "FLOSS" @ $d034 token=$80$34 freq=4 score=9
 	hex 05464c4f5353
-	; "GAME" @ $d04a token=$80$4a freq=2 score=2
-	hex 0447414d45
-	; "LOST" @ $d04f token=$80$4f freq=2 score=2
-	hex 044c4f5354
-	; "NOPE" @ $d054 token=$80$54 freq=2 score=2
-	hex 044e4f5045
-	; "OVER" @ $d059 token=$80$59 freq=2 score=2
-	hex 044f564552
-	; "WEEK" @ $d05e token=$80$5e freq=2 score=2
+	; "TINGLE" @ $d03a token=$80$3a freq=3 score=8
+	hex 0654494e474c45
+	; "MOUTH" @ $d041 token=$80$41 freq=3 score=6
+	hex 054d4f555448
+	; "SMILE" @ $d047 token=$80$47 freq=3 score=6
+	hex 05534d494c45
+	; "BECAUSE" @ $d04d token=$80$4d freq=2 score=5
+	hex 0742454341555345
+	; "LOBLAST" @ $d055 token=$80$55 freq=2 score=5
+	hex 074c4f424c415354
+	; "SWALLOW" @ $d05d token=$80$5d freq=2 score=5
+	hex 075357414c4c4f57
+	; "FROM" @ $d065 token=$80$65 freq=3 score=4
+	hex 0446524f4d
+	; "WEEK" @ $d06a token=$80$6a freq=3 score=4
 	hex 045745454b
-	; "YEAH" @ $d063 token=$80$63 freq=2 score=2
-	hex 0459454148
-	; "ALL" @ $d068 token=$80$68 freq=2 score=1
-	hex 03414c4c
-	; "AND" @ $d06c token=$80$6c freq=2 score=1
+	; "MMXXVI" @ $d06f token=$80$6f freq=2 score=4
+	hex 064d4d58585649
+	; "MONTHS" @ $d076 token=$80$76 freq=2 score=4
+	hex 064d4f4e544853
+	; "PAUSED" @ $d07d token=$80$7d freq=2 score=4
+	hex 06504155534544
+	; "AND" @ $d084 token=$80$84 freq=4 score=3
 	hex 03414e44
+	; "FAIRY" @ $d088 token=$80$88 freq=2 score=3
+	hex 054641495259
+	; "RIGHT" @ $d08e token=$80$8e freq=2 score=3
+	hex 055249474854
+	; "WOULD" @ $d094 token=$80$94 freq=2 score=3
+	hex 05574f554c44
+	; "ALL" @ $d09a token=$80$9a freq=3 score=2
+	hex 03414c4c
+	; "GAME" @ $d09e token=$80$9e freq=2 score=2
+	hex 0447414d45
+	; "LOST" @ $d0a3 token=$80$a3 freq=2 score=2
+	hex 044c4f5354
+	; "NOPE" @ $d0a8 token=$80$a8 freq=2 score=2
+	hex 044e4f5045
+	; "OVER" @ $d0ad token=$80$ad freq=2 score=2
+	hex 044f564552
+	; "THIS" @ $d0b2 token=$80$b2 freq=2 score=2
+	hex 0454484953
+	; "WITH" @ $d0b7 token=$80$b7 freq=2 score=2
+	hex 0457495448
+	; "YEAH" @ $d0bc token=$80$bc freq=2 score=2
+	hex 0459454148
+	; "BIG" @ $d0c1 token=$80$c1 freq=2 score=1
+	hex 03424947
+	; "NEW" @ $d0c5 token=$80$c5 freq=2 score=1
+	hex 034e4557
+	; "NOT" @ $d0c9 token=$80$c9 freq=2 score=1
+	hex 034e4f54
+	; "ONE" @ $d0cd token=$80$cd freq=2 score=1
+	hex 034f4e45
+	; "SIX" @ $d0d1 token=$80$d1 freq=2 score=1
+	hex 03534958
+	; "TOO" @ $d0d5 token=$80$d5 freq=2 score=1
+	hex 03544f4f
+	; "YOU" @ $d0d9 token=$80$d9 freq=2 score=1
+	hex 03594f55
 
-dictionary_data_end: ; $d070
+dictionary_data_end: ; $d0dd

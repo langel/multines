@@ -81,7 +81,7 @@ state_title_init: subroutine
 	sta temp00
 	lda #>chomp_champ_passage_00
 	sta temp01
-	lda #$64
+	lda #$65
 	sta temp02
 	lda #$23
 	sta temp03
@@ -207,3 +207,9 @@ state_title_update: subroutine
 
 	jmp nmi_update_done
 
+/*
+xxx forgotten cruft
+		"title_prompt": "CHOMP  CHAMP\nPRESS START TO CHOMP",
+		"intro_rules": "CHOMP THE PLAQUE\nAVOID THE CAVITY",
+		"status_hint": "CHOMP FAST FOR BONUS\nCHOMP CLEAN TO WIN",
+	*/

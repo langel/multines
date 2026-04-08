@@ -1,7 +1,16 @@
 
 
 nextlevel_palette:
-	hex 0f 15 25 14
+	hex 0f
+	hex 07 26 20
+	hex 15 25 14
+
+nextlevel_text_left_margin:
+	hex 03 07 07 04 06 05
+	hex 04 05 03 04 05 0a
+	hex 07 06 06 08 04 06
+	hex 06 06 06 06 04 05
+	hex 04 03 02 07
 
 state_nextlevel_init: subroutine
 	jsr render_disable
@@ -15,7 +24,7 @@ state_nextlevel_init: subroutine
 	lda nextlevel_palette,x
 	sta palette_cache,x
 	inx
-	cpx #$04
+	cpx #$07
 	bne .pal_loop
 	
 	jsr sprites_clear
@@ -27,59 +36,98 @@ state_nextlevel_init: subroutine
 	sta temp01
 	lda #$20
 	jsr nametable_fill
-
-	; smoke test dictionary text plotting
-	lda #<chomp_champ_passage_07
+	
+	; teeth owner head render
+	lda #$08
+	sta temp04
+	lda #$09
+	sta temp05
+	lda #$0a
+	sta temp06
+	lda #$0b
+	sta temp07
+	; meta pattern 
+	lda #$78
 	sta temp00
-	lda #>chomp_champ_passage_07
+	lda #$00
 	sta temp01
-	lda #$44
+	lda #$48
 	sta temp02
+	lda #$20
+	sta temp03
+	jsr metapattern_to_nametable_8x16
+
+	; teeth
+	ldy #$0c
 	lda #$21
+	sta PPU_ADDR
+	lda #$ac
+	sta PPU_ADDR
+	ldx #$00
+.teeth_loop
+	lda tooth_total_dmg,x
+	bmi .missing_tooth
+.has_tooth
+	sty PPU_DATA
+	jmp .tooth_done
+.missing_tooth
+	lda #$08
+	sta PPU_DATA
+.tooth_done
+	inx
+	; check next row
+	cpx #$08
+	bne .more_loop
+	ldy #$05
+	lda #$21 
+	sta PPU_ADDR
+	lda #$cc
+	sta PPU_ADDR
+.more_loop
+	cpx #$10
+	bne .teeth_loop
+	
+	; dictionary text plotting
+	clc
+	lda game_level
+;; xxxx test stuff
+	;lda #$1c
+	;sta game_level
+;; xxxx done
+	adc #$08
+	tax
+	lda chomp_champ_passage_ptr_lo,x
+	sta temp00
+	lda chomp_champ_passage_ptr_hi,x
+	sta temp01
+	lda #$80
+	ldy game_level
+	dey
+	clc
+	adc nextlevel_text_left_margin,y
+	sta temp02
+	lda #$22
 	sta temp03
 	lda #%000000001
 	sta temp04
 	jsr dict_text_plot
+	; text colors
+	lda #$23
+	sta PPU_ADDR
+	lda #$e8
+	sta PPU_ADDR
+	lda #%01010101
+	ldx #$10
+.attr_loop
+	sta PPU_DATA
+	dex
+	bne .attr_loop
 
-	; write level name
-	lda #$21
-	sta PPU_ADDR
-	lda #$08
-	sta PPU_ADDR
-	lda #$65 ; L
-	sta PPU_DATA
-	lda #$5e ; E
-	sta PPU_DATA
-	lda #$6f ; V
-	sta PPU_DATA
-	lda #$5e ; E
-	sta PPU_DATA
-	lda #$65 ; L
-	sta PPU_DATA
-	lda #$08 ; space
-	sta PPU_DATA
-	lda #$08 ; space
-	sta PPU_DATA
-	; current level integers
-	ldx game_level
-	lda zero_pad_10s_table,x
-	clc
-	adc #$50
-	sta PPU_DATA
-	ldx game_level
-	lda zero_pad_01s_table,x
-	clc
-	adc #$50
-	sta PPU_DATA
 
 	ldx #state_nextlevel_update_id
 	jsr state_set_update_routine
 	ldx #render_do_nothing_id
 	jsr state_set_render_routine
-
-	lda #$00
-	sta state04
-	sta state05
 
 	lda #$00
 	sta ppu_ctrl_ora
@@ -89,20 +137,11 @@ state_nextlevel_init: subroutine
 	rts
 
 
+
 state_nextlevel_update: subroutine
 	jsr render_enable
 	jsr controller_read
 	
-	clc
-	lda state04
-	adc #$01
-	sta state04
-	lda state05
-	adc #$00
-	sta state05
-	cmp #$01
-	beq .start_a_game
-
 	lda controller1_d
 	and #$f0
 	beq .dont_start
