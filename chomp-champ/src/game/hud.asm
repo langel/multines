@@ -13,15 +13,14 @@ hud_dmg_to_tile: subroutine
 	bcs .mostly_dead
 .damages
 	lda #$01
-	jmp .done
+	rts
 .mostly_dead
 	lda wtf
 	shift_r 4
 	and #$01
 	clc
 	adc #$01
-	;lda #$02
-	jmp .done
+	rts
 .dead
 	lda #$03
 .done
@@ -197,6 +196,14 @@ hud_update: subroutine
 	sta hud_tooth_addr
 	lda tooth_total_dmg,x
 	jsr hud_dmg_to_tile
+	cmp #$00
+	bne .top_true_clean_done
+	ldy tooth_true_clean,x
+	bne .top_true_clean_done
+	tay
+	iny
+	tya
+.top_true_clean_done
 	clc
 	adc #$0c
 	sta hud_tooth_tile
@@ -209,9 +216,26 @@ hud_update: subroutine
 	lda tooth_total_dmg,x
 	jsr hud_dmg_to_tile
 	tay
+	cmp #$00
+	bne .bottom_true_clean_done
+	lda tooth_true_clean,x
+	bne .bottom_true_clean_done
+	iny
+.bottom_true_clean_done
 	lda hud_bottom_teeth_tiles,y
 	sta hud_tooth_tile
 .tooth_update_done
+
+	; check for tooth partical spawns
+	lda tooth_total_dmg,x
+	bpl .tooth_particle_done
+	; tooth is gone
+	lda tooth_hud_gone,x
+	bne .tooth_particle_done
+	; spawn particle
+	inc tooth_hud_gone,x
+	jsr ent_particle_spawn_from_tooth_indicator
+.tooth_particle_done
 
 	; lives sprites
 	ldx player_lives

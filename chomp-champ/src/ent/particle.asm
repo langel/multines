@@ -7,29 +7,54 @@
 ; ent_r7 vel y lo
 
 
-ent_particle_spawn: subroutine
+ent_particle_spawn_from_tooth_indicator: subroutine
 	jsr ent_find_slot
 	bmi .done
+	; x pos
+	lda tooth_index
+	and #$07
+	shift_l 3
+	clc
+	adc #$a4
+	jsr ent_particle_spawn_hud_cam_x
+	; y pos
+	lda tooth_index
+	shift_r 3
+	shift_l 3
+	clc
+	adc #$0f
+	sta ent_y,x
+.done
+	rts
+
+ent_particle_spawn_from_lives: subroutine
+	jsr ent_find_slot
+	bmi .done
+	; x pos
+	lda player_lives
+	shift_l 4
+	clc
+	adc #$18
+	jsr ent_particle_spawn_hud_cam_x
+	; y pos
+	lda #$12
+	sta ent_y,x
+.done
+	rts
+
+ent_particle_spawn_hud_cam_x:
+	; x
+	adc camera_x
+	sta ent_x,x
+	lda camera_x_hi
+	adc #$00
+	sta ent_x_hi,x
+	jsr ent_particle_setup_2nd
+	; basic shit
 	lda #ent_particle_id
 	sta ent_type,x
-	stx ent_slot
-
-	lda #$d0
-	sta ent_x,x
-	lda #$a0
-	sta ent_y,x
-	lda ent_x,x
-	clc
-	adc #$08
-	sta ent_r2,x
-	lda ent_x_hi,x
-	adc #$00
-	sta ent_r1,x
-	; egg
-	;inc ent_r0,x
 	lda #$07
 	sta ent_hp,x
-.done
 	rts
 
 
@@ -51,14 +76,7 @@ ent_particle_spawn_from_egg: subroutine
 	sta ent_x_hi,x
 	lda ent_y,y
 	sta ent_y,x
-	; setup 2nd particle
-	lda ent_x,x
-	clc
-	adc #$08
-	sta ent_r2,x
-	lda ent_x_hi,x
-	adc #$00
-	sta ent_r1,x
+	jsr ent_particle_setup_2nd
 .done
 	ldx ent_slot
 	ldy ent_spr_ptr
@@ -73,6 +91,10 @@ ent_particle_spawn_from_baddie: subroutine
 	sta ent_hp,x
 	lda #$00
 	sta ent_r0,x
+	;jsr ent_particle_setup_2nd
+	;rts
+
+ent_particle_setup_2nd: subroutine
 	; setup 2nd particle
 	lda ent_x,x
 	clc
@@ -82,7 +104,6 @@ ent_particle_spawn_from_baddie: subroutine
 	adc #$00
 	sta ent_r1,x
 	rts
-
 	
 
 

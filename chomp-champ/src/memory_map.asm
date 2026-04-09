@@ -32,6 +32,7 @@ tooth_total_dmg     eqm $700
 tooth_needs_update  eqm $720
 tooth_tile_cache    eqm $760
 tooth_true_clean    eqm $780
+tooth_hud_gone      eqm $7a0
 
 game_level          eqm $1e0
 continues           eqm $1e1

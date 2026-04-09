@@ -78,6 +78,8 @@ teeth_init: subroutine
 	jmp .render_done
 
 
+
+
 teeth_update: subroutine
 	; adds up dirt value of all 16 cells of tooth_index based on frame counter
 	; temp00 = addend
@@ -131,9 +133,6 @@ teeth_update: subroutine
 	stx tooth_index
 	lda tooth_total_dmg,x
 	bmi .tooth_lost
-	; xxx this bricks
-	;beq .next_tooth
-	;bmi .next_tooth
 	; update dmg count
 	txa
 	shift_l 4

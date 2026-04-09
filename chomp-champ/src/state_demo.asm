@@ -13,6 +13,7 @@ state_demo_init: subroutine
 
 	lda #$00
 	sta germ_attacked
+	sta game_level
 	; kill big teef
 	sta $031f
 

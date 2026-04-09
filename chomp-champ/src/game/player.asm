@@ -16,12 +16,13 @@ game_player_update: subroutine
 	lda #$00
 	sta ent_r0
 	sta player_is_dead
+	jsr ent_particle_spawn_from_lives
 	rts
 .death_timer_running
 	cmp #$40
-	bne .sfx_running
+	bne .death_init_done
 	jsr sfx_player_death
-.sfx_running
+.death_init_done
 	dec player_is_dead
 	rts
 .not_dead
