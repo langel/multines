@@ -105,7 +105,7 @@ state_game_level_init: subroutine
 	; GNAT
 	lda game_level
 	cmp #$07
-	bne .no_gnat
+	bcc .no_gnat
 	jsr ent_gnat_spawn
 .no_gnat
 

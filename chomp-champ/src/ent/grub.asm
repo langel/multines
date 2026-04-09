@@ -609,6 +609,9 @@ ent_grub_convergence: subroutine
 	sta ent_r2,y
 	and #$07
 	sta ent_r3,y
+	lda #$00
+	sta ent_r0,x
+	sta ent_r1,x
 
 	; matched grub becomes particle
 	jsr ent_particle_spawn_from_baddie

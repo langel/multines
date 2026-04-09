@@ -17,6 +17,15 @@ gnat_ascending  eqm $08
 gnat_base_y     eqm $30
 
 ent_gnat_spawn: subroutine
+	; only one gnat at a time
+	ldx #$1f
+.crowded_check
+	lda ent_type,x
+	cmp #ent_gnat_id
+	beq .done
+	dex
+	bpl .crowded_check
+	; find slot
 	jsr ent_find_slot
 	bmi .done
 	lda #ent_gnat_id

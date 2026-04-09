@@ -3,7 +3,6 @@
 nextlevel_palette:
 	hex 0f
 	hex 07 26 20
-	hex 15 25 14
 
 nextlevel_text_left_margin:
 	hex 03 07 07 04 06 05
@@ -24,8 +23,11 @@ state_nextlevel_init: subroutine
 	lda nextlevel_palette,x
 	sta palette_cache,x
 	inx
-	cpx #$07
+	cpx #$04
 	bne .pal_loop
+	; text color
+	lda #$35
+	sta palette_cache+8
 	
 	jsr sprites_clear
 
@@ -116,7 +118,7 @@ state_nextlevel_init: subroutine
 	sta PPU_ADDR
 	lda #$e8
 	sta PPU_ADDR
-	lda #%01010101
+	lda #%10101010
 	ldx #$10
 .attr_loop
 	sta PPU_DATA
@@ -148,6 +150,18 @@ state_nextlevel_update: subroutine
 .start_a_game
 	jsr state_game_level_init
 .dont_start
+
+	; rotate text color
+	lda wtf
+	and #$1f
+	bne .color_fine
+	inc palette_cache+8
+	lda palette_cache+8
+	cmp #$3d
+	bne .color_fine
+	lda #$31
+	sta palette_cache+8
+.color_fine
 
 	jmp nmi_update_done
 

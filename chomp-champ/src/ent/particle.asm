@@ -91,6 +91,8 @@ ent_particle_spawn_from_baddie: subroutine
 	sta ent_hp,x
 	lda #$00
 	sta ent_r0,x
+	sta ent_r6,x
+	sta ent_r7,x
 	;jsr ent_particle_setup_2nd
 	;rts
 
