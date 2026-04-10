@@ -3,28 +3,29 @@
 
 	include "./_common/lib/nmi.asm"
 
-	include "./_common/lib/math.asm"
-	include "./_common/lib/rng.asm"
-	include "./_common/lib/util.asm"
-	include "./_common/lib/input.asm"
 
 	include "./_common/lib/state.asm"
-	include "./_common/lib/ent.asm"
-	include "./_common/lib/ent_z.asm"
-	include "./_common/lib/score.asm"
-	include "./_common/lib/sprite.asm"
-	include "./_common/lib/arctang24.asm"
-	include "./_common/lib/collision.asm"
-	include "./_common/lib/dict_text.asm"
-	
+
 	include "./_common/lib/apu_engine.asm"
 	include "./_common/lib/apu_sfx.asm"
 
-	org $d000
+	include "./_common/lib/arctang24.asm"
+	include "./_common/lib/collision.asm"
+	include "./_common/lib/dict_text.asm"
+	include "./_common/lib/ent.asm"
+	include "./_common/lib/ent_z.asm"
+	include "./_common/lib/input.asm"
+	include "./_common/lib/math.asm"
+	include "./_common/lib/nametable.asm"
+	include "./_common/lib/rng.asm"
+	include "./_common/lib/score.asm"
+	include "./_common/lib/sprite.asm"
+	include "./_common/lib/util.asm"
+	
+	org $f000
 	include "./_common/generated/dictionary.asm"
 
 	org $f000
-	include "./_common/lib/nametable.asm"
 
 	org $f500
 	include "./_common/lib/sine_tables.asm"

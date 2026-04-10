@@ -34,12 +34,8 @@ tooth_tile_cache    eqm $760
 tooth_true_clean    eqm $780
 tooth_hud_gone      eqm $7a0
 
-game_level          eqm $1e0
-continues           eqm $1e1
-/*
-hud_tooth_addr      eqm $1e2
-hud_tooth_tile      eqm $1e3
-*/
+game_level          eqm $1d0
+continues           eqm $1d1
 
 tooth_update_queue_size byte
 tooth_index             byte

@@ -83,38 +83,37 @@ pattern_to_nametable: subroutine
 
 	; first, load data from ppu
 	lda #$00
-	sta $01c0 ; pattern lo addr
-	sta $01c1 ; pattern hi addr
+	sta $01b0 ; pattern lo addr
+	sta $01b1 ; pattern hi addr
 	lda temp00
 	asl
-	rol $01c1
+	rol $01b1
 	asl
-	rol $01c1
+	rol $01b1
 	asl
-	rol $01c1
+	rol $01b1
 	asl
-	rol $01c1 ; hi ppu addr
-	sta $01c0 ; lo ppu addr
+	rol $01b1 ; hi ppu addr
+	sta $01b0 ; lo ppu addr
 	; check pattern table
 	lda temp01
 	beq .not_table2
 	clc
 	lda #$10
-	adc $01c1
-	sta $01c1
+	adc $01b1
+	sta $01b1
 .not_table2
 	; temp00-temp01 freed up now
-	lda $01c1
+	lda $01b1
 	sta PPU_ADDR
-	lda $01c0
+	lda $01b0
 	sta PPU_ADDR
 	; buffer garbage read
 	lda PPU_DATA
 	ldx #$00
 .load_pattern_data_loop
 	lda PPU_DATA
-	sta $01a0,x
-	sta $01c0,x
+	sta $01b0,x
 	inx
 	cpx #$10
 	bne .load_pattern_data_loop
@@ -133,9 +132,9 @@ pattern_to_nametable: subroutine
 	lda #$00
 	sta temp00
 	ldx temp01
-	asl $01c8,x
+	asl $01b8,x
 	rol temp00
-	asl $01c0,x
+	asl $01b0,x
 	rol temp00
 	ldx temp00
 	lda temp04,x
@@ -161,7 +160,7 @@ pattern_to_nametable: subroutine
 
 
 pattern_row_to_nametable: subroutine
-	; overwrites $01d0-$01d2 for temp data storage
+	; overwrites $01c0-$01c2 for temp data storage
 	; temp00 = pattern id
 	; temp01 = packed control:
 	;          bit0 = pattern table
@@ -175,47 +174,46 @@ pattern_row_to_nametable: subroutine
 
 	; unpack table + row bits
 	lda temp01
-	sta $01d0
+	sta $01c0
 	and #$01
 	sta temp01
-	lda $01d0
+	lda $01c0
 	lsr
 	and #$07
-	sta $01d1
+	sta $01c1
 
 	; load pattern row data from ppu
 	lda #$00
-	sta $01c0 ; pattern lo addr
-	sta $01c1 ; pattern hi addr
+	sta $01b0 ; pattern lo addr
+	sta $01b1 ; pattern hi addr
 	lda temp00
 	asl
-	rol $01c1
+	rol $01b1
 	asl
-	rol $01c1
+	rol $01b1
 	asl
-	rol $01c1
+	rol $01b1
 	asl
-	rol $01c1 ; hi ppu addr
-	sta $01c0 ; lo ppu addr
+	rol $01b1 ; hi ppu addr
+	sta $01b0 ; lo ppu addr
 	; check pattern table
 	lda temp01
 	beq .not_table2
 	clc
 	lda #$10
-	adc $01c1
-	sta $01c1
+	adc $01b1
+	sta $01b1
 .not_table2
-	lda $01c1
+	lda $01b1
 	sta PPU_ADDR
-	lda $01c0
+	lda $01b0
 	sta PPU_ADDR
 	; buffer garbage read
 	lda PPU_DATA
 	ldx #$00
 .load_pattern_data_loop
 	lda PPU_DATA
-	sta $01a0,x
-	sta $01c0,x
+	sta $01b0,x
 	inx
 	cpx #$10
 	bne .load_pattern_data_loop
@@ -226,19 +224,19 @@ pattern_row_to_nametable: subroutine
 	lda temp02
 	sta PPU_ADDR
 	ldy #$08
-	ldx $01d1
+	ldx $01c1
 .tile_pixel_loop
 	lda #$00
-	sta $01d2
-	asl $01c8,x
-	rol $01d2
-	asl $01c0,x
-	rol $01d2
-	lda $01d2
+	sta $01c2
+	asl $01b8,x
+	rol $01c2
+	asl $01b0,x
+	rol $01c2
+	lda $01c2
 	tax
 	lda temp04,x
 	sta PPU_DATA
-	ldx $01d1
+	ldx $01c1
 	dey
 	bne .tile_pixel_loop
 	rts
@@ -246,7 +244,7 @@ pattern_row_to_nametable: subroutine
 
 
 metapattern_to_nametable_8x16: subroutine
-	; overwrites $01d0-$01d1 for temp data storage
+	; overwrites $01c0-$01c1 for temp data storage
 	; temp00 = pattern id
 	; temp01 = pattern table
 	; temp02 = .nam lo address
@@ -258,16 +256,16 @@ metapattern_to_nametable_8x16: subroutine
 
 	; pattern 1
 	lda temp00
-	sta $01d0
+	sta $01c0
 	lda temp01
-	sta $01d1
+	sta $01c1
 	jsr pattern_to_nametable
 	; pattern 2
-	lda $01d0
+	lda $01c0
 	clc
 	adc #$02
 	sta temp00
-	lda $01d1
+	lda $01c1
 	sta temp01
 	sec
 	lda temp02
@@ -278,11 +276,11 @@ metapattern_to_nametable_8x16: subroutine
 	sta temp03
 	jsr pattern_to_nametable
 	; pattern 3
-	lda $01d0
+	lda $01c0
 	clc
 	adc #$01
 	sta temp00
-	lda $01d1
+	lda $01c1
 	sta temp01
 	sec
 	lda temp02
@@ -293,11 +291,11 @@ metapattern_to_nametable_8x16: subroutine
 	sta temp03
 	jsr pattern_to_nametable
 	; pattern 3
-	lda $01d0
+	lda $01c0
 	clc
 	adc #$03
 	sta temp00
-	lda $01d1
+	lda $01c1
 	sta temp01
 	sec
 	lda temp02

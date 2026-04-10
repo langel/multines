@@ -1,5 +1,5 @@
 {
-	"dictionaryBaseAddress": "0xd000",
+	"dictionaryBaseAddress": "0xf000",
 	"dictionaryMaxBytes": 4096,
 	"tokenHiByteMin": "0x80",
 	"tokenHiByteMax": "0xef",
