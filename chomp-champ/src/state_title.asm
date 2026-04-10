@@ -16,7 +16,7 @@ state_title_init: subroutine
 	jsr render_disable
 	jsr sprites_clear
 
-	lda #CTRL_8x8
+	lda #CTRL_8x16
 	sta ppu_ctrl_ora
 	lda #$00
 	sta scroll_nm

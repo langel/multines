@@ -142,7 +142,7 @@ ent_z_despawn: subroutine
 	jmp ent_z_update_return
 
 
-	MAC ent_z_calc_sort_vals
+ent_z_calc_sort_vals: subroutine
 	; call with z pos + height in a
 	sec
 	sbc #$20 ; magic number?
@@ -162,10 +162,10 @@ ent_z_despawn: subroutine
 	sec
 	sbc temp01
 	sta ent_r7,x
-	ENDM
+	rts
 
 
-	MAC ent_z_calc_sort_vals_9bit
+ent_z_calc_sort_vals_9bit: subroutine
 	; call with z pos + height in a
 	sec
 	sbc #$20 ; magic number?
@@ -191,4 +191,4 @@ ent_z_despawn: subroutine
 	sec
 	sbc temp01
 	sta ent_r7,x
-	ENDM
+	rts

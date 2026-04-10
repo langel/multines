@@ -74,8 +74,6 @@ state_game_level_init: subroutine
 	sta tooth_index
 	sta cell_sweep
 
-
-
 	; DIRT
 	lda game_level
 	asl ; x2!!
@@ -101,6 +99,13 @@ state_game_level_init: subroutine
 .missing_tooth
 	dec temp07
 	bne .dirty_loops
+
+	lda game_level
+	cmp #$1b
+	bne .not_boss_fight
+	jsr ent_big_teef_spawn
+	jmp .population_done
+.not_boss_fight
 
 	; GNAT
 	lda game_level
@@ -170,7 +175,7 @@ state_game_level_init: subroutine
 	bne .foods_loop
 .foods_done
 
-
+.population_done
 
 	jsr teeth_init
 	jsr teeth_init_playfield

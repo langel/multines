@@ -1,7 +1,4 @@
 
-hud_tooth_addr     eqm $190
-hud_tooth_tile     eqm $191
-
 
 hud_dmg_to_tile: subroutine
 	; a = tile damage

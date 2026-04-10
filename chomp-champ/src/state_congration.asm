@@ -55,7 +55,7 @@ state_congration_init: subroutine
 	sta state07 ; row write frame divider
 
 	lda #$f7
-	sta state02 ; player x pos
+	sta player_x ; player x pos
 
 	jsr apu_init
 	
@@ -180,10 +180,10 @@ state_congration_update: subroutine
 	sty state01
 .not_next_frame
 	; move
-	dec state02 ; x pos
+	dec player_x ; x pos
 	; render
 	; x
-	lda state02
+	lda player_x
 	sta spr_x+0
 	sta spr_x+8
 	clc

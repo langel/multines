@@ -102,7 +102,7 @@ state_nextlevel_init: subroutine
 	sta temp00
 	lda chomp_champ_passage_ptr_hi,x
 	sta temp01
-	lda #$80
+	lda #$a0
 	ldy game_level
 	dey
 	clc
@@ -134,6 +134,9 @@ state_nextlevel_init: subroutine
 	lda #$00
 	sta ppu_ctrl_ora
 	sta scroll_nm
+	sta scroll_x
+	lda #$ea
+	sta scroll_y
 	NMI_ENABLE
 
 	rts
@@ -146,10 +149,16 @@ state_nextlevel_update: subroutine
 	
 	lda controller1_d
 	and #$f0
-	beq .dont_start
+	beq .start_done
 .start_a_game
+	lda game_level
+	cmp #$1c
+	bne .next_level
+	jsr state_congration_init
+	jmp .start_done
+.next_level
 	jsr state_game_level_init
-.dont_start
+.start_done
 
 	; rotate text color
 	lda wtf

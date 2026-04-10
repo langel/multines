@@ -36,6 +36,10 @@ tooth_hud_gone      eqm $7a0
 
 game_level          eqm $1e0
 continues           eqm $1e1
+/*
+hud_tooth_addr      eqm $1e2
+hud_tooth_tile      eqm $1e3
+*/
 
 tooth_update_queue_size byte
 tooth_index             byte
@@ -45,8 +49,10 @@ germ_attacked           byte
 germ_attackee           byte
 grub_converge_slot      byte
 
-hud_initted   byte
-is_paused     byte
+hud_tooth_addr          byte 
+hud_tooth_tile          byte
+hud_initted             byte
+is_paused               byte
 
 ; used instead of ent registers
 player_x_hi   byte

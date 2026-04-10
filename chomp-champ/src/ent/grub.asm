@@ -407,7 +407,7 @@ ent_grub_update: subroutine
 	lda ent_y,x
 	clc
 	adc #$10
-	ent_z_calc_sort_vals_9bit
+	jsr ent_z_calc_sort_vals_9bit
 
 
 

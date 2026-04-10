@@ -343,7 +343,7 @@ ent_germ_update: subroutine
 	lda ent_y,x
 	clc
 	adc #$10
-	ent_z_calc_sort_vals
+	jsr ent_z_calc_sort_vals_9bit
 	
 	jmp ent_germ_render
 

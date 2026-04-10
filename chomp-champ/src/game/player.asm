@@ -1,3 +1,11 @@
+/*
+	this file is required in order
+	to run most player logic first
+	before the ent_z system since
+	it renders in z sort orders
+*/
+
+
 
 player_death_timer    eqm #$40
 player_iframes_timer  eqm #$40
@@ -426,7 +434,6 @@ game_player_update: subroutine
 	jsr sfx_tingler
 .not_initial_press
 	lda floss_status
-	sta $188
 	bne .keep_flossing
 	jmp .skip_flossing
 .keep_flossing
@@ -551,7 +558,7 @@ game_player_update: subroutine
 	lda player_y
 	clc
 	adc #$20
-	ldx #$00
-	ent_z_calc_sort_vals_9bit
+	ldx #$00 ; player is 1st ent slot
+	jsr ent_z_calc_sort_vals_9bit
 	
 	rts
