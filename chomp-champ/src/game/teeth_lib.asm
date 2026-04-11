@@ -160,6 +160,9 @@ teeth_update: subroutine
 	lda tooth_total_dmg,x
 	bmi .mark_not_true_clean
 	bne .mark_not_true_clean
+	; stage previous true-clean state, then resolve final true-clean status.
+	lda tooth_true_clean,x
+	sta temp03
 	lda #$01
 	sta tooth_true_clean,x
 	ldy #$1f
@@ -183,10 +186,38 @@ teeth_update: subroutine
 	dey
 	bpl .food_check_loop
 .true_clean_done
-	rts
+	; arm gleam only on final transition into true-clean
+	ldx tooth_index
+	lda tooth_true_clean,x
+	beq .animate_gleam
+	lda temp03
+	bne .animate_gleam
+	lda #$3c
+	sta tooth_clean_gleam
+	jmp .animate_gleam
 .mark_not_true_clean
 	lda #$00
 	sta tooth_true_clean,x
+
+	; animate gleam palette
+.animate_gleam
+	lda tooth_clean_gleam
+	beq .gleam_done
+	cmp #$30
+	beq .gleam_reset
+	sta palette_cache+3
+	lda wtf
+	and #$04
+	bne .gleam_done
+	dec tooth_clean_gleam
+	jmp .gleam_done
+.gleam_reset
+	lda #$31
+	sta palette_cache+3
+	lda #$00
+	sta tooth_clean_gleam
+.gleam_done
+
 	rts
 
 

@@ -40,6 +40,7 @@ continues           eqm $1d1
 tooth_update_queue_size byte
 tooth_index             byte
 cell_sweep              byte
+tooth_clean_gleam       byte
 
 germ_attacked           byte
 germ_attackee           byte
@@ -80,5 +81,9 @@ brush_hit_x     byte
 brush_hit_y     byte
 floss_hit_x     byte
 floss_hit_y     byte
+big_teef_brush_damage byte
+big_teef_floss_damage byte
+big_teef_upper_hits   byte
+big_teef_lower_hits   byte
 
 
