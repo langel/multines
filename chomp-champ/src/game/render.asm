@@ -413,28 +413,19 @@ state_game_prerender: subroutine
 	lda gumline_bottom_row_tile_id,x
 .gumline_tile_ready
 	tax
-	PUSHY
-	inx
+	; 18 bytes rolled loop
+	lda #$08    
+	sta temp07
+.gumline_pushy_loop
 	txa
-	PUSHY
+	sta $100,y
+	iny
 	inx
+	dec temp07
+	bne .gumline_pushy_loop
 	txa
-	PUSHY
-	inx
-	txa
-	PUSHY
-	inx
-	txa
-	PUSHY
-	inx
-	txa
-	PUSHY
-	inx
-	txa
-	PUSHY
-	inx
-	txa
-	PUSHY
+	sta $100,y
+	; was 46 bytes unrolled
 	jmp .gumline_done
 .gumline_is_clean
 	ldx tooth_index
@@ -550,7 +541,10 @@ state_game_prerender: subroutine
 	txa
 	shift_l 3
 	tay
-	MAC DEADTOOTH_NEIGHBOR_DIRTEN
+	; 26 bytes rolled loop
+	lda #$08
+	sta temp07
+.deadtooth_neighbor_dirten_loop
 	lda tooth_dead_neighbor_dirt,y
 	tax
 	inc $600,x
@@ -558,15 +552,9 @@ state_game_prerender: subroutine
 	ldx tooth_update_queue_size
 	sta tooth_needs_update,x
 	inc tooth_update_queue_size
-	ENDM
-	DEADTOOTH_NEIGHBOR_DIRTEN
-	DEADTOOTH_NEIGHBOR_DIRTEN
-	DEADTOOTH_NEIGHBOR_DIRTEN
-	DEADTOOTH_NEIGHBOR_DIRTEN
-	DEADTOOTH_NEIGHBOR_DIRTEN
-	DEADTOOTH_NEIGHBOR_DIRTEN
-	DEADTOOTH_NEIGHBOR_DIRTEN
-	DEADTOOTH_NEIGHBOR_DIRTEN
+	dec temp07
+	bne .deadtooth_neighbor_dirten_loop
+	; was 136 cycles unrolled
 	ldx temp00
 .blackout_render_only
 	ldy temp03
@@ -582,174 +570,60 @@ state_game_prerender: subroutine
 	bne .gumline_empty_bottom
 .gumline_empty_top
 	ldx #$00
-	MAC GUMTOP_PRERENDER
+	; 17 bytes rolled loop
+	lda #$08
+	sta temp07
+.gumline_empty_top_loop
 	lda gumline_top_empty_tile_pattern,x
-	PUSHY
+	sta $100,y
+	iny
 	inx
-	ENDM
-	GUMTOP_PRERENDER
-	GUMTOP_PRERENDER
-	GUMTOP_PRERENDER
-	GUMTOP_PRERENDER
-	GUMTOP_PRERENDER
-	GUMTOP_PRERENDER
-	GUMTOP_PRERENDER
-	GUMTOP_PRERENDER
+	dec temp07
+	bne .gumline_empty_top_loop
+	; was 64 bytes unrolled
 	jmp .gumline_empty_done
 .gumline_empty_bottom
 	ldx #$00
-	MAC GUMBOTTOM_PRERENDER
-	lda gumline_bottom_empty_tile_pattern,x
-	PUSHY
-	inx
-	ENDM
-	GUMBOTTOM_PRERENDER
-	GUMBOTTOM_PRERENDER
-	GUMBOTTOM_PRERENDER
-	GUMBOTTOM_PRERENDER
-	GUMBOTTOM_PRERENDER
-	GUMBOTTOM_PRERENDER
-	GUMBOTTOM_PRERENDER
-	GUMBOTTOM_PRERENDER
-.gumline_empty_done
-	; main row 0
+	; 17 bytes rolled loop
 	lda #$08
-	PUSHY
+	sta temp07
+.gumline_empty_bottom_loop
+	lda gumline_bottom_empty_tile_pattern,x
+	sta $100,y
+	iny
+	inx
+	dec temp07
+	bne .gumline_empty_bottom_loop
+	; was 64 bytes unrolled
+	; xxx could maybe save some more bytes
+	; by using a pointer for both tables
+.gumline_empty_done
+	; setup x register
 	lda tooth_index
 	shift_l 3
 	tax
+	; 40 bytes rolled loop (includes inner loop)
+	lda #$08
+	sta temp06
+.blackout_tile_row_loop
+	lda #$08
+	PUSHY
 	lda tooth_tile_rows_hi,x
 	PUSHY
 	lda tooth_tile_rows_lo,x
 	PUSHY
+	; 12 bytes rolled inner loop
 	lda #$08
+	sta temp07
+.blackout_cell_pushy_loop
 	PUSHY
-	PUSHY
-	PUSHY
-	PUSHY
-	PUSHY
-	PUSHY
-	PUSHY
-	PUSHY
-	; main row 1
+	dec temp07
+	bne .blackout_cell_pushy_loop
+	; was 34 bytes unrolled inner loop
 	inx
-	lda #$08
-	PUSHY
-	lda tooth_tile_rows_hi,x
-	PUSHY
-	lda tooth_tile_rows_lo,x
-	PUSHY
-	lda #$08
-	PUSHY
-	PUSHY
-	PUSHY
-	PUSHY
-	PUSHY
-	PUSHY
-	PUSHY
-	PUSHY
-	; main row 2
-	inx
-	lda #$08
-	PUSHY
-	lda tooth_tile_rows_hi,x
-	PUSHY
-	lda tooth_tile_rows_lo,x
-	PUSHY
-	lda #$08
-	PUSHY
-	PUSHY
-	PUSHY
-	PUSHY
-	PUSHY
-	PUSHY
-	PUSHY
-	PUSHY
-	; main row 3
-	inx
-	lda #$08
-	PUSHY
-	lda tooth_tile_rows_hi,x
-	PUSHY
-	lda tooth_tile_rows_lo,x
-	PUSHY
-	lda #$08
-	PUSHY
-	PUSHY
-	PUSHY
-	PUSHY
-	PUSHY
-	PUSHY
-	PUSHY
-	PUSHY
-	; main row 4
-	inx
-	lda #$08
-	PUSHY
-	lda tooth_tile_rows_hi,x
-	PUSHY
-	lda tooth_tile_rows_lo,x
-	PUSHY
-	lda #$08
-	PUSHY
-	PUSHY
-	PUSHY
-	PUSHY
-	PUSHY
-	PUSHY
-	PUSHY
-	PUSHY
-	; main row 5
-	inx
-	lda #$08
-	PUSHY
-	lda tooth_tile_rows_hi,x
-	PUSHY
-	lda tooth_tile_rows_lo,x
-	PUSHY
-	lda #$08
-	PUSHY
-	PUSHY
-	PUSHY
-	PUSHY
-	PUSHY
-	PUSHY
-	PUSHY
-	PUSHY
-	; main row 6
-	inx
-	lda #$08
-	PUSHY
-	lda tooth_tile_rows_hi,x
-	PUSHY
-	lda tooth_tile_rows_lo,x
-	PUSHY
-	lda #$08
-	PUSHY
-	PUSHY
-	PUSHY
-	PUSHY
-	PUSHY
-	PUSHY
-	PUSHY
-	PUSHY
-	; main row 7
-	inx
-	lda #$08
-	PUSHY
-	lda tooth_tile_rows_hi,x
-	PUSHY
-	lda tooth_tile_rows_lo,x
-	PUSHY
-	lda #$08
-	PUSHY
-	PUSHY
-	PUSHY
-	PUSHY
-	PUSHY
-	PUSHY
-	PUSHY
-	PUSHY
+	dec temp06
+	bne .blackout_tile_row_loop
+	; was 440 bytes unrolled (including inner)
 .skip_black_out
 
 .done
