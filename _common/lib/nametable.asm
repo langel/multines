@@ -35,6 +35,31 @@ nametable_fill: subroutine
 	rts
 
 
+nametable_fill_rows: subroutine
+	; a = nametable high address
+	; temp00 = fill tile
+	;          ; skip attributes
+	; temp02 = row count
+	; temp03 = nametable low address
+	; requires render_disable status
+	sta PPU_ADDR
+	lda temp03
+	sta PPU_ADDR
+	lda #$00
+	sta PPU_CTRL
+	ldx temp02
+	lda temp00
+.row_loop
+	ldy #$20
+.tile_loop
+	sta PPU_DATA
+	dey
+	bne .tile_loop
+	dex
+	bne .row_loop
+	rts
+
+
 nametable_load: subroutine
 	; a = nametable high address
 	; temp00 = .nam lo address

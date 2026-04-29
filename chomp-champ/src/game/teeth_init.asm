@@ -2,131 +2,27 @@
 ;
 
 teeth_init_playfield: subroutine
-	lda #$20
-	sta temp00
-.nametable_loop
 
-	lda temp00
-	sta PPU_ADDR
+	lda #$08
+	sta temp00
 	lda #$00
-	sta PPU_ADDR
-	; clear head
-	lda #$08
-	ldx #$c0
-.head_clear
-	sta PPU_DATA
-	dex
-	bne .head_clear
-	; gumline
-	ldx #$20
-	lda #$09
-.loop_gums_top
-	sta PPU_DATA
-	dex
-	bne .loop_gums_top
-	; upper_top
-	ldx #$00
-	ldy #$00
-.loop_upper_top
-	lda tooth_row_upper_top,x
-	sta PPU_DATA
-	inx
-	txa
-	and #$07
-	tax
-	iny
-	cpy #$20
-	bne .loop_upper_top
-	; generic teefs
-	ldx #$00
-	ldy #$00
-.loop_upper_generics
-	lda tooth_row_generic,x
-	sta PPU_DATA
-	inx
-	txa
-	and #$07
-	tax
-	iny
-	cpy #$e0
-	bne .loop_upper_generics
-	; upper_bottom
-	ldx #$00
-	ldy #$00
-.loop_upper_bottom
-	lda tooth_row_upper_bottom,x
-	sta PPU_DATA
-	inx
-	txa
-	and #$07
-	tax
-	iny
-	cpy #$20
-	bne .loop_upper_bottom
-	; lower_top
-	ldx #$00
-	ldy #$00
-.loop_lower_top
-	lda tooth_row_lower_top,x
-	sta PPU_DATA
-	inx
-	txa
-	and #$07
-	tax
-	iny
-	cpy #$20
-	bne .loop_lower_top
-	; generic teefs
-	ldx #$00
-	ldy #$00
-.loop_lower_generics
-	lda tooth_row_generic,x
-	sta PPU_DATA
-	inx
-	txa
-	and #$07
-	tax
-	iny
-	cpy #$e0
-	bne .loop_lower_generics
-	; lower_bottom
-	ldx #$00
-	ldy #$00
-.loop_lower_bottom
-	lda tooth_row_lower_bottom,x
-	sta PPU_DATA
-	inx
-	txa
-	and #$07
-	tax
-	iny
-	cpy #$20
-	bne .loop_lower_bottom
-	; gums
-	ldx #$20
-	lda #$09
-.loop_gums_bottom
-	sta PPU_DATA
-	dex
-	bne .loop_gums_bottom
+	sta temp01
+	lda #$20
+	jsr nametable_fill
+	lda #$24
+	jsr nametable_fill
 
-	; clear butt
-	lda #$08
-	ldx #$80
-.butt_clear
-	sta PPU_DATA
-	dex
-	bne .butt_clear
-	
-	; another nametable?
-	lda temp00
-	clc
-	adc #$04
-	cmp #$28
-	beq .done_nametabling
-	sta temp00
-	jmp .nametable_loop
-.done_nametabling
+	inc temp00
+	lda #$14
+	sta temp02
+	lda #$c0
+	sta temp03
+	lda #$20
+	jsr nametable_fill_rows
+	lda #$24
+	jsr nametable_fill_rows
+
+
 
 
 level_dirty:
@@ -137,13 +33,17 @@ level_dirty:
 	sta state01 ; call counter
 .dirty_loop
 	ldx state00
-	stx tooth_needs_update
+	ldy teeth_cell_tables,x
+	sty tooth_needs_update
 	inx
-	stx tooth_needs_update+1
+	ldy teeth_cell_tables,x
+	sty tooth_needs_update+1
 	inx
-	stx tooth_needs_update+2
+	ldy teeth_cell_tables,x
+	sty tooth_needs_update+2
 	inx
-	stx tooth_needs_update+3
+	ldy teeth_cell_tables,x
+	sty tooth_needs_update+3
 	inx
 	stx state00
 	lda #$04
@@ -165,3 +65,4 @@ level_dirty:
 	sta tooth_update_queue_size
 
 	rts
+	
