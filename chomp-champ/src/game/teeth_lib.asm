@@ -1,6 +1,4 @@
 
-; to do
-;	update teeth dmg and dirt tiles when loading level
 
 teeth_init: subroutine
 	; called after fresh playfield is drawn

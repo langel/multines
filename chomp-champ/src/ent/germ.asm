@@ -207,6 +207,27 @@ ent_germ_update: subroutine
 	and #$03
 	cmp temp00
 	bne .update_position
+	; germ is within shouting distance
+	lda ent_x,x
+	sta collision_0_x
+	lda ent_x_hi,x
+	lsr
+	ror collision_0_x
+	ldy germ_attackee
+	lda ent_x,y
+	sta collision_1_x
+	lda ent_x_hi,y
+	lsr
+	ror collision_1_x
+	lda collision_0_y
+	lsr
+	sta collision_0_y
+	lda ent_y,y
+	lsr
+	sta collision_1_y
+	jsr distance_calc
+	cmp #$50
+	bcs .update_position
 	; germs position for arctang24
 	lda ent_x_hi,x
 	lsr
