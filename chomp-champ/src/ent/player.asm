@@ -47,10 +47,6 @@ ent_player_init: subroutine
 	sta player_iframes
 	rts
 
-/*
-	demo mode
-		player stops and cleans dirt detected
-*/
 
 
 player_slow_velocities:

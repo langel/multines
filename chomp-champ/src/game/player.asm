@@ -324,11 +324,18 @@ game_player_update: subroutine
 
 
 	; BRUSHING
+	lda #$00
+	sta brush_status
+	lda player_is_dead
+	bne .brush_skip
 	lda controller1
 	and #BRUSH_BUTTON
 	bne .do_brushing
+.brush_skip
 	jmp .brushing_done
 .do_brushing
+	lda #$ff
+	sta brush_status
 	; set render index
 	lda #$02
 	sta ent_r0
@@ -412,6 +419,8 @@ game_player_update: subroutine
 
 
 	; FLOSSING
+	lda player_is_dead
+	bne .floss_disable
 	lda controller1
 	and #FLOSS_BUTTON
 	bne .floss_button_pressed

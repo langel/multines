@@ -68,6 +68,7 @@ player_moving   byte
 player_is_dead  byte
 player_iframes  byte
 
+brush_status    byte
 floss_length    byte
 floss_status    byte
 ; N bit = increasing or decreasing
