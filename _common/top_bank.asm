@@ -20,6 +20,7 @@
 	include "./_common/lib/rng.asm"
 	include "./_common/lib/score.asm"
 	include "./_common/lib/sprite.asm"
+	include "./_common/lib/timer.asm"
 	include "./_common/lib/util.asm"
 	
 	org $f000

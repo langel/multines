@@ -143,6 +143,11 @@ ent_particle_update: subroutine
 	sta ent_y_lo,x
 	lda ent_y,x
 	adc ent_r7,x
+	adc #$00
+	cmp #$fc
+	bcc .bound_skip
+	lda #$00
+.bound_skip
 	sta ent_y,x
 	cmp #$f0
 	bcc .dont_despawn

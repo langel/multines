@@ -1,7 +1,7 @@
 
 score_add_4_bytes: subroutine
 	; big endian
-	; temp00..03 score increas
+	; temp00..03 score increase
 	; max: 99,999,999
 .ones
 	lda score03

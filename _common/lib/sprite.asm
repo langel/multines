@@ -8,3 +8,6 @@ sprites_clear: subroutine
 	bne .sprite_clear
 	rts
 
+
+sprite0_wait: subroutine
+	rts

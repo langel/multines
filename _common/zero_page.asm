@@ -51,6 +51,10 @@ score00			  byte
 score01			  byte
 score02			  byte
 score03			  byte
+timer_hours      byte
+timer_minutes    byte
+timer_seconds    byte
+timer_frames     byte
 
 state_render_id  byte
 state_update_id  byte

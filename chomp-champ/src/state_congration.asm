@@ -4,6 +4,9 @@ congration_text:
 congration_text_len	eqm #$0c
 congration_slot_wrap	eqm #$30
 
+player_frames:
+	hex 09 0c 05 09 0c 05
+
 ; state03 = congration_text index
 ; state04 = cached next plot nametable lo
 ; state05 = cached next plot nametable hi
@@ -14,7 +17,7 @@ state_congration_init: subroutine
 
 	jsr render_disable
 
-	lda #$08
+	lda #$09
 	sta temp00
 	lda #$00
 	sta temp01
@@ -25,6 +28,7 @@ state_congration_init: subroutine
 
 	jsr sprites_clear
 	jsr registers_clear
+	jsr timer_init
 	
 	; setup pallete
 	ldx #$00
@@ -34,8 +38,20 @@ state_congration_init: subroutine
 	inx
 	cpx #25
 	bne .pal_loop
-	lda #$21
+	lda #$0f
+	sta palette_cache+1
+	lda #$20
 	sta palette_cache+2
+	lda #$00
+	sta palette_cache+5
+
+	; write play time to screen
+	lda #$23
+	sta PPU_ADDR
+	lda #$04
+	sta PPU_ADDR
+	lda #$72
+	sta PPU_DATA
 
 	; update state system
 	ldx #state_congration_update_id
@@ -124,6 +140,18 @@ state_congration_render: subroutine
 	lda #$00
 	sta state03
 .scroller_after_plot
+	; plot timer to screen
+	lda #$23
+	sta PPU_ADDR
+	lda #$04
+	sta PPU_ADDR
+	ldx #$00
+.timer_plot
+	lda $300,x
+	sta PPU_DATA
+	inx
+	cpx #$0b
+	bne .timer_plot
 	; scroll by 2 pixels/frame
 	clc
 	lda scroll_x
@@ -143,6 +171,18 @@ state_congration_render: subroutine
 state_congration_update: subroutine
 	jsr render_enable
 
+	jsr timer_increment
+	lda #$03 
+	sta temp01
+	lda #$00
+	sta temp00
+	lda #$50
+	sta temp02
+	lda #$78
+	sta temp03
+	lda #$76
+	sta temp04
+	jsr timer_prerender
 /*
 	; a good place to test sound?
 	jsr apu_update
@@ -170,7 +210,8 @@ state_congration_update: subroutine
 	ldy #$00
 	inc state00 ; frame counter
 	lda state00
-	cmp #$0a
+	ldx state01
+	cmp player_frames,x
 	bcc .not_next_frame
 	sty state00
 	inc state01 ; anim frame
@@ -180,7 +221,13 @@ state_congration_update: subroutine
 	sty state01
 .not_next_frame
 	; move
-	dec player_x ; x pos
+	sec
+	lda player_x_lo
+	sbc #$d0
+	sta player_x_lo
+	lda player_x
+	sbc #$00
+	sta player_x 
 	; render
 	; x
 	lda player_x
