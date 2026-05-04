@@ -42,6 +42,7 @@ chomp_champ_passage_ptr_lo:
 	byte #<chomp_champ_passage_22
 	byte #<chomp_champ_passage_23
 	byte #<chomp_champ_passage_24
+	byte #<chomp_champ_passage_25
 chomp_champ_passage_ptr_hi:
 	byte #>chomp_champ_passage_00
 	byte #>chomp_champ_passage_01
@@ -80,26 +81,27 @@ chomp_champ_passage_ptr_hi:
 	byte #>chomp_champ_passage_22
 	byte #>chomp_champ_passage_23
 	byte #>chomp_champ_passage_24
+	byte #>chomp_champ_passage_25
 
 	; passage 0 (copy_line) bytes=12 lines=1
 chomp_champ_passage_00:
 	;   LOBLAST_ @_ M  M  X  X  V  -  MMXXVI \p
-	hex 9055     60 2d 2d 38 38 36 0d 806f   f1
+	hex 9055     60 2d 2d 38 38 36 0d 8074   f1
 
 	; passage 1 (game_over) bytes=5 lines=1
 chomp_champ_passage_01:
 	;   GAME_ OVER \p
-	hex 909e  80ad f1
+	hex 90a3  80b2 f1
 
 	; passage 2 (all_tooths_lost) bytes=8 lines=1
 chomp_champ_passage_02:
 	;   ALL_ TOOTHS _  LOST \p
-	hex 909a d01d   00 80a3 f1
+	hex 909f d01d   00 80a8 f1
 
 	; passage 3 (all_lifes_lost) bytes=10 lines=1
 chomp_champ_passage_03:
 	;   ALL_ L  I  F  E  S_ LOST \p
-	hex 909a 2c 29 26 25 73 80a3 f1
+	hex 909f 2c 29 26 25 73 80a8 f1
 
 	; passage 4 (continue) bytes=3 lines=1
 chomp_champ_passage_04:
@@ -109,12 +111,12 @@ chomp_champ_passage_04:
 	; passage 5 (yeah) bytes=3 lines=1
 chomp_champ_passage_05:
 	;   YEAH \p
-	hex 80bc f1
+	hex 80c6 f1
 
 	; passage 6 (nope) bytes=3 lines=1
 chomp_champ_passage_06:
 	;   NOPE \p
-	hex 80a8 f1
+	hex 80ad f1
 
 	; passage 7 (week) bytes=4 lines=1
 chomp_champ_passage_07:
@@ -124,21 +126,21 @@ chomp_champ_passage_07:
 	; passage 8 (paused) bytes=3 lines=1
 chomp_champ_passage_08:
 	;   PAUSED \p
-	hex 807d   f1
+	hex 8082   f1
 
 	; passage 9 (week_00) bytes=46 lines=3
 chomp_champ_passage_09:
 	;   THE_ DENTIST_ L  O  V  E  D_ M  Y_ TEETH \n
 	hex 9019 9006     2c 2f 36 25 64 2d 79 8000  f0
 	;   AND_ S  A  I  D_ H  E_ WOULD_ S  E  E_ M  E  \n
-	hex 9084 33 21 29 64 28 65 9094   33 25 65 2d 25 f0
+	hex 9089 33 21 29 64 28 65 9099   33 25 65 2d 25 f0
 	;   I  N_ SIX_ MONTHS. _  TOO_ S  O  O  N  !  !  \p
-	hex 29 6e 90d1 a076    00 90d5 33 2f 2f 2e 01 01 f1
+	hex 29 6e 90db a07b    00 90df 33 2f 2f 2e 01 01 f1
 
 	; passage 10 (week_01) bytes=38 lines=3
 chomp_champ_passage_0a:
 	;   F  O  O  D_ AND_ M  Y_ TEETH \n
-	hex 26 2f 2f 64 9084 2d 79 8000  f0
+	hex 26 2f 2f 64 9089 2d 79 8000  f0
 	;   G  E  T_ A  L  O  N  G_ S  O_ W  E  L  L  .  \n
 	hex 27 25 74 21 2c 2f 2e 67 33 6f 37 25 2c 2c 0e f0
 	;   W  E_ G  O  T  T  A_ FLOSS! !  \p
@@ -151,12 +153,12 @@ chomp_champ_passage_0b:
 	;   I  S_ I  T_ THE_ FLOSS? \n
 	hex 29 73 29 74 9019 c034   f0
 	;   I  S_ I  T_ A_ NEW_ F  R  I  E  N  D  ?  \p
-	hex 29 73 29 74 61 90c5 26 32 29 25 2e 24 1f f1
+	hex 29 73 29 74 61 90cf 26 32 29 25 2e 24 1f f1
 
 	; passage 12 (week_03) bytes=30 lines=2
 chomp_champ_passage_0c:
 	;   I_ C  A  N  '  T_ RIGHT_ N  O  W  .  \n
-	hex 69 23 21 2e 07 74 908e   2e 2f 37 0e f0
+	hex 69 23 21 2e 07 74 9093   2e 2f 37 0e f0
 	;   THE_ DENTIST_ W  I  L  L_ F  O  R  G  I  V  E  . 
 	hex 9019 9006     37 29 2c 6c 26 2f 32 27 29 36 25 0e
 	;   \p
@@ -167,7 +169,7 @@ chomp_champ_passage_0d:
 	;   M  Y_ MOUTH_ I  S_ C  R  A  W  L  I  N  G  \n
 	hex 2d 79 9041   29 73 23 32 21 37 2c 29 2e 27 f0
 	;   WITH_ B  A  D_ T  H  I  N  G  S  .  \p
-	hex 90b7  22 21 64 34 28 29 2e 27 33 0e f1
+	hex 90c1  22 21 64 34 28 29 2e 27 33 0e f1
 
 	; passage 14 (week_05) bytes=31 lines=3
 chomp_champ_passage_0e:
@@ -181,7 +183,7 @@ chomp_champ_passage_0e:
 	; passage 15 (week_06) bytes=37 lines=2
 chomp_champ_passage_0f:
 	;   THIS_ WEEK_ W  E_ S  H  O  U  L  D_ D  O  \n
-	hex 90b2  906a  37 65 33 28 2f 35 2c 64 24 2f f0
+	hex 90b7  906a  37 65 33 28 2f 35 2c 64 24 2f f0
 	;   A_ B  E  T  T  E  R_ J  O  B_ T  H  A  N_ N  O 
 	hex 61 22 25 34 34 25 72 2a 2f 62 34 28 21 6e 2e 2f
 	;   R  M  A  L  .  \p
@@ -190,11 +192,11 @@ chomp_champ_passage_0f:
 	; passage 16 (week_07) bytes=36 lines=3
 chomp_champ_passage_10:
 	;   1  6_ TEETH_ I  S_ TOO_ M  A  N  Y  .  \n
-	hex 11 56 9000   29 73 90d5 2d 21 2e 39 0e f0
+	hex 11 56 9000   29 73 90df 2d 21 2e 39 0e f0
 	;   -_ I_ WOULD_ R  A  T  H  E  R_ H  A  V  E  \n
-	hex 4d 69 9094   32 21 34 28 25 72 28 21 36 25 f0
+	hex 4d 69 9099   32 21 34 28 25 72 28 21 36 25 f0
 	;   ONE_ BIG_ TOOTH! \p
-	hex 90cd 90c1 b01d   f1
+	hex 90d7 90cb b01d   f1
 
 	; passage 17 (week_08) bytes=18 lines=1
 chomp_champ_passage_11:
@@ -208,7 +210,7 @@ chomp_champ_passage_12:
 	;   I_ SWALLOW_ TOOTHPASTE. \n
 	hex 69 905d     a00e        f0
 	;   N  O_ ONE_ F  E  E  D  S_ M  E_ BECAUSE \n
-	hex 2e 6f 90cd 26 25 25 24 73 2d 65 804d    f0
+	hex 2e 6f 90d7 26 25 25 24 73 2d 65 804d    f0
 	;   M  Y_ TEETH_ S  M  E  L  L_ T  E  R  R  I  B  L 
 	hex 2d 79 9000   33 2d 25 2c 6c 34 25 32 32 29 22 2c
 	;   E  .  \p
@@ -221,7 +223,7 @@ chomp_champ_passage_13:
 	;   U  S  \n
 	hex 35 33 f0
 	;   O  F_ THIS_ BIG_ SMILE! \p
-	hex 2f 66 90b2  90c1 b047   f1
+	hex 2f 66 90b7  90cb b047   f1
 
 	; passage 20 (week_0b) bytes=20 lines=3
 chomp_champ_passage_14:
@@ -230,23 +232,25 @@ chomp_champ_passage_14:
 	;   __ __ _  O  R_ \n
 	hex 40 40 00 2f 72 f0
 	;   NOT_ TOOTH_ B  E  ?  \p
-	hex 90c9 901d   22 25 1f f1
+	hex 90d3 901d   22 25 1f f1
 
 	; passage 21 (week_0c) bytes=23 lines=2
 chomp_champ_passage_15:
 	;   THE_ TOOTH_ FAIRY_ I  S_ \n
-	hex 9019 901d   9088   29 73 f0
+	hex 9019 901d   908d   29 73 f0
 	;   A_ L  I  A  R_ AND_ T  H  I  E  F  .  \p
-	hex 61 2c 29 21 72 9084 34 28 29 25 26 0e f1
+	hex 61 2c 29 21 72 9089 34 28 29 25 26 0e f1
 
-	; passage 22 (week_0d) bytes=32 lines=2
+	; passage 22 (week_0d) bytes=34 lines=2
 chomp_champ_passage_16:
 	;   M  Y_ P  I  L  L  O  W_ C  O  V  E  R  S_ THE 
 	hex 2d 79 30 29 2c 2c 2f 77 23 2f 36 25 32 73 8019
 	;   \n
 	hex f0
-	;   D  U  S  T_ FROM_ M  Y_ B  R  A  I  N  .  \p
-	hex 24 35 33 74 9065  2d 79 22 32 21 29 2e 0e f1
+	;   TIME_ D  U  S  T_ FROM_ M  Y_ B  R  A  I  N  . 
+	hex 90bc  24 35 33 74 9065  2d 79 22 32 21 29 2e 0e
+	;   \p
+	hex f1
 
 	; passage 23 (week_0e) bytes=42 lines=3
 chomp_champ_passage_17:
@@ -255,7 +259,7 @@ chomp_champ_passage_17:
 	;   S  A  Y_ SMILE_ M  O  R  E  ,_ I  T  \n
 	hex 33 21 79 9047   2d 2f 32 25 4c 29 34 f0
 	;   M  A  K  E  S_ YOU_ P  R  E  T  T  I  E  R  . 
-	hex 2d 21 2b 25 73 90d9 30 32 25 34 34 29 25 32 0e
+	hex 2d 21 2b 25 73 90e3 30 32 25 34 34 29 25 32 0e
 	;   \p
 	hex f1
 
@@ -289,9 +293,9 @@ chomp_champ_passage_1a:
 	; passage 27 (week_12) bytes=22 lines=2
 chomp_champ_passage_1b:
 	;   G  R  O  W  I  N  G_ NEW_ TEETH_ I  S  \n
-	hex 27 32 2f 37 29 2e 67 90c5 9000   29 33 f0
+	hex 27 32 2f 37 29 2e 67 90cf 9000   29 33 f0
 	;   E  A  S  Y  ,_ RIGHT? \p
-	hex 25 21 33 39 4c c08e   f1
+	hex 25 21 33 39 4c c093   f1
 
 	; passage 28 (week_13) bytes=47 lines=3
 chomp_champ_passage_1c:
@@ -311,7 +315,7 @@ chomp_champ_passage_1d:
 	;   T  H  E  Y  '  D_ R  U  N_ FROM_ B  O  T  H  \n
 	hex 34 28 25 39 07 64 32 35 6e 9065  22 2f 34 28 f0
 	;   O  F_ U  S_ ALL! \p
-	hex 2f 66 35 73 b09a f1
+	hex 2f 66 35 73 b09f f1
 
 	; passage 30 (week_15) bytes=30 lines=2
 chomp_champ_passage_1e:
@@ -325,38 +329,38 @@ chomp_champ_passage_1e:
 	; passage 31 (week_16) bytes=28 lines=2
 chomp_champ_passage_1f:
 	;   THE_ TOOTH_ FAIRY_ I  S_ NOT  \n
-	hex 9019 901d   9088   29 73 80c9 f0
+	hex 9019 901d   908d   29 73 80d3 f0
 	;   G  E  T  T  I  N  G_ A  N  Y_ O  F_ M  Y_ TEETH!
 	hex 27 25 34 34 29 2e 67 21 2e 79 2f 66 2d 79 b000  
 	;   \p
 	hex f1
 
-	; passage 32 (week_17) bytes=45 lines=3
+	; passage 32 (week_17) bytes=47 lines=3
 chomp_champ_passage_20:
 	;   W  E_ O  N  L  Y_ C  L  E  A  N_ M  Y_ TEETH \n
 	hex 37 65 2f 2e 2c 79 23 2c 25 21 6e 2d 79 8000  f0
 	;   __ O  N_ S  U  N  D  A  Y_ BECAUSE \n
 	hex 40 2f 6e 33 35 2e 24 21 79 804d    f0
-	;   __ _  G  O  D_ I  S_ W  A  T  C  H  I  N  G  . 
-	hex 40 00 27 2f 64 29 73 37 21 34 23 28 29 2e 27 0e
-	;   \p
-	hex f1
+	;   __ _  YOUR_ G  O  D_ I  S_ W  A  T  C  H  I  N 
+	hex 40 00 906f  27 2f 64 29 73 37 21 34 23 28 29 2e
+	;   G  .  \p
+	hex 27 0e f1
 
 	; passage 33 (week_18) bytes=40 lines=3
 chomp_champ_passage_21:
 	;   C  A  N_ I_ R  E  P  L  A  C  E_ TEETH_ WITH \n
-	hex 23 21 6e 69 32 25 30 2c 21 23 65 9000   80b7 f0
+	hex 23 21 6e 69 32 25 30 2c 21 23 65 9000   80c1 f0
 	;   S  C  U  L  P  T  U  R  E  S_ M  A  D  E_ O  F 
 	hex 33 23 35 2c 30 34 35 32 25 73 2d 21 24 65 2f 26
 	;   \n
 	hex f0
 	;   TOOTHPASTE_ AND_ FLOSS? \p
-	hex 900e        9084 c034   f1
+	hex 900e        9089 c034   f1
 
 	; passage 34 (week_19) bytes=49 lines=3
 chomp_champ_passage_22:
 	;   __ I  T  S_ B  E  E  N_ SIX_ MONTHS? !  ?  \n
-	hex 40 29 34 73 22 25 25 6e 90d1 c076    01 1f f0
+	hex 40 29 34 73 22 25 25 6e 90db c07b    01 1f f0
 	;   _  THE_ DENTIST_ N  E  X  T_ WEEK! ?  !  \n
 	hex 00 9019 9006     2e 25 38 74 b06a  1f 01 f0
 	;   M  Y_ SMILE_ S  M  E  L  L  S_ O  F_ D  E  A  T 
@@ -378,9 +382,14 @@ chomp_champ_passage_23:
 	; passage 36 (week_1b) bytes=27 lines=2
 chomp_champ_passage_24:
 	;   YOU_ A  R  E_ THE_ C  H  A  M  P  \n
-	hex 90d9 21 32 65 9019 23 28 21 2d 30 f0
+	hex 90e3 21 32 65 9019 23 28 21 2d 30 f0
 	;   __ O  F_ M  Y_ C  H  O  M  P  S  !  !  \p
 	hex 40 2f 66 2d 79 23 28 2f 2d 30 33 01 01 f1
+
+	; passage 37 (your_time) bytes=5 lines=1
+chomp_champ_passage_25:
+	;   YOUR_ TIME \p
+	hex 906f  80bc f1
 
 chomp_champ_alphabet_table: ; ASCII($20-$5f) -> pattern_id, $ff unmapped
 	hex 0879ffffffffff78ffffffff777476ff
@@ -388,12 +397,12 @@ chomp_champ_alphabet_table: ; ASCII($20-$5f) -> pattern_id, $ff unmapped
 	hex 755a5b5c5d5e5f606162636465666768
 	hex 696a6b6c6d6e6f70717273ffffffffff
 
-chomp_champ_passage_count EQM 37
-; raw_bytes=1545
-; encoded_bytes=996
-; gross_text_savings=549 (35.53%)
-; replaced_words=113
-; replaced_words_with_space=73
+chomp_champ_passage_count EQM 38
+; raw_bytes=1565
+; encoded_bytes=1005
+; gross_text_savings=560 (35.78%)
+; replaced_words=117
+; replaced_words_with_space=76
 ; replaced_words_with_period=8
 ; replaced_words_with_exclaim=9
 ; replaced_words_with_question=5

@@ -49,49 +49,53 @@ dictionary_data:
 	hex 0446524f4d
 	; "WEEK" @ $f06a token=$80$6a freq=3 score=4
 	hex 045745454b
-	; "MMXXVI" @ $f06f token=$80$6f freq=2 score=4
+	; "YOUR" @ $f06f token=$80$6f freq=3 score=4
+	hex 04594f5552
+	; "MMXXVI" @ $f074 token=$80$74 freq=2 score=4
 	hex 064d4d58585649
-	; "MONTHS" @ $f076 token=$80$76 freq=2 score=4
+	; "MONTHS" @ $f07b token=$80$7b freq=2 score=4
 	hex 064d4f4e544853
-	; "PAUSED" @ $f07d token=$80$7d freq=2 score=4
+	; "PAUSED" @ $f082 token=$80$82 freq=2 score=4
 	hex 06504155534544
-	; "AND" @ $f084 token=$80$84 freq=4 score=3
+	; "AND" @ $f089 token=$80$89 freq=4 score=3
 	hex 03414e44
-	; "FAIRY" @ $f088 token=$80$88 freq=2 score=3
+	; "FAIRY" @ $f08d token=$80$8d freq=2 score=3
 	hex 054641495259
-	; "RIGHT" @ $f08e token=$80$8e freq=2 score=3
+	; "RIGHT" @ $f093 token=$80$93 freq=2 score=3
 	hex 055249474854
-	; "WOULD" @ $f094 token=$80$94 freq=2 score=3
+	; "WOULD" @ $f099 token=$80$99 freq=2 score=3
 	hex 05574f554c44
-	; "ALL" @ $f09a token=$80$9a freq=3 score=2
+	; "ALL" @ $f09f token=$80$9f freq=3 score=2
 	hex 03414c4c
-	; "GAME" @ $f09e token=$80$9e freq=2 score=2
+	; "GAME" @ $f0a3 token=$80$a3 freq=2 score=2
 	hex 0447414d45
-	; "LOST" @ $f0a3 token=$80$a3 freq=2 score=2
+	; "LOST" @ $f0a8 token=$80$a8 freq=2 score=2
 	hex 044c4f5354
-	; "NOPE" @ $f0a8 token=$80$a8 freq=2 score=2
+	; "NOPE" @ $f0ad token=$80$ad freq=2 score=2
 	hex 044e4f5045
-	; "OVER" @ $f0ad token=$80$ad freq=2 score=2
+	; "OVER" @ $f0b2 token=$80$b2 freq=2 score=2
 	hex 044f564552
-	; "THIS" @ $f0b2 token=$80$b2 freq=2 score=2
+	; "THIS" @ $f0b7 token=$80$b7 freq=2 score=2
 	hex 0454484953
-	; "WITH" @ $f0b7 token=$80$b7 freq=2 score=2
+	; "TIME" @ $f0bc token=$80$bc freq=2 score=2
+	hex 0454494d45
+	; "WITH" @ $f0c1 token=$80$c1 freq=2 score=2
 	hex 0457495448
-	; "YEAH" @ $f0bc token=$80$bc freq=2 score=2
+	; "YEAH" @ $f0c6 token=$80$c6 freq=2 score=2
 	hex 0459454148
-	; "BIG" @ $f0c1 token=$80$c1 freq=2 score=1
+	; "BIG" @ $f0cb token=$80$cb freq=2 score=1
 	hex 03424947
-	; "NEW" @ $f0c5 token=$80$c5 freq=2 score=1
+	; "NEW" @ $f0cf token=$80$cf freq=2 score=1
 	hex 034e4557
-	; "NOT" @ $f0c9 token=$80$c9 freq=2 score=1
+	; "NOT" @ $f0d3 token=$80$d3 freq=2 score=1
 	hex 034e4f54
-	; "ONE" @ $f0cd token=$80$cd freq=2 score=1
+	; "ONE" @ $f0d7 token=$80$d7 freq=2 score=1
 	hex 034f4e45
-	; "SIX" @ $f0d1 token=$80$d1 freq=2 score=1
+	; "SIX" @ $f0db token=$80$db freq=2 score=1
 	hex 03534958
-	; "TOO" @ $f0d5 token=$80$d5 freq=2 score=1
+	; "TOO" @ $f0df token=$80$df freq=2 score=1
 	hex 03544f4f
-	; "YOU" @ $f0d9 token=$80$d9 freq=2 score=1
+	; "YOU" @ $f0e3 token=$80$e3 freq=2 score=1
 	hex 03594f55
 
-dictionary_data_end: ; $f0dd
+dictionary_data_end: ; $f0e7

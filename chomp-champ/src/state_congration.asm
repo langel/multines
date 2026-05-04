@@ -28,7 +28,10 @@ state_congration_init: subroutine
 
 	jsr sprites_clear
 	jsr registers_clear
-	jsr timer_init
+	
+	; reset hud split-scroll
+	lda #$00
+	sta sprite0_active
 	
 	; setup pallete
 	ldx #$00
@@ -42,15 +45,56 @@ state_congration_init: subroutine
 	sta palette_cache+1
 	lda #$20
 	sta palette_cache+2
+	lda #$0f
+	sta palette_cache+4
 	lda #$00
 	sta palette_cache+5
 
-	; write play time to screen
-	lda #$23
+	; "YOUR TIME"
+	lda #<chomp_champ_passage_25
+	sta temp00
+	lda #>chomp_champ_passage_25
+	sta temp01
+	lda #$8c
+	sta temp02
+	lda #$26
+	sta temp03
+	lda #%000000000
+	sta temp04
+	jsr dict_text_plot
+	; plot timer
+	lda #$03 
+	sta temp01
+	lda #$00
+	sta temp00
+	lda #$50
+	sta temp02
+	lda #$78
+	sta temp03
+	lda #$76
+	sta temp04
+	jsr timer_prerender
+	; trasnfer to screen
+	lda #$26
 	sta PPU_ADDR
-	lda #$04
+	lda #$ab
 	sta PPU_ADDR
-	lda #$72
+	ldx #$00
+.timer_plot
+	lda $300,x
+	sta PPU_DATA
+	inx
+	cpx #$0b
+	bne .timer_plot
+	; timer attr
+	lda #$27
+	sta PPU_ADDR
+	lda #$ea
+	sta PPU_ADDR
+	lda #%01010101
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
 	sta PPU_DATA
 
 	; update state system
@@ -140,18 +184,7 @@ state_congration_render: subroutine
 	lda #$00
 	sta state03
 .scroller_after_plot
-	; plot timer to screen
-	lda #$23
-	sta PPU_ADDR
-	lda #$04
-	sta PPU_ADDR
-	ldx #$00
-.timer_plot
-	lda $300,x
-	sta PPU_DATA
-	inx
-	cpx #$0b
-	bne .timer_plot
+
 	; scroll by 2 pixels/frame
 	clc
 	lda scroll_x
@@ -171,18 +204,11 @@ state_congration_render: subroutine
 state_congration_update: subroutine
 	jsr render_enable
 
-	jsr timer_increment
-	lda #$03 
-	sta temp01
-	lda #$00
-	sta temp00
-	lda #$50
-	sta temp02
-	lda #$78
-	sta temp03
-	lda #$76
-	sta temp04
-	jsr timer_prerender
+	lda sprite0_active
+	beq .skip_wait
+	jsr congration_sprite0
+.skip_wait
+
 /*
 	; a good place to test sound?
 	jsr apu_update
@@ -204,6 +230,19 @@ state_congration_update: subroutine
 	lda #$21
 	sta palette_cache+2
 .color_fine
+	
+	; sprite 0
+	lda #$20
+	sta spr_a
+	lda #$10
+	sta spr_p
+	lda #$ea
+	sta spr_x
+	lda #$80
+	sta spr_y
+	; enable hud split-scroll
+	lda #$01
+	sta sprite0_active
 
 	; walk player's victory lap
 	; animate
@@ -231,41 +270,41 @@ state_congration_update: subroutine
 	; render
 	; x
 	lda player_x
-	sta spr_x+0
-	sta spr_x+8
+	sta spr_x+16
+	sta spr_x+24
 	clc
 	adc #$08
-	sta spr_x+4
-	sta spr_x+12
+	sta spr_x+20
+	sta spr_x+28
 	; y
 	lda #$a8
-	sta spr_y+0
-	sta spr_y+4
+	sta spr_y+16
+	sta spr_y+20
 	clc
 	adc #$10
-	sta spr_y+8
-	sta spr_y+12
+	sta spr_y+24
+	sta spr_y+28
 	; a
 	lda #$40
-	sta spr_a+0
-	sta spr_a+4
-	sta spr_a+8
-	sta spr_a+12
+	sta spr_a+16
+	sta spr_a+20
+	sta spr_a+24
+	sta spr_a+28
 	; s
 	lda state01
 	shift_l 2
 	tax
 	lda player_walk_left_spr,x
-	sta spr_p+0
+	sta spr_p+16
 	inx
 	lda player_walk_left_spr,x
-	sta spr_p+4
+	sta spr_p+20
 	inx
 	lda player_walk_left_spr,x
-	sta spr_p+8
+	sta spr_p+24
 	inx
 	lda player_walk_left_spr,x
-	sta spr_p+12
+	sta spr_p+28
 
 
 	; prepare next-frame destination after scroll has been updated
@@ -339,3 +378,34 @@ state_congration_update: subroutine
 
 
 
+congration_sprite0: subroutine
+
+	lda sprite0_active
+	beq .hide_timer
+
+.wait0	
+	bit PPU_STATUS
+	bvs .wait0
+   lda #$c0
+.wait1	
+	bit PPU_STATUS
+	beq .wait1
+	
+	ldx #$04
+	lda #$9c
+	ldy #$60
+	stx PPU_ADDR
+	sta PPU_SCROLL
+	ldx #$00
+	stx PPU_SCROLL
+	sty PPU_ADDR
+
+	lda controller1
+	and #BUTTON_B|BUTTON_A
+	bne .dont_hide_timer
+.hide_timer
+	lda #%00010110
+	sta PPU_MASK
+.dont_hide_timer
+
+	rts
