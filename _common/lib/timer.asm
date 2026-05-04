@@ -8,7 +8,7 @@ timer_init: subroutine
 	rts
 
 
-timer_increment: subroutine
+timer_update: subroutine
 	; destroys x
 .frames
 	ldx #$00

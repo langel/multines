@@ -401,7 +401,7 @@ congration_sprite0: subroutine
 	sty PPU_ADDR
 
 	lda controller1
-	and #BUTTON_B|BUTTON_A
+	and #BUTTON_UP|BUTTON_LEFT|BUTTON_DOWN|BUTTON_RIGHT|BUTTON_SELECT
 	bne .dont_hide_timer
 .hide_timer
 	lda #%00010110

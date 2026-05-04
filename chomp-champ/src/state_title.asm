@@ -116,6 +116,7 @@ state_title_update: subroutine
 	jsr render_enable
 	jsr controller_read
 
+	jsr sprites_clear
 	jsr ent_big_teef_update
 
 .palette_cycle

@@ -59,12 +59,12 @@ state_init: subroutine
 	; start initial state
 	;jsr state_title_init
 	;jsr state_gameover_init
-	;jsr init_new_game
+	jsr init_new_game
 	;jsr state_nextlevel_init
-	;lda #$1b
-	;sta game_level
-	;jsr state_game_level_init
-	jsr state_congration_init
+	lda #$1b
+	sta game_level
+	jsr state_game_level_init
+	;jsr state_congration_init
 	;jsr state_continue_init
 	;jsr state_demo_init
 
