@@ -32,7 +32,7 @@ hud_init: subroutine
 	
 	; reset hud split-scroll
 	lda #$00
-	sta hud_initted
+	sta sprite0_active
 
 	; setup render for frame 1
 	lda #$00
@@ -121,7 +121,7 @@ hud_sprite0: subroutine
 	sta temp07
 
 	; check if it setup
-	lda hud_initted
+	lda sprite0_active
 	bne .wait0
 	rts
 .wait0	
@@ -277,7 +277,7 @@ hud_update: subroutine
 	sta spr_y
 	; enable hud split-scroll
 	lda #$01
-	sta hud_initted
+	sta sprite0_active
 
 	; player indicator
 	lda ent_r3 ; player dir
@@ -320,14 +320,14 @@ hud_render: subroutine
 	lda hud_tooth_tile
 	sta PPU_DATA
 
-	lda is_paused
+	lda paused_active
 	beq .paused_done
 	cmp #$01
 	beq .write_paused
 	cmp #$02
 	beq .paused_done
 	lda #$00
-	sta is_paused
+	sta paused_active
 	jsr hud_write_week
 	ldx #state_game_render_id
 	jsr state_set_render_routine
@@ -345,7 +345,15 @@ hud_render: subroutine
 	lda #%000000000
 	sta temp04
 	jsr dict_text_plot
-	inc is_paused
+	inc paused_active
+	; clear level integer
+	lda #$20
+	sta PPU_ADDR
+	lda #$6f
+	sta PPU_ADDR
+	lda #$08
+	sta PPU_DATA
+	sta PPU_DATA
 .paused_done
 
 	rts

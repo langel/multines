@@ -8,7 +8,7 @@ state_game_update: subroutine
 	lda controller1_d
 	and #BUTTON_START
 	beq .no_start_button
-	inc is_paused
+	inc paused_active
 	ldx #state_hud_render_id
 	jsr state_set_render_routine
 .no_start_button
@@ -42,10 +42,7 @@ state_game_update: subroutine
 	;lda #%00011111 ; b/w
 	;sta PPU_MASK
 
-	; xxx need to check level status
-	; game over all teeth gone
-	; next level all teeth clean or gone
-	lda is_paused
+	lda paused_active
 	bne .gameloop_done
 
 	jsr game_player_update

@@ -48,8 +48,6 @@ grub_converge_slot      byte
 
 hud_tooth_addr          byte 
 hud_tooth_tile          byte
-hud_initted             byte
-is_paused               byte
 
 ; used instead of ent registers
 player_x_hi   byte

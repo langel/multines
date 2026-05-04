@@ -63,6 +63,9 @@ state_render_hi  byte
 state_update_lo  byte
 state_update_hi  byte
 
+paused_active    byte
+sprite0_active   byte
+
 ent_ptr_start    byte
 ent_spr_ptr      byte
 ent_slot         byte
