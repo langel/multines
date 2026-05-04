@@ -16,6 +16,7 @@ player_frames:
 state_congration_init: subroutine
 
 	jsr render_disable
+	jsr timer_stop
 
 	lda #$09
 	sta temp00

@@ -4,7 +4,7 @@ init_new_game: subroutine
 
 	jsr render_disable
 
-	jsr timer_init
+	jsr timer_reset
 	
 	jsr chompchamp_reset_game
 	

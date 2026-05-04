@@ -37,8 +37,6 @@ state_game_update: subroutine
 
 	jsr apu_update
 
-	jsr timer_update
-
 	jsr hud_sprite0
 	
 	;lda #%00011111 ; b/w

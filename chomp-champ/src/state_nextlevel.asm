@@ -145,7 +145,6 @@ state_nextlevel_init: subroutine
 
 state_nextlevel_update: subroutine
 	jsr render_enable
-	jsr timer_update
 	jsr controller_read
 	
 	lda controller1_d

@@ -55,6 +55,7 @@ timer_hours      byte
 timer_minutes    byte
 timer_seconds    byte
 timer_frames     byte
+timer_active     byte
 
 state_render_id  byte
 state_update_id  byte

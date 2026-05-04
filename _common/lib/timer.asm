@@ -1,15 +1,24 @@
 
-timer_init: subroutine
+timer_reset: subroutine
 	lda #$00
 	sta timer_hours
 	sta timer_minutes
 	sta timer_seconds
 	sta timer_frames
+	inc timer_active
+	rts
+
+timer_stop: subroutine
+	lda #$00
+	sta timer_active
 	rts
 
 
 timer_update: subroutine
-	; destroys x
+	; called from nmi
+	lda timer_active
+	bne .frames
+	rts
 .frames
 	ldx #$00
 	inc timer_frames

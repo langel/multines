@@ -45,6 +45,7 @@ nmi_render_done
 nmi_update_done
 	dec nmi_lockout
 nmi_end
+	jsr timer_update
 	pla
 	rti
 
