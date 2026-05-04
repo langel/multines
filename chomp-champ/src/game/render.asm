@@ -73,6 +73,110 @@ state_game_prerender: subroutine
 	sty $100
 	sty temp03
 
+	; update gumline tiles
+	ldx tooth_index
+.gumline_update
+	lda #$08 ; always update 8 tiles
+	PUSHY
+	ldx tooth_index
+	lda gumline_nm_addr_hi,x
+	PUSHY
+	lda gumline_nm_addr_lo,x
+	PUSHY
+	; find state of gumline
+	lda tooth_true_clean,x
+	bne .gumline_is_clean
+	lda tooth_total_dmg,x
+	cmp #$40
+	bcs .gumline_is_empty
+	cmp #$00
+	bne .gumline_has_dirt
+	lda #$01 ; minimum dirt if food blocks clean state
+.gumline_has_dirt
+	shift_r 4
+	cmp #$03
+	bcc .dont_threshold
+	lda #$03
+.dont_threshold
+	tax
+	; which row?
+	lda tooth_index
+	and #$08
+	bne .gumline_bottom_row
+.gumline_top_row
+	lda gumline_top_row_tile_id,x
+	jmp .gumline_tile_ready
+.gumline_bottom_row
+	lda gumline_bottom_row_tile_id,x
+.gumline_tile_ready
+	tax
+	; 18 bytes rolled loop
+	lda #$08    
+	sta temp07
+.gumline_pushy_loop
+	txa
+	sta $100,y
+	iny
+	inx
+	dec temp07
+	bne .gumline_pushy_loop
+	txa
+	sta $100,y
+	; was 46 bytes unrolled
+	jmp .gumline_done
+.gumline_is_clean
+	; which row?
+	ldx #$00
+	lda tooth_index
+	and #$08
+	bne .gumline_clean_bottom
+.gumline_clean_top
+	lda tooth_row_upper_top,x
+	PUSHY
+	inx
+	cpx #$08
+	bne .gumline_clean_top
+	jmp .gumline_done
+.gumline_clean_bottom
+	lda tooth_row_lower_bottom,x
+	PUSHY
+	inx
+	cpx #$08
+	bne .gumline_clean_bottom
+	jmp .gumline_done
+.gumline_is_empty
+	lda tooth_index
+	and #$08
+	bne .gumline_empty_bottom
+.gumline_empty_top
+	ldx #$00
+	; 17 bytes rolled loop
+	lda #$08
+	sta temp07
+.gumline_empty_top_loop
+	lda gumline_top_empty_tile_pattern,x
+	PUSHY
+	inx
+	dec temp07
+	bne .gumline_empty_top_loop
+	; was 64 bytes unrolled
+	jmp .gumline_done
+.gumline_empty_bottom
+	ldx #$00
+	; 17 bytes rolled loop
+	lda #$08
+	sta temp07
+.gumline_empty_bottom_loop
+	lda gumline_bottom_empty_tile_pattern,x
+	PUSHY
+	inx
+	dec temp07
+	bne .gumline_empty_bottom_loop
+	; was 64 bytes unrolled
+.gumline_done
+	sty temp03
+
+
 	; check for tooth blackout
 	ldx tooth_index
 	lda tooth_total_dmg,x
@@ -337,118 +441,18 @@ state_game_prerender: subroutine
 .tooth_cells_done
 	ldy temp03
 
-	; update gumline tiles
-	ldx tooth_index
-.gumline_update
-	lda #$08 ; always update 8 tiles
-	PUSHY
-	ldx tooth_index
-	lda gumline_nm_addr_hi,x
-	PUSHY
-	lda gumline_nm_addr_lo,x
-	PUSHY
-	; find state of gumline
-	lda tooth_true_clean,x
-	bne .gumline_is_clean
-	lda tooth_total_dmg,x
-	bmi .gumline_is_empty
-	bne .gumline_has_dirt
-	lda #$01 ; minimum dirt if food blocks clean state
-.gumline_has_dirt
-	shift_r 4
-	cmp #$03
-	bcc .dont_threshold
-	lda #$03
-.dont_threshold
-	tax
-	; which row?
-	lda tooth_index
-	and #$08
-	bne .gumline_bottom_row
-.gumline_top_row
-	lda gumline_top_row_tile_id,x
-	jmp .gumline_tile_ready
-.gumline_bottom_row
-	lda gumline_bottom_row_tile_id,x
-.gumline_tile_ready
-	tax
-	; 18 bytes rolled loop
-	lda #$08    
-	sta temp07
-.gumline_pushy_loop
-	txa
-	sta $100,y
-	iny
-	inx
-	dec temp07
-	bne .gumline_pushy_loop
-	txa
-	sta $100,y
-	; was 46 bytes unrolled
-	jmp .gumline_done
-.gumline_is_clean
-	; which row?
-	ldx #$00
-	lda tooth_index
-	and #$08
-	bne .gumline_clean_bottom
-.gumline_clean_top
-	lda tooth_row_upper_top,x
-	PUSHY
-	inx
-	cpx #$08
-	bne .gumline_clean_top
-	jmp .gumline_done
-.gumline_clean_bottom
-	lda tooth_row_lower_bottom,x
-	PUSHY
-	inx
-	cpx #$08
-	bne .gumline_clean_bottom
-	jmp .gumline_done
-.gumline_is_empty
-	lda tooth_index
-	and #$08
-	bne .gumline_empty_bottom
-.gumline_empty_top
-	ldx #$00
-	; 17 bytes rolled loop
-	lda #$08
-	sta temp07
-.gumline_empty_top_loop
-	lda gumline_top_empty_tile_pattern,x
-	PUSHY
-	inx
-	dec temp07
-	bne .gumline_empty_top_loop
-	; was 64 bytes unrolled
-	jmp .gumline_done
-.gumline_empty_bottom
-	ldx #$00
-	; 17 bytes rolled loop
-	lda #$08
-	sta temp07
-.gumline_empty_bottom_loop
-	lda gumline_bottom_empty_tile_pattern,x
-	PUSHY
-	inx
-	dec temp07
-	bne .gumline_empty_bottom_loop
-	; was 64 bytes unrolled
-.gumline_done
-
-
 	; lets dick around with attributes
 	ldx tooth_index
 	lda tooth_total_dmg,x
 	bpl .not_a_blackout
 	jmp .skip_black_out
 .not_a_blackout
-	cmp #$04
-	bcs .attr_tooth_alive
+	lda tooth_true_clean,x
+	beq .attr_tooth_alive
 	lda #%00000000
 	beq .attr_tooth_done
 .attr_tooth_alive
+	lda tooth_total_dmg,x
 	cmp #$30
 	bcs .mostly_dead
 	cmp #$18
@@ -535,7 +539,14 @@ state_game_prerender: subroutine
 	lda tooth_dead_neighbor_dirt,y
 	tax
 	inc $600,x
+	lda $600,x
+	cmp #$0f
+	bcc .dont_fix_dmg
+	lda #$0f
+.dont_fix_dmg
+	sta $600,x
 	iny
+	txa
 	ldx tooth_update_queue_size
 	sta tooth_needs_update,x
 	inc tooth_update_queue_size

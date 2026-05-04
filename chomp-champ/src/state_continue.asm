@@ -131,6 +131,7 @@ state_continue_init: subroutine
 state_continue_update: subroutine
 
 	jsr render_enable
+	jsr timer_update
 	jsr controller_read
 
 	lda controller1_d

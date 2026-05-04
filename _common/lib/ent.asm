@@ -27,6 +27,17 @@ ent_r5c0   eqm $05c0
 ent_r5e0   eqm $05e0
 
 
+ents_clear: subroutine
+	ldx #$00
+	txa
+.loop
+	sta $0300,x
+	sta $0400,x
+	sta $0600,x
+	inx
+	bne .loop
+	rts
+
 
 ent_find_slot: subroutine
 	; returns empty slot in x

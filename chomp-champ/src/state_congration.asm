@@ -31,6 +31,7 @@ state_congration_init: subroutine
 	
 	; reset hud split-scroll
 	lda #$00
+	sta player_lives
 	sta sprite0_active
 	
 	; setup pallete
