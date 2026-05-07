@@ -30,6 +30,10 @@ game_player_update: subroutine
 	cmp #$40
 	bne .death_init_done
 	jsr sfx_player_death
+	lda #$00
+	sta brush_status
+	sta floss_status
+	sta sfx_pu2_update_type
 .death_init_done
 	dec player_is_dead
 	rts
@@ -521,14 +525,26 @@ game_player_update: subroutine
 	lda temp00
 	clc
 	adc #$10
+	sta floss_box_left_x
+	clc
 	adc floss_length
-	jmp .floss_x_found
+	sta floss_hit_x
+	bcc .floss_right_no_wrap
+	lda #$ff
+.floss_right_no_wrap
+	sta floss_box_right_x
+	jmp .floss_y
 .floss_left
 	lda temp00
+	sta floss_box_right_x
 	sec
 	sbc floss_length
-.floss_x_found
 	sta floss_hit_x
+	bcs .floss_left_no_wrap
+	lda #$00
+.floss_left_no_wrap
+	sta floss_box_left_x
+.floss_y
 	clc
 	lda player_y
 	adc #$10

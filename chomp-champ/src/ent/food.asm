@@ -118,7 +118,6 @@ ent_food_spawn_in_gap: subroutine
 	stx ent_slot
 	jsr rng_update
 	lda rng_val0
-	and #$f0
 	ora #$08
 	sta ent_r1,x
 	; x position
@@ -210,13 +209,10 @@ ent_food_spawn_in_gap: subroutine
 
 ent_food_update: subroutine
 	; update logic
-	jsr ent_calc_position
-	lda ent_visible
-	sta ent_coll_visible,x
-	lda collision_0_x
-	sta ent_coll_x,x
-	lda collision_0_y
-	sta ent_coll_y,x
+	lda #$10
+	sta collision_0_w
+	sta collision_0_h
+	jsr game_ent_collision
 
 	; gap food may overlap two teeth. If either owner tooth has blacked out,
 	; retire that owner id; when both are retired, force falling state.
@@ -281,40 +277,16 @@ ent_food_update: subroutine
 .dont_despawn
 	jmp ent_food_render
 
-
 .standard_behavior
-	lda ent_visible
+	; player attacks
+	lda ent_damaged
 	bne .get_collision_type
 	jmp .collision_checks_done
 .get_collision_type
 	lda ent_r1,x
 	and #$08
 	bne .check_floss_collision
-	
-.check_brush_collision
-	lda controller1
-	and #BRUSH_BUTTON
-	beq .brushing_done
-	clc
-	lda collision_0_x
-	adc collision_0_w
-	cmp brush_hit_x
-	bcc .brushing_done
-	clc
-	lda collision_0_x
-	cmp brush_hit_x
-	bcs .brushing_done
-	clc
-	lda collision_0_y
-	adc collision_0_h
-	cmp brush_hit_y
-	bcc .brushing_done
-	clc
-	lda collision_0_y
-	cmp brush_hit_y
-	bcs .brushing_done
-.brush_collision
-	dec ent_hp,x
+
 	lda wtf
 	lsr
 	and #$03
@@ -333,62 +305,12 @@ ent_food_update: subroutine
 	jmp .collision_checks_done
 
 .check_floss_collision
-	lda floss_status
-	and #$40
-	bne .floss_check_ent_visible
-	jmp .flossing_done
-.floss_check_ent_visible
-	; prep left edge collisions
-	lda ent_visible
+	lda ent_damaged
 	cmp #$02
-	bne .standard_collision_box
-.left_oob_collision_box
-	lda collision_0_w
-	clc
-	adc collision_0_x
-	sta temp01 ; w
-	lda #$00
-	sta temp00 ; x
-	clc
-	lda temp00 ; x
-	adc collision_0_w
-	cmp floss_hit_x
-	bcc .flossing_done
-	clc
-	lda temp00 ; x
-	cmp floss_hit_x
-	bcs .flossing_done
-	clc
-	lda collision_0_y
-	adc collision_0_h
-	cmp floss_hit_y
-	bcc .flossing_done
-	clc
-	lda collision_0_y
-	cmp floss_hit_y
-	bcs .flossing_done
-	jmp .floss_collision
-.standard_collision_box
-	clc
-	lda collision_0_x
-	adc collision_0_w
-	cmp floss_hit_x
-	bcc .flossing_done
-	clc
-	lda collision_0_x
-	cmp floss_hit_x
-	bcs .flossing_done
-	clc
-	lda collision_0_y
-	adc collision_0_h
-	cmp floss_hit_y
-	bcc .flossing_done
-	clc
-	lda collision_0_y
-	cmp floss_hit_y
-	bcs .flossing_done
-.floss_collision
-	dec ent_hp,x
+	beq .handle_floss
+	inc ent_hp,x ; fix brush dmg
+	jmp .collision_checks_done
+.handle_floss
 	lda wtf
 	lsr
 	and #$03

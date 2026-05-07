@@ -63,7 +63,7 @@ game_ent_collision: subroutine
 	sbc collision_0_x
 	sta collision_0_w
 	sta ent_coll_w,x
-	rts
+	jmp .collision_box_done
 .set_right_only
 	clc
 	lda #$08
@@ -73,7 +73,7 @@ game_ent_collision: subroutine
 	lda #$08
 	sta collision_0_w
 	sta ent_coll_w,x
-	rts
+	jmp .collision_box_done
 .collision_box_full
 	lda collision_0_x
 	cmp #$f0
@@ -97,6 +97,9 @@ game_ent_collision: subroutine
 .ent_is_visible
 
 	; player collision
+	lda ent_type,x
+	cmp #ent_food_id
+	beq .player_collision_done
 	lda player_is_dead
 	bne .player_collision_done
 	lda player_iframes
@@ -157,39 +160,18 @@ game_ent_collision: subroutine
 .brushing_done
 
 	; floss collision
-	; xxx need to define floss hitbox
 	lda floss_status
 	and #$40
 	beq .flossing_done
-.flossing_left
+	; x overlap: food [collision_0_x, +collision_0_w] vs floss [floss_box_left_x, floss_box_right_x]
 	clc
 	lda collision_0_x
 	adc collision_0_w
-	bcs .flossing_done ; make sure x+w is not less than x
-	cmp floss_hit_x
+	cmp floss_box_left_x
 	bcc .flossing_done
-	clc
-	lda floss_hit_x
-	adc floss_length
+	lda floss_box_right_x
 	cmp collision_0_x
 	bcc .flossing_done
-	jmp .flossing_x_done
-.flossing_right
-	; calc base x
-	lda floss_hit_x
-	sec
-	sbc floss_length
-	sta temp00
-	clc
-	lda collision_0_x
-	adc collision_0_w
-	bcs .flossing_done ; make sure x+w is not less than x
-	cmp temp00
-	bcc .flossing_done
-	lda floss_hit_x
-	cmp collision_0_x
-	bcc .flossing_done
-.flossing_x_done
 	clc
 	lda collision_0_y
 	adc collision_0_h

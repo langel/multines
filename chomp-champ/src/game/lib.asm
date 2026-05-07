@@ -72,7 +72,7 @@ ent_sully_cell: subroutine
 
 	; y pos
 	lda collision_0_h
-	lsr
+	shift_r 2
 	clc
 	lda ent_y,x
 	sec

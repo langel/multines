@@ -81,6 +81,8 @@ brush_hit_x     byte
 brush_hit_y     byte
 floss_hit_x     byte
 floss_hit_y     byte
+floss_box_left_x  byte
+floss_box_right_x byte
 big_teef_brush_damage byte
 big_teef_floss_damage byte
 big_teef_upper_hits   byte

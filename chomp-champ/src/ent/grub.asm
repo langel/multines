@@ -105,7 +105,7 @@ ent_grub_update: subroutine
 	and #$02
 	bne .hitbox_tall
 .hitbox_wide
-	lda #$0a
+	lda #$08
 	sta collision_0_h
 	jmp .hitbox_done
 .hitbox_tall
@@ -147,10 +147,10 @@ ent_grub_update: subroutine
 	lda #$00
 	sta ent_r5,x
 .dont_reset_r5
-	dec ent_hp,x
 	lda ent_hp,x
 	bpl .damage_done
 	jsr ent_particle_spawn_from_baddie
+	jmp ent_z_update_return
 .damage_done
 	
 	; animation logic
@@ -221,13 +221,13 @@ ent_grub_update: subroutine
 	; bound grub
 .check_y_bounds
 	lda ent_y,x
-	cmp #$40
+	cmp #$3f
 	bcc .y_too_high
 	cmp #$b8
 	bcs .y_too_low
 	jmp .check_x_bounds
 .y_too_high
-	lda #$44
+	lda #$40
 	sta ent_y,x
 	jmp .y_check_dir
 .y_too_low
@@ -347,10 +347,18 @@ ent_grub_update: subroutine
 
 .frame_done
 
-	
-	lda ent_y,x
-	clc
+	; z sort
+	lda ent_r3,x
+	and #$02
+	beq .wide
+.tall
 	adc #$10
+	bne .z_update
+.wide
+	lda #$09
+.z_update
+	clc
+	adc ent_y,x
 	jsr ent_z_calc_sort_vals_9bit
 
 
