@@ -9,6 +9,8 @@
 ;        3 down
 ; ent_r4 animation frame
 ; ent_r5 animation counter
+; ent_r6 z sort
+; ent_r7 z sort
 
 grub_dir_sprite:
 	hex dc fc dc fc bc be bc be
@@ -59,10 +61,11 @@ ent_grub_spawn_from_egg: subroutine
 	lda rng_val1
 	and #$03
 	sta ent_r3,x
-	; move right only when initial direction is up/down
+	; adjust position based on dir
 	lda ent_r3,x
 	and #$02
-	beq .spawn_pos_done
+	beq .leftright_adjust
+.updown_adjust
 	lda ent_x,x
 	clc
 	adc #$06
@@ -70,7 +73,13 @@ ent_grub_spawn_from_egg: subroutine
 	lda ent_x_hi,x
 	adc #$00
 	sta ent_x_hi,x
-.spawn_pos_done
+	jmp .adjust_done
+.leftright_adjust
+	lda ent_y,x
+	clc
+	adc #$06
+	sta ent_y,x
+.adjust_done
 
 	lda #grub_attacked_wait_length
 	sta ent_r1,x
@@ -83,15 +92,74 @@ ent_grub_spawn_from_egg: subroutine
 	rts
 
 
-ent_grub_update: subroutine
-	; update logic
 
+
+ent_grub_update: subroutine
+	
+	; reset size
+	lda #$10
+	sta collision_0_w
+	sta collision_0_h
+	; hitbox adjustments
+	lda ent_r3,x
+	and #$02
+	bne .hitbox_tall
+.hitbox_wide
+	lda #$0a
+	sta collision_0_h
+	jmp .hitbox_done
+.hitbox_tall
+	lda #$08
+	sta collision_0_w
+.hitbox_done
+
+	jsr game_ent_collision
+
+	lda ent_damaged
+	beq .damage_done
+	lda ent_r3 ; player dir
+	and #$01
+	sta ent_r3,x
+	bne .skitter_left
+.skitter_right
+	clc
+	lda ent_x,x
+	adc #$01
+	sta ent_x,x
+	lda ent_x_hi,x
+	adc #$00
+	sta ent_x_hi,x
+	jmp .skitter_done
+.skitter_left
+	sec
+	lda ent_x,x
+	sbc #$01
+	sta ent_x,x
+	lda ent_x_hi,x
+	sbc #$00
+	sta ent_x_hi,x
+.skitter_done
+	lda #grub_attacked_wait_length
+	sta ent_r1,x
+	lda ent_r5,x
+	cmp ent_r1,x
+	bcc .dont_reset_r5
+	lda #$00
+	sta ent_r5,x
+.dont_reset_r5
+	dec ent_hp,x
+	lda ent_hp,x
+	bpl .damage_done
+	jsr ent_particle_spawn_from_baddie
+.damage_done
+	
+	; animation logic
 	inc ent_r5,x
 	lda ent_r5,x
 	cmp ent_r1,x
 	beq .update_grub
 	jmp .frame_done
-
+	; update logic
 .update_grub
 
 	lda ent_r1,x
@@ -153,22 +221,22 @@ ent_grub_update: subroutine
 	; bound grub
 .check_y_bounds
 	lda ent_y,x
-	cmp #$38
+	cmp #$40
 	bcc .y_too_high
-	cmp #$b0
+	cmp #$b8
 	bcs .y_too_low
 	jmp .check_x_bounds
 .y_too_high
-	lda #$3c
+	lda #$44
 	sta ent_y,x
-	lda #$01
-	sta ent_r3,x
-	jmp .turn_left_or_right
+	jmp .y_check_dir
 .y_too_low
-	lda #$af
+	lda #$b7
 	sta ent_y,x
-	lda #$00
-	sta ent_r3,x
+.y_check_dir
+	lda ent_r3,x
+	and #$02
+	beq .check_x_bounds
 	jmp .turn_left_or_right
 .check_x_bounds
 	lda ent_x_hi,x
@@ -216,8 +284,8 @@ ent_grub_update: subroutine
 	adc #$00
 	sta ent_x_hi,x
 	lda ent_y,x
-	clc
-	adc #$04
+	sec
+	sbc #$06
 	sta ent_y,x
 	; get next dir
 	jsr rng_update
@@ -241,8 +309,8 @@ ent_grub_update: subroutine
 	sbc #$00
 	sta ent_x_hi,x
 	lda ent_y,x
-	sec
-	sbc #$04
+	clc
+	adc #$06
 	sta ent_y,x
 	; get next dir
 	jsr rng_update
@@ -279,130 +347,6 @@ ent_grub_update: subroutine
 
 .frame_done
 
-	jsr ent_calc_position
-	; hitbox adjustments
-	lda ent_r3,x
-	and #$02
-	bne .hitbox_tall
-.hitbox_wide
-	lda collision_0_y
-	clc
-	adc #$06
-	sta ent_hitbox_y,x
-	lda #$0a
-	sta collision_0_h
-	jmp .hitbox_adjust_done
-.hitbox_tall
-	lda #$08
-	sta collision_0_w
-	lda collision_0_y
-	sta ent_hitbox_y,x
-.hitbox_adjust_done
-	; save hitbox to registers
-	lda ent_visible
-	sta ent_coll_visible,x
-	lda collision_0_x
-	sta ent_coll_x,x
-	lda collision_0_y
-	sta ent_coll_y,x
-	lda collision_0_w
-	sta ent_coll_w,x
-	lda collision_0_h
-	sta ent_coll_h,x
-
-	; check player collision
-	lda ent_visible
-	beq .player_collision_done
-	lda player_is_dead
-	bne .player_collision_done
-	lda player_iframes
-	bne .player_collision_done
-	clc
-	lda collision_0_x
-	adc collision_0_w
-	cmp player_hit_x
-	bcc .player_collision_done
-	clc
-	lda collision_0_x
-	cmp player_hit_x
-	bcs .player_collision_done
-	clc
-	lda collision_0_y
-	adc collision_0_h
-	cmp player_hit_y
-	bcc .player_collision_done
-	clc
-	lda collision_0_y
-	cmp player_hit_y
-	bcs .player_collision_done
-.player_collides
-	lda #player_death_timer
-	sta player_is_dead
-	lda #$04
-	sta ent_r0
-	jsr ent_particle_spawn_from_baddie
-	ldy ent_spr_ptr
-	jmp ent_z_update_return
-.player_collision_done
-
-	; check brush collision
-	lda controller1
-	and #BRUSH_BUTTON
-	beq .brushing_done
-	clc
-	lda collision_0_x
-	adc collision_0_w
-	cmp brush_hit_x
-	bcc .brushing_done
-	clc
-	lda collision_0_x
-	cmp brush_hit_x
-	bcs .brushing_done
-	clc
-	lda ent_hitbox_y,x
-	adc collision_0_h
-	cmp brush_hit_y
-	bcc .brushing_done
-	clc
-	lda ent_hitbox_y,x
-	cmp brush_hit_y
-	bcs .brushing_done
-.brush_collision
-	lda ent_r3 ; player dir
-	and #$01
-	sta ent_r3,x
-	bne .skitter_left
-.skitter_right
-	clc
-	lda ent_x,x
-	adc #$01
-	sta ent_x,x
-	lda ent_x_hi,x
-	adc #$00
-	sta ent_x_hi,x
-	jmp .skitter_done
-.skitter_left
-	sec
-	lda ent_x,x
-	sbc #$01
-	sta ent_x,x
-	lda ent_x_hi,x
-	sbc #$00
-	sta ent_x_hi,x
-.skitter_done
-	lda #grub_attacked_wait_length
-	sta ent_r1,x
-	lda ent_r5,x
-	cmp ent_r1,x
-	bcc .dont_reset_r5
-	lda #$00
-	sta ent_r5,x
-.dont_reset_r5
-	dec ent_hp,x
-	lda ent_hp,x
-	bpl .brushing_done
-	jsr ent_particle_spawn_from_baddie
-.brushing_done
 	
 	lda ent_y,x
 	clc
@@ -431,13 +375,13 @@ ent_grub_render: subroutine
 	and #$02
 	beq .generic_render
 .up_down_single_sprite
-	lda ent_coll_visible,x
+	lda ent_visible
 	and #$01
 	cmp #$01
 	bne .render_done
-	lda ent_coll_x,x
+	lda collision_0_x
 	sta spr_x,y
-	lda ent_coll_y,x
+	lda collision_0_y
 	sta spr_y,y
 	lda temp00
 	sta spr_p,y
@@ -446,12 +390,6 @@ ent_grub_render: subroutine
 	inc_y 4
 	jmp .render_done
 .generic_render
-	lda ent_coll_visible,x
-	sta ent_visible
-	lda ent_coll_x,x
-	sta collision_0_x
-	lda ent_coll_y,x
-	sta collision_0_y
 	jsr ent_render_generic_8x16
 
 .render_done

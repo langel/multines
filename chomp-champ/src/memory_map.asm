@@ -42,6 +42,7 @@ tooth_index             byte
 cell_sweep              byte
 tooth_clean_gleam       byte
 
+ent_damaged             byte
 germ_attacked           byte
 germ_attackee           byte
 grub_converge_slot      byte

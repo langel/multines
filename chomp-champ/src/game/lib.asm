@@ -55,17 +55,28 @@ ent_sully_cell: subroutine
 	; (ent_x / 16) 
 	; +
 	; ((ent_y / 16) * 32)
+
+	; x pos
 	lda ent_x_hi,x
 	lsr
 	lda ent_x,x
 	ror
+	sta temp00
+	lda collision_0_w
+	lsr
 	clc
-	adc #$02
+	adc temp00
+	adc #$fc
 	shift_r 3
 	sta temp00
+
+	; y pos
+	lda collision_0_h
+	lsr
+	clc
 	lda ent_y,x
 	sec
-	sbc #$33
+	sbc #$38
 	cmp #$80
 	bcc .y_post_sub_ok
 	lda #$7f
@@ -75,6 +86,7 @@ ent_sully_cell: subroutine
 	clc
 	adc temp00
 	sta temp01
+
 	; check tooth is present
 	tax
 	lda tooth_cell2tooth,x

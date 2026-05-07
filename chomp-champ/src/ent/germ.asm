@@ -69,83 +69,19 @@ ent_germ_spawn: subroutine
 
 ent_germ_update: subroutine
 
-	jsr ent_calc_position
-	lda collision_0_w
-	sta ent_coll_w,x
-	lda collision_0_h
-	sta ent_coll_h,x
-	lda collision_0_x
-	sta ent_coll_x,x
-	lda collision_0_y
-	sta ent_coll_y,x
+	lda #$10
+	sta collision_0_w
+	sta collision_0_h
+	jsr game_ent_collision
 
-	; check player collision
-	lda ent_visible
-	beq .player_collision_done
-	lda player_is_dead
-	bne .player_collision_done
-	lda player_iframes
-	bne .player_collision_done
-	clc
-	lda collision_0_x
-	adc collision_0_w
-	cmp player_hit_x
-	bcc .player_collision_done
-	clc
-	lda collision_0_x
-	cmp player_hit_x
-	bcs .player_collision_done
-	clc
-	lda collision_0_y
-	adc collision_0_h
-	cmp player_hit_y
-	bcc .player_collision_done
-	clc
-	lda collision_0_y
-	cmp player_hit_y
-	bcs .player_collision_done
-.player_collides
-	lda #player_death_timer
-	sta player_is_dead
-	lda #$04
-	sta ent_r0
-	jsr ent_particle_spawn_from_baddie
-	jmp ent_z_update_return
-.player_collision_done
-	
-	; check brush collision
-	lda ent_visible
-	sta ent_coll_visible,x
-	beq .brushing_done
-	lda controller1
-	and #BRUSH_BUTTON
-	beq .brushing_done
-	clc
-	lda collision_0_x
-	adc collision_0_w
-	cmp brush_hit_x
-	bcc .brushing_done
-	clc
-	lda collision_0_x
-	cmp brush_hit_x
-	bcs .brushing_done
-	clc
-	lda collision_0_y
-	adc collision_0_h
-	cmp brush_hit_y
-	bcc .brushing_done
-	clc
-	lda collision_0_y
-	cmp brush_hit_y
-	bcs .brushing_done
-.brush_collision
-	; take hit points
-	dec ent_hp,x
+	; damage
 	lda ent_hp,x
 	bpl .dont_despawn
 	jsr ent_particle_spawn_from_baddie
 	jmp ent_z_update_return
 .dont_despawn
+	lda ent_damaged
+	beq .damage_done
 	; set germs on offensive
 	lda #$7f
 	sta germ_attacked
@@ -172,7 +108,7 @@ ent_germ_update: subroutine
 	inc ent_x,x
 .germ_attacked_done
 	jmp .movement_done
-.brushing_done
+.damage_done
 
 ; states
 ;    0 = wandering

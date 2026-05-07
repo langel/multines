@@ -60,40 +60,21 @@ ent_eggs_update: subroutine
 	lda ent_r5,x
 	adc #$00
 	sta ent_x_hi,x
-	jsr ent_calc_position
+
+	lda #$10
+	sta collision_0_w
+	sta collision_0_h
+	jsr game_ent_collision
 	
-	; check brush collision
-	lda ent_visible
-	sta ent_coll_visible,x
-	beq .brushing_done
-	lda controller1
-	and #BRUSH_BUTTON
-	beq .brushing_done
-	clc
-	lda collision_0_x
-	adc collision_0_w
-	cmp brush_hit_x
-	bcc .brushing_done
-	clc
-	lda collision_0_x
-	cmp brush_hit_x
-	bcs .brushing_done
-	clc
-	lda collision_0_y
-	adc collision_0_h
-	cmp brush_hit_y
-	bcc .brushing_done
-	clc
-	lda collision_0_y
-	cmp brush_hit_y
-	bcs .brushing_done
-.brush_collision
+	; xxx if flossing maybe egg can fall like food
+	lda ent_damaged
+	beq .damage_done
 	lda ent_r0,x
 	sec
 	sbc #$07
 	bcc .hatch
 	sta ent_r0,x
-.brushing_done
+.damage_done
 
 	dec ent_r0,x
 	bne .dont_hatch

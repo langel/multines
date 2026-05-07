@@ -19,7 +19,7 @@ big_teef_y_offset:
 	; upper mandible
 	hex 02 03 06 07 05 05
 	; lower mandible
-	hex 03 03 05 04 06 05
+	hex 03 03 05 04 05 05
 
 ent_big_teef_spawn: subroutine
 	ldx #$1f
