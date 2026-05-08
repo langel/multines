@@ -96,63 +96,6 @@ ent_grub_spawn_from_egg: subroutine
 
 ent_grub_update: subroutine
 	
-	; reset size
-	lda #$10
-	sta collision_0_w
-	sta collision_0_h
-	; hitbox adjustments
-	lda ent_r3,x
-	and #$02
-	bne .hitbox_tall
-.hitbox_wide
-	lda #$08
-	sta collision_0_h
-	jmp .hitbox_done
-.hitbox_tall
-	lda #$08
-	sta collision_0_w
-.hitbox_done
-
-	jsr game_ent_collision
-
-	lda ent_damaged
-	beq .damage_done
-	lda ent_r3 ; player dir
-	and #$01
-	sta ent_r3,x
-	bne .skitter_left
-.skitter_right
-	clc
-	lda ent_x,x
-	adc #$01
-	sta ent_x,x
-	lda ent_x_hi,x
-	adc #$00
-	sta ent_x_hi,x
-	jmp .skitter_done
-.skitter_left
-	sec
-	lda ent_x,x
-	sbc #$01
-	sta ent_x,x
-	lda ent_x_hi,x
-	sbc #$00
-	sta ent_x_hi,x
-.skitter_done
-	lda #grub_attacked_wait_length
-	sta ent_r1,x
-	lda ent_r5,x
-	cmp ent_r1,x
-	bcc .dont_reset_r5
-	lda #$00
-	sta ent_r5,x
-.dont_reset_r5
-	lda ent_hp,x
-	bpl .damage_done
-	jsr ent_particle_spawn_from_baddie
-	jmp ent_z_update_return
-.damage_done
-	
 	; animation logic
 	inc ent_r5,x
 	lda ent_r5,x
@@ -269,7 +212,8 @@ ent_grub_update: subroutine
 
 	; check for turning
 	lda ent_r2,x
-	bne .not_turning
+	beq .do_turn
+	jmp .not_turning
 .do_turn
 	jsr rng_update
 	lda ent_r3,x
@@ -286,6 +230,11 @@ ent_grub_update: subroutine
 	lda ent_y,x
 	sec
 	sbc #$06
+	; clamp to top bound so the new orientation isn't already OOB
+	cmp #$40
+	bcs .turn_ud_y_ok
+	lda #$40
+.turn_ud_y_ok
 	sta ent_y,x
 	; get next dir
 	jsr rng_update
@@ -311,6 +260,11 @@ ent_grub_update: subroutine
 	lda ent_y,x
 	clc
 	adc #$06
+	; clamp to bottom bound so the new orientation isn't already OOB
+	cmp #$b8
+	bcc .turn_lr_y_ok
+	lda #$b7
+.turn_lr_y_ok
 	sta ent_y,x
 	; get next dir
 	jsr rng_update
@@ -346,6 +300,63 @@ ent_grub_update: subroutine
 .skip_tooth_dmg
 
 .frame_done
+	
+	; reset size
+	lda #$10
+	sta collision_0_w
+	sta collision_0_h
+	; hitbox adjustments
+	lda ent_r3,x
+	and #$02
+	bne .hitbox_tall
+.hitbox_wide
+	lda #$08
+	sta collision_0_h
+	jmp .hitbox_done
+.hitbox_tall
+	lda #$08
+	sta collision_0_w
+.hitbox_done
+
+	jsr game_ent_collision
+
+	lda ent_damaged
+	beq .damage_done
+	lda ent_r3 ; player dir
+	and #$01
+	sta ent_r3,x
+	bne .skitter_left
+.skitter_right
+	clc
+	lda ent_x,x
+	adc #$01
+	sta ent_x,x
+	lda ent_x_hi,x
+	adc #$00
+	sta ent_x_hi,x
+	jmp .skitter_done
+.skitter_left
+	sec
+	lda ent_x,x
+	sbc #$01
+	sta ent_x,x
+	lda ent_x_hi,x
+	sbc #$00
+	sta ent_x_hi,x
+.skitter_done
+	lda #grub_attacked_wait_length
+	sta ent_r1,x
+	lda ent_r5,x
+	cmp ent_r1,x
+	bcc .dont_reset_r5
+	lda #$00
+	sta ent_r5,x
+.dont_reset_r5
+	lda ent_hp,x
+	bpl .damage_done
+	jsr ent_particle_spawn_from_baddie
+	jmp ent_z_update_return
+.damage_done
 
 	; z sort
 	lda ent_r3,x
