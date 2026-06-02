@@ -1,0 +1,50 @@
+
+
+{ 
+	"alphabet": {
+		"0x3f": " ",
+		"0x40": "ABCDEFGHIJKLMN"
+	},
+	"passages": {
+		"title_prompt": "CHOMP CHAMP\nPRESS START TO CHOMP"
+	}
+}
+
+
+I want to create a dictionary system for my NES multicart. There should be a primary processing script locating in _util/ that will load data from files and synthesize it into multiple output files. I'd like verbose processing/error messages and statistical savings reporting output to the terminal.
+
+We need some sort of config file in _util/ that first states the starting address of the dictionary for the master bank. It should define which game directories have files for processing in a specific order of operations.
+
+The game directories will have a util/ folder: chomp-champ/util/ for example. We need a file in there that defines the alphabet tile pattern_id's and all the text to be processed. Alphabet is defined as a series of [pattern_id] => 'string' where we can define a single character or a string of them with each character incrementing the pattern_id it belongs to. The text should somehow be separated into chunks called passages. Passages can be multiple lines. New line character pattern_id will be 0xf0. End Of Passage will be 0xf1. 
+
+Processing text:
+We are building multiple output files: the main dictionary to be added in the common upper bank of the multicart and another file for each game directory's converted text. All of these files will be .asm syntaxed for dasm like throughout the rest of the project. In the dictionary each word should be shown in a comment followed by the word's data in hex. The converted text files should do similar but also include a comment line for each passage with a counter (and also they need lo and hi byte address tables to each passage (and their perspective alphabet table)). The master alphabet which the word tokens are stored as will use traditional 7-bit ascii.
+Any word over a certain number of characters long and appears multiple times in any of the text gets added to the dictionary and replaced in the text with a two byte code that is later interpreted into the word's spelling data address. Honestly, despite using the word "words", I've never done this before and am open to any form of pattern matching that will help with this simple compression method.
+
+address alignment across data sets:
+The dictionary should at max take up 4kb. For example if the base address is set to 0x9000 then it would potentially fill the 0x9000-0xafff address space. Now the byte in the text that indicates that we'll be using a dictionary pattern will be in the 0xd0-0xef range. This byte indicates the hi address byte of the dictionary so, with our example, a value of 0xd0 would point to 0x9000 and 0xe2 would point to 0xa200 etc. We'll need a constant(s) define somewhere for that. The 2nd byte after that would of course be the lo address byte of the dictionary pattern. If any game's alphabet tries to use pattern_id's in the 0xd0-0xff range then the process should terminate with a error message.
+
+
+
+
+we need to create a 6502 assembly subroutine that will now display the text onto the screen
+lets create a file _common/lib/dict_text.asm
+in there we'll put the subroutine dict_text_plot
+we'll use the temp registers to pass arguments
+temp00..temp01 will be passage address
+temp02..temp03 will be the target ppu nametable address
+temp04 will hold some binary options #%xxxx3210
+	3 = two consecutive spaces is always 3 spaces (overrides bit 1)
+	2 = ppu increment amount: 1(false) or 32(true)
+	1 = put a space between every character
+	0 = put a blank line between every line
+the subroutine needs to setup the ppu pointer for the nametable and set ppu_ctrl according to bit 2
+then it iterates over the passage decoding the data and pushing each character to ppu_data
+if bit 1 is set to true then add a space character between each character in the text
+when the newline byte is hit ($f0) we need to add to the temp02..temp03 argument truthtable:
+              bit0 false  bit0 true
+   bit2 false    #$20		  #$40
+   bit2 true     #$01		  #$02
+then reload temp02..temp03 into ppu_address
+
+when end of passage byte is hit ($f1) we rts

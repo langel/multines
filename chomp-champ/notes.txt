@@ -1,0 +1,38 @@
+
+
+
+sfx (bite sound + moar)
+spawn food only on teeth?
+scan playfield before level starts
+cap enemy count
+bug with boss level skip with one tooth?
+
+
+Mel's chomp champ suggestions
+random enemy spawns in later levels
+possible enemy death by floss
+maybe if floss is attached then player moving up and down is an insta-kill
+scoring system (might be too much rom and where does it fit on the hud?)
+bonus lives from scores
+500pts per enemy
+250pts per dirt cell cleared
+50pts * Level per tooth remaining bonus
+requires a bonus screen (more rom)
+teeth with any dirt could be yellow so only truly cleared teeth do the palette thing when a tooth is cleared
+germs shouldn't all come to the attacked germs aid
+
+ROM SAVED
+~618 bytes rolling loops in game prerender (top 337f became 3115)
+~26 bytes truncated level init (top 3115 became 3089)
+~62 bytes single cell renders handler (top 3089 became 304b)
+[bytes added back in for timer and fixing many small bugs]
+~157 bytes refactored collisions (top 3169 became 30cc)
+$337f tables begin
+
+
+chomp-champ___0062 = unending particles in teeth indicator
+chomp-champ___0069 = teeth flash like hud
+chomp-champ___0070 = blackout teeth render as red gums on next level
+chomp-champ___0071 = blackout teeth render missing gum line
+
+

@@ -1,0 +1,82 @@
+
+palette fade functions in common
+move palette_cache into common zp
+need palette_source put somewhere in ram too
+
+
+
+audio commands
+
+speed set - number of frames per Base Temporal Unit
+wait set - number of BTUs until next data read
+stop channels - bit based left to right
+duty set - sq1 2 bits then sq2 2 bits
+
+sq1 base pitch - val shifted left 2 (0-60)
+sq1 pitch set - base pitch + val
+sq1 envelope set - only 16 options?
+
+sq2 base pitch - val shifted left 2 (0-60)
+sq2 pitch set - base pitch + val
+sq2 envelope set 
+
+tri base pitch - val shifted left 2 (0-60)
+tri pitch set - base pitch + val
+tri length set
+
+noise pitch set 
+noise envelope set
+
+
+
+AERO
+GRID
+
+
+boss fight
+nextlevel -> congration
+move nextlevel screen down 8px or so
+
+stack page usage
+
+$0100-$015f nametable nmi caching
+$0160-$017f audio subsystem 
+??? this divide could be $01b0 or between
+--- palette fade cache?
+$0180-$01cf system scratch
+$01d0-$01df program space
+$01e0-$01ff stack
+
+move quordle poems to its own repo
+
+
+
+
+
+couch hair
+turd tug
+beard grow
+porch ball
+tic check
+fish get
+date night
+car dodge
+
+
+dungeon crawler
+craweon dungler
+
+
+
+possible assembler names:
+blastasm
+loblasm   <--- WinRAR!
+hyperasm
+blasma
+blastasm
+blastmo
+blasmo
+blasm
+
+
+
