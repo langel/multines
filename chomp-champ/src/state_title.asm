@@ -42,6 +42,7 @@ state_title_init: subroutine
 	sta temp01
 	lda #$20
 	jsr nametable_fill
+	
 	; load title graphic
 	; chomp
 	lda #$20
@@ -81,13 +82,31 @@ state_title_init: subroutine
 	sta temp00
 	lda #>chomp_champ_passage_00
 	sta temp01
-	lda #$65
+	; xxx for multicart
+	;lda #$65
+	; xxx for individual carts
+	lda #$63
 	sta temp02
 	lda #$23
 	sta temp03
 	lda #%000000001
 	sta temp04
 	jsr dict_text_plot
+
+	; cart id
+	; xxx for individual carts
+	lda #$08
+	sta PPU_DATA
+	lda #$22
+	sta PPU_DATA
+	; tens hexadigit
+	; rom address 00f6
+	lda #$5f
+	sta PPU_DATA
+	; ones hexadigit
+	; rom address 00fb
+	lda #$5f
+	sta PPU_DATA
 
 	; setup big teef
 	lda #$68
