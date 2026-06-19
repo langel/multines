@@ -13,12 +13,56 @@ PPU_DATA    EQM $2007
 
 palette_cache	EQU $e7
 
-spr_y  eqm $0200
-spr_p  eqm $0201
-spr_a  eqm $0202
-spr_x  eqm $0203
+; OAM local RAM copy goes from $0200-$02FF:
+OAM_RAM         EQM $0200
+spr_y           EQM $0200
+spr_p           EQM $0201
+spr_a           EQM $0202
+spr_x           EQM $0203
+        
+; PULSE CHANNELS
+;$4000 / $4004	DDLC VVVV	Duty (D), envelope loop / length counter halt (L), constant volume (C), volume/envelope (V)
+;$4001 / $4005	EPPP NSSS	Sweep unit: enabled (E), period (P), negate (N), shift (S)
+;$4002 / $4006	TTTT TTTT	Timer low (T)
+;$4003 / $4007	LLLL LTTT	Length counter load (L), timer high (T)
+        
+APU_PULSE1_VOL       EQM $4000
+APU_PULSE1_SWEEP     EQM $4001
+APU_PULSE1_TIMER_LO  EQM $4002
+APU_PULSE1_TIMER_HI  EQM $4003
+APU_PULSE2_VOL       EQM $4004
+APU_PULSE2_SWEEP     EQM $4005
+APU_PULSE2_TIMER_LO  EQM $4006
+APU_PULSE2_TIMER_HI  EQM $4007
 
-PPU_OAM_DMA     EQM $4014
+; TRIANGLE CHANNEL
+;$4008  CRRR RRRR 	Length counter halt / linear counter control (C), linear counter load (R)
+;$4009 	---- ---- 	Unused
+;$400A 	TTTT TTTT 	Timer low (T)
+;$400B 	LLLL LTTT 	Length counter load (L), timer high (T) 
+ 
+APU_TRI_CONTROL      EQM $4008
+APU_TRI_UNUSED       EQM $4009
+APU_TRI_TIMER_LO     EQM $400a
+APU_TRI_TIMER_HI     EQM $400b
+     
+; NOISE CHANNEL
+;$400C	--LC VVVV	Envelope loop / length counter halt (L), constant volume (C), volume/envelope (V)
+;$400D	---- ----	Unused
+;$400E	L--- PPPP	Loop noise (L), noise period (P)
+;$400F	LLLL L---	Length counter load (L)
+        
+APU_NOISE_VOL        EQM $400C
+APU_NOISE_FREQ       EQM $400E
+APU_NOISE_TIMER      EQM $400F
+
+DMC_FREQ             EQM $4010
+APU_STATUS           EQM $4015
+APU_DMC_CTRL         EQM $4010
+APU_CHAN_CTRL        EQM $4015
+APU_FRAME            EQM $4017
+
+PPU_OAM_DMA        EQM $4014
 
 JOYPAD1            EQM $4016
 JOYPAD2            EQM $4017
@@ -30,12 +74,6 @@ BUTTON_UP     	    EQM 1 << 3
 BUTTON_DOWN   	    EQM 1 << 2
 BUTTON_LEFT   	    EQM 1 << 1
 BUTTON_RIGHT  	    EQM 1 << 0
-
-; NOTE: I've put this outside of the PPU & APU, because it is a feature
-; of the APU that is primarily of use to the PPU.
-OAM_DMA         EQM $4014
-; OAM local RAM copy goes from $0200-$02FF:
-OAM_RAM         EQM $0200
 
 ; PPU_CTRL flags
 CTRL_NMI        EQM %10000000	; Execute Non-Maskable Interrupt on VBlank

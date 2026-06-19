@@ -7,8 +7,8 @@
 ;sfx_pu2_counter	
 ;sfx_noi_counter	
 ; table offsets for update subroutines
-;sfx_pu2_update_type	
-;sfx_noi_update_type	
+;sfx_pu2_update_id	
+;sfx_noi_update_id	
 
 ; these should only use Pulse 2 and Noise channels
 ; unless its a non-music moment (like player death)
@@ -90,13 +90,13 @@ sfx_update_delegator: subroutine
 
 sfx_pu2_update_stop: subroutine
 	lda #$00
-	sta sfx_pu2_update_type
+	sta sfx_pu2_update_id
 	rts
 sfx_noi_update_stop: subroutine
 	lda #%00010000
 	sta apu_cache+$c
 	lda #$00
-	sta sfx_noi_update_type
+	sta sfx_noi_update_id
 	rts
         
         
@@ -113,22 +113,22 @@ sfx_tingler: subroutine
 	lda sfx_pu2_counter
 	bne .done
 	lda #$00
-	sta sfx_temp00
-	sta sfx_temp01
-	sta sfx_temp02
-	sta sfx_temp03
+	sta apu_sfx_temp00
+	sta apu_sfx_temp01
+	sta apu_sfx_temp02
+	sta apu_sfx_temp03
 	lda #sfx_tingler_id
-	sta sfx_pu2_update_type
+	sta sfx_pu2_update_id
 .done
 	rts
 sfx_tingler_update: subroutine
-	lda sfx_temp00
+	lda apu_sfx_temp00
 	cmp #$05
 	bne .not_next
 	lda #$00
-	sta sfx_temp00
+	sta apu_sfx_temp00
 	; pulse 2
-	lda sfx_temp02
+	lda apu_sfx_temp02
 	shift_l 3
 	sta temp00
 	jsr rng_update
@@ -149,69 +149,69 @@ sfx_tingler_update: subroutine
    ora #%01000000
 	sta $4007
 	; next note
-	inc sfx_temp01
-	lda sfx_temp01
+	inc apu_sfx_temp01
+	lda apu_sfx_temp01
 	cmp #$10
 	bne .not_next
 	lda #$00
-	sta sfx_temp01
-	inc sfx_temp02
-	lda sfx_temp02
+	sta apu_sfx_temp01
+	inc apu_sfx_temp02
+	lda apu_sfx_temp02
 	cmp #$04
 	bne .not_next
 	lda #$00
-	sta sfx_temp02
+	sta apu_sfx_temp02
 .not_next
-	inc sfx_temp00
+	inc apu_sfx_temp00
 	rts
 
 
 sfx_brush_up: subroutine
 	lda #$00
-	sta sfx_temp00
+	sta apu_sfx_temp00
 	lda #$0a
-	sta sfx_temp01
+	sta apu_sfx_temp01
 	lda #sfx_brush_up_id
-	sta sfx_noi_update_type
+	sta sfx_noi_update_id
 	rts
 sfx_brush_up_update: subroutine
-	inc sfx_temp00
-	lda sfx_temp00
+	inc apu_sfx_temp00
+	lda apu_sfx_temp00
 	and #$03
 	bne .not_next
-	dec sfx_temp01
-	lda sfx_temp01
+	dec apu_sfx_temp01
+	lda apu_sfx_temp01
 	cmp #$08
 	bne .not_next
 	jmp sfx_noi_update_clear 
 .not_next
 	lda #%00011010
 	sta apu_cache+$c
-	lda sfx_temp01
+	lda apu_sfx_temp01
 	sta apu_cache+$e
 	rts
 sfx_brush_down: subroutine
 	lda #$00
-	sta sfx_temp00
+	sta apu_sfx_temp00
 	lda #$04
-	sta sfx_temp01
+	sta apu_sfx_temp01
 	lda #sfx_brush_down_id
-	sta sfx_noi_update_type
+	sta sfx_noi_update_id
 	rts
 sfx_brush_down_update: subroutine
-	inc sfx_temp00
-	lda sfx_temp00
+	inc apu_sfx_temp00
+	lda apu_sfx_temp00
 	and #$03
 	bne .not_next
-	inc sfx_temp01
-	lda sfx_temp01
+	inc apu_sfx_temp01
+	lda apu_sfx_temp01
 	cmp #$06
 	bne .not_next
 	jmp sfx_noi_update_clear 
 .not_next
 	lda #%00011010
 	sta apu_cache+$c
-	lda sfx_temp01
+	lda apu_sfx_temp01
 	sta apu_cache+$e
 	rts
 
@@ -232,7 +232,7 @@ sfx_pewpew: subroutine
 	sta $4007
 	lda #0
 	sta apu_pu2_counter
-	sta sfx_pu2_update_type
+	sta sfx_pu2_update_id
 .no
 	rts
 
@@ -246,7 +246,7 @@ sfx_player_damage: subroutine
 	lda #$10
 	sta apu_noi_counter
 	lda #$01
-	sta apu_noi_envelope
+	sta apu_noi_env_id
 	lda #$10
 	sta sfx_noi_counter
 	rts
@@ -273,37 +273,37 @@ sfx_player_death: subroutine
 	sta $4007
 	; setup noise handler
 	lda #$01
-	sta sfx_noi_update_type
+	sta sfx_noi_update_id
 	lda #$00
-	sta sfx_pu2_update_type
+	sta sfx_pu2_update_id
 	lda #$00
-	sta sfx_temp00 ; volume
+	sta apu_sfx_temp00 ; volume
 	lda #$80
-	sta sfx_temp01 ; pitch
+	sta apu_sfx_temp01 ; pitch
 	;sta sfx_noi_counter
 	rts
         
 sfx_player_death_update: subroutine
-	lda sfx_temp00 ; vol
+	lda apu_sfx_temp00 ; vol
 	lsr
 	lsr
 	lsr
 	lsr
 	and #%00010000
 	sta apu_cache+$c
-	lda sfx_temp01 ; pitch
+	lda apu_sfx_temp01 ; pitch
 	lsr
 	lsr
 	lsr
 	sta apu_cache+$e
-	inc sfx_temp01 ; pitch
-	inc sfx_temp00 ; vol
-	inc sfx_temp00 ; vol
+	inc apu_sfx_temp01 ; pitch
+	inc apu_sfx_temp00 ; vol
+	inc apu_sfx_temp00 ; vol
 	bne .dont_kill_player_death_sound
 	lda #$10
 	sta apu_cache+$c
 	lda #$00
-	sta sfx_noi_update_type
+	sta sfx_noi_update_id
 .dont_kill_player_death_sound
 	rts
         
@@ -326,7 +326,7 @@ sfx_enemy_damage: subroutine
         lda #$08
         sta sfx_pu2_counter
         lda #0
-        sta sfx_pu2_update_type
+        sta sfx_pu2_update_id
 .no
 	rts
         
@@ -338,9 +338,9 @@ sfx_enemy_death: subroutine
 	lda #$0f
 	sta apu_cache+$e
 	lda #$01
-	sta apu_noi_envelope
+	sta apu_noi_env_id
 	lda #$02
-	sta sfx_noi_update_type
+	sta sfx_noi_update_id
 	lda #$10
 	sta apu_noi_counter
 	sta sfx_noi_counter
@@ -357,7 +357,7 @@ sfx_noi_update_clear: subroutine
 	lda #%00010000
 	sta apu_cache+$c
 	lda #$00
-	sta sfx_noi_update_type
+	sta sfx_noi_update_id
 	rts
 
 
@@ -370,7 +370,7 @@ sfx_powerup_hit: subroutine
 	lda #$20
 	sta apu_noi_counter
 	lda #$03
-	sta apu_noi_envelope
+	sta apu_noi_env_id
 	lda #$16
 	sta sfx_noi_counter
 	rts
@@ -400,12 +400,12 @@ sfx_powerup_1up: subroutine
 	; imperial jingle
 	; root note -- x - x x X
 	lda #$00
-	sta sfx_temp00
+	sta apu_sfx_temp00
 	lda #$05
-	sta sfx_pu2_update_type
+	sta sfx_pu2_update_id
 	rts
 sfx_powerup_1up_update: subroutine
-	lda sfx_temp00
+	lda apu_sfx_temp00
 	beq .trigger_lower_note
 	cmp #$10
 	beq .trigger_lower_note
@@ -415,14 +415,16 @@ sfx_powerup_1up_update: subroutine
 	beq .trigger_higher_note
 	bne .done
 .trigger_lower_note
-	lda audio_root_tone
+; placeholder C
+	lda #$03
 	clc
 	adc #$18
 	bne .trigger_note
 .trigger_higher_note
 	lda #$00
-	sta sfx_pu2_update_type
-	lda audio_root_tone
+	sta sfx_pu2_update_id
+; placeholder C
+	lda #$03
 	clc
 	adc #$24
 .trigger_note
@@ -439,43 +441,44 @@ sfx_powerup_1up_update: subroutine
 	lda #$10
 	sta sfx_pu2_counter
 .done
-	inc sfx_temp00
+	inc apu_sfx_temp00
 	rts
 
 
 ; sound test 0a
 sfx_powerup_battery_25: subroutine
 	lda #$08
-	sta sfx_temp00 ; counter
-	bne sfx_powerup_battery_set_update_type
+	sta apu_sfx_temp00 ; counter
+	bne sfx_powerup_battery_set_update_id
 ; sound test 0b
 sfx_powerup_battery_50: subroutine
 	lda #$04
-	sta sfx_temp00 ; counter
-	bne sfx_powerup_battery_set_update_type
+	sta apu_sfx_temp00 ; counter
+	bne sfx_powerup_battery_set_update_id
 ; sound test 0c
 sfx_powerup_battery_100: subroutine
 	lda #$00
-	sta sfx_temp00 ; counter
-sfx_powerup_battery_set_update_type:
+	sta apu_sfx_temp00 ; counter
+sfx_powerup_battery_set_update_id:
 	lda #$03
-	sta sfx_pu2_update_type
+	sta sfx_pu2_update_id
 	rts
 
 sfx_powerup_battery_arp:
 	.byte	#$18, #$1c, #$1f, #$24
 
 sfx_powerup_battery_update: subroutine
-	lda sfx_temp00
+	lda apu_sfx_temp00
 	and #%00000011
 	bne .dont_trigger
-	lda sfx_temp00
+	lda apu_sfx_temp00
 	lsr
 	lsr
 	cmp #$04
 	beq .end_sound
 	tax
-	lda audio_root_tone
+; placeholder C
+	lda #$03
 	clc
 	adc sfx_powerup_battery_arp,x
 	tax
@@ -491,11 +494,11 @@ sfx_powerup_battery_update: subroutine
 	lda #$10
 	sta sfx_pu2_counter
 .dont_trigger
-	inc sfx_temp00 ; counter
+	inc apu_sfx_temp00 ; counter
 	rts
 .end_sound
 	lda #$00
-	sta sfx_pu2_update_type
+	sta sfx_pu2_update_id
 	rts
 
 ; sound test 0d
@@ -525,7 +528,7 @@ sfx_shoot_bullet: subroutine
 	adc #$09
 	sta apu_cache+$e
 	lda #$03
-	sta apu_noi_envelope
+	sta apu_noi_env_id
 	lda #$20
 	sta apu_noi_counter
 	rts
@@ -541,8 +544,8 @@ sfx_rng_chord: subroutine
 	sta apu_pu1_counter
 	sta apu_pu2_counter
 	lda #$00
-	sta apu_pu1_envelope
-	sta apu_pu2_envelope
+	sta apu_pu1_env_id
+	sta apu_pu2_env_id
 	; pulse 1 pitch
 	lda rng00
 	and #%00001111
@@ -576,13 +579,13 @@ sfx_rng_chord: subroutine
 ; sound test 10
 sfx_phase_next: subroutine
 	lda #$00
-	sta sfx_phase_next_counter
+	sta apu_sfx_temp00
 	lda #$06
-	sta sfx_pu2_update_type
+	sta sfx_pu2_update_id
 	rts
 
 sfx_phase_next_update: subroutine
-	lda sfx_phase_next_counter
+	lda apu_sfx_temp00
 	beq .trigger_first
 	cmp #$04
 	beq .trigger_last
@@ -593,8 +596,9 @@ sfx_phase_next_update: subroutine
 	lda #$20
 	sta sfx_pu2_counter
 	lda #2
-	sta apu_pu2_envelope
-	lda audio_root_tone
+	sta apu_pu2_env_id
+; placeholder C
+	lda #$03
 	clc
 	adc #24 ; two octaves
 	tax
@@ -608,9 +612,10 @@ sfx_phase_next_update: subroutine
 	lda #$20
 	sta sfx_pu2_counter
 	lda #2
-	sta apu_pu1_envelope
-	sta apu_pu2_envelope
-	lda audio_root_tone
+	sta apu_pu1_env_id
+	sta apu_pu2_env_id
+; placeholder C
+	lda #$03
 	clc
 	adc #31 ; two octaves + 5th
 	tax
@@ -623,9 +628,9 @@ sfx_phase_next_update: subroutine
 	inc apu_cache+6
 	; trigger next phase and kill sfx
 	lda #$00
-	sta sfx_pu2_update_type
+	sta sfx_pu2_update_id
 .done
-	inc sfx_phase_next_counter
+	inc apu_sfx_temp00
 	rts
 
 
@@ -636,20 +641,20 @@ sfx_snare: subroutine
 	lda #$06
 	sta apu_noi_counter
 	lda #$05
-	sta apu_noi_envelope
+	sta apu_noi_env_id
 	rts
 
 ; sound test 12
 sfx_hat: subroutine
 	lda sfx_noi_counter
 	bne .no
-	lda apu_rng1
+	lda rng_val0
 	and #3
 	sta apu_cache+$e
 	lda #$e
 	sta apu_noi_counter
 	lda #$04
-	sta apu_noi_envelope
+	sta apu_noi_env_id
 .no
 	rts
 
@@ -663,5 +668,5 @@ sfx_ghost_snare: subroutine
 	lda #$04
 	sta apu_noi_counter
 	lda #$05
-	sta apu_noi_envelope
+	sta apu_noi_env_id
 	rts

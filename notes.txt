@@ -5,27 +5,42 @@ need palette_source put somewhere in ram too
 
 
 
-audio commands
 
-speed set - number of frames per Base Temporal Unit
-wait set - number of BTUs until next data read
-stop channels - bit based left to right
-duty set - sq1 2 bits then sq2 2 bits
 
-sq1 base pitch - val shifted left 2 (0-60)
-sq1 pitch set - base pitch + val
-sq1 envelope set - only 16 options?
+Song Data Audio Commands
 
-sq2 base pitch - val shifted left 2 (0-60)
-sq2 pitch set - base pitch + val
-sq2 envelope set 
+first nibble is command
+second nibble is command parameter
+some commands have trailing data
+*maybe features
 
-tri base pitch - val shifted left 2 (0-60)
-tri pitch set - base pitch + val
-tri length set
+0x set Base Temporal Unit size
+1x set BTUs until next action
+2x channel(s) trigger note #
+   each bit represents channels pu1..noise
+   amount of data correlates to channels enabled
+3x trigger percussion macro
+4x pu1 set envelope
+5x pu2 set envelope
+6x tri set BTU length
+7x noi set envelope
+8x pulses set duty cycle (pu1/pu2)
+Ax set loop1 point with count x
+*Bx set loop2 point with count x
+*Cx set pitch down speed
+*Dx set pitch up speed
+Ex halt channels
+   each bit represents channels pu1..noise
+Fx song controls
+   0 loop back to beginning
+   1 loop back to loop1 point	
+   *2 loop back to loop2 point
+   F end song
 
-noise pitch set 
-noise envelope set
+
+$128e top of shared lib address
+
+
 
 
 
@@ -40,10 +55,10 @@ move nextlevel screen down 8px or so
 stack page usage
 
 $0100-$015f nametable nmi caching
-$0160-$017f audio subsystem 
-??? this divide could be $01b0 or between
+$0160-$016f apu cache
+$0170-$019f audio subsystem (48 bytes)
 --- palette fade cache?
-$0180-$01cf system scratch
+$01a0-$01cf free (system scratch?)
 $01d0-$01df program space
 $01e0-$01ff stack
 

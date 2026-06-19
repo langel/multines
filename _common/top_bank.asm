@@ -6,8 +6,11 @@
 
 	include "./_common/lib/state.asm"
 
+	include "./_common/lib/apu_defs.asm"
 	include "./_common/lib/apu_engine.asm"
+	include "./_common/lib/apu_env.asm"
 	include "./_common/lib/apu_sfx.asm"
+	include "./_common/lib/apu_song.asm"
 
 	include "./_common/lib/arctang24.asm"
 	include "./_common/lib/collision.asm"

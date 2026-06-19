@@ -101,11 +101,11 @@ state_title_init: subroutine
 	sta PPU_DATA
 	; tens hexadigit
 	; rom address 00f6
-	lda #$5f
+	lda #$71
 	sta PPU_DATA
 	; ones hexadigit
 	; rom address 00fb
-	lda #$5f
+	lda #$71
 	sta PPU_DATA
 
 	; setup big teef
