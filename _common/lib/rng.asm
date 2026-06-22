@@ -1,28 +1,22 @@
 
+; OG RNG ROUTINE FROM 8BWorkshop
 rng_next subroutine
 	lsr
-	bcc .NoEor
+	bcc .no_eor
 	eor #$d4
-.NoEor:
+.no_eor:
 	rts
 
 
 rng_prev subroutine
 	asl
-	bcc .NoEor
+	bcc .no_eor
 	eor #$a9
-.NoEor:
+.no_eor:
 	rts
 
-rand: subroutine
-	lda rng00
-	lsr
-	bcc .no_ex_or
-	eor #$d4
-.no_ex_or:
-	sta rng00
-	rts
-        
+
+
 
 ; THESE ARE RIPPED FROM SMB2
 rng_seed: subroutine
@@ -30,12 +24,13 @@ rng_seed: subroutine
 	sta rng_seed0
 	rts
 
+
 rng_update: subroutine
-	; destroys Y
-	ldy #$00
-	jsr rng_update_inner
-	iny
-rng_update_inner:
+	; this was a 2 cycle loop using
+	; the y register so now that 
+	; loop is unrolled to preserve y
+
+rng_update_val0:
 	lda rng_seed0
 	asl
 	asl
@@ -45,15 +40,39 @@ rng_update_inner:
 	asl rng_seed1
 	lda #$20
 	bit rng_seed1
-	bcc rng_reverse
-	beq rng_eor
-	bne rng_inc_eor
-rng_reverse:
-	bne rng_eor
-rng_inc_eor:
+	bcc rng_reverse_val0
+	beq rng_eor_val0
+	bne rng_inc_eor_val0
+rng_reverse_val0:
+	bne rng_eor_val0
+rng_inc_eor_val0:
 	inc rng_seed1
-rng_eor:
+rng_eor_val0:
 	lda rng_seed1
 	eor rng_seed0
-	sta rng_val0,y
+	sta rng_val0
+
+rng_update_val1:
+	lda rng_seed0
+	asl
+	asl
+	sec
+	adc rng_seed0
+	sta rng_seed0
+	asl rng_seed1
+	lda #$20
+	bit rng_seed1
+	bcc rng_reverse_val1
+	beq rng_eor_val1
+	bne rng_inc_eor_val1
+rng_reverse_val1:
+	bne rng_eor_val1
+rng_inc_eor_val1:
+	inc rng_seed1
+rng_eor_val1:
+	lda rng_seed1
+	eor rng_seed0
+	sta rng_val1
+
+rng_update_done
 	rts

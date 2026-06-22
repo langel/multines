@@ -24,9 +24,7 @@ bootup_clean: subroutine
 	jsr nametable_fill
 
 	; seed rng
-	lda #$ff
-	sta rng00
-	sta rng01
+	jsr rng_seed
 
 	ldx #render_do_nothing_id
 	jsr state_set_render_routine

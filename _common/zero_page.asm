@@ -3,8 +3,6 @@
 
 
 wtf              byte
-rng00            byte
-rng01            byte
 nmi_lockout      byte
 
 rng_seed0        byte

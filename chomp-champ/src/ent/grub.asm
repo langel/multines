@@ -561,7 +561,6 @@ ent_grub_convergence: subroutine
 	lda #$ff
 	sta ent_r4,y
 	jsr rng_update
-	ldy temp01
 	lda rng_val0
 	sta ent_r2,y
 	and #$07

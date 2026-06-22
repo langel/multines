@@ -30,6 +30,7 @@ sfx_noi_update_id  EQM $0183
 song_pu1_note_id   EQM $0184
 song_pu2_note_id   EQM $0185
 song_tri_note_id   EQM $0186
+audio_rng          eqm $0187
 
 apu_sfx_temp00     EQM $0188
 apu_sfx_temp01     EQM $0189

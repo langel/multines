@@ -23,6 +23,7 @@ apu_init: subroutine
 
 	; clear registers
 	lda #$ff
+	sta audio_rng
 	sta audio_song_id
 	lda #$00
 	sta sfx_pu2_update_id
@@ -60,6 +61,7 @@ apu_bend_down: subroutine
 
 
 apu_update: subroutine
+
 	; MUSIC
 	jsr song_update
 	; SFX Pulse 2
@@ -140,14 +142,10 @@ apu_update: subroutine
 	sta $4000+$b,y
 	dey
 	bpl .cache_to_apu_loop
-	; XXX should this be here??!
 	; RNG updates
-	lda rng00
+	lda audio_rng
 	jsr rng_next
-	sta rng00
-	lda rng01
-	jsr rng_prev
-	sta rng01
+	sta audio_rng
 	; SFX counter updates
 	ldx #2
 .sfx_counter_update

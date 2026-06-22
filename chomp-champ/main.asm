@@ -26,11 +26,12 @@ cart_start: subroutine
 .idle_cpu
 	jmp .idle_cpu
 	include "src/states.asm"
+	include "src/state_chomp.asm"
 	include "src/state_title.asm"
-	include "src/state_congration.asm"
-	include "src/state_continue.asm"
 	include "src/state_demo.asm"
 	include "src/state_nextlevel.asm"
+	include "src/state_congration.asm"
+	include "src/state_continue.asm"
 	include "src/state_gameover.asm"
 	include "src/game/camera.asm"
 	include "src/game/ent_collision.asm"

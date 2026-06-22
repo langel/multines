@@ -224,7 +224,7 @@ sfx_pewpew: subroutine
 	sta $4004
 	lda #%10000010
 	sta $4005
-	lda rng00
+	lda audio_rng
 	and #$3f
 	ora #$08
 	sta $4006
@@ -239,7 +239,7 @@ sfx_pewpew: subroutine
 ; sound test 01
 sfx_player_damage: subroutine
 	; noise
-	lda rng00
+	lda audio_rng
 	and #$8f
 	ora #$0c
 	sta apu_cache+$e
@@ -313,20 +313,20 @@ sfx_player_death_update: subroutine
 sfx_kick:
 sfx_enemy_damage: subroutine
 	lda sfx_pu2_counter
-        bne .no
-	; pulse 2
+	bne .no
+; pulse 2
 	lda #%10001111
-        sta $4004
-        lda #%10000010
-        sta $4005
-        lda rng00
-        sta $4006
-        lda #%00010001
-        sta $4007
-        lda #$08
-        sta sfx_pu2_counter
-        lda #0
-        sta sfx_pu2_update_id
+	sta $4004
+	lda #%10000010
+	sta $4005
+	lda audio_rng
+	sta $4006
+	lda #%00010001
+	sta $4007
+	lda #$08
+	sta sfx_pu2_counter
+	lda #0
+	sta sfx_pu2_update_id
 .no
 	rts
         
@@ -385,7 +385,7 @@ sfx_powerup_mask: subroutine
 	sta $4004
 	lda #%11111001
 	sta $4005
-	lda rng00
+	lda audio_rng
 	and #$3f
 	ora #$08
 	sta $4006
@@ -508,7 +508,7 @@ sfx_shoot_dart: subroutine
 	sta $4000
 	lda #%10000011
 	sta $4001
-	lda rng00
+	lda audio_rng
 	and #$3f
 	ora #$08
 	sta $4002
@@ -547,7 +547,7 @@ sfx_rng_chord: subroutine
 	sta apu_pu1_env_id
 	sta apu_pu2_env_id
 	; pulse 1 pitch
-	lda rng00
+	lda audio_rng
 	and #%00001111
 	clc
 	adc #$10
@@ -555,7 +555,8 @@ sfx_rng_chord: subroutine
 	ldy #$02
 	jsr apu_set_pitch
 	; pulse 2 pitch
-	lda rng01
+	lda audio_rng
+	shift_r 4
 	and #%00001111
 	clc
 	adc #$08
