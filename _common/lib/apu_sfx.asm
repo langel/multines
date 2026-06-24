@@ -401,7 +401,7 @@ sfx_powerup_1up: subroutine
 	; root note -- x - x x X
 	lda #$00
 	sta apu_sfx_temp00
-	lda #$05
+	lda #$04
 	sta sfx_pu2_update_id
 	rts
 sfx_powerup_1up_update: subroutine

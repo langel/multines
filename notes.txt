@@ -42,6 +42,13 @@ SFX Melodic Sequence Data
 first byte is envelope id then
 2 byte pairs: note id (negative means end) and frames until next note action
 
+AUDIO PRIORITY STACK
+(per channel priorities)
+sfx jingle
+sfx sound
+song perc
+song music
+
 
 $128e top of shared lib address
 

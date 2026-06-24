@@ -142,19 +142,22 @@ apu_update: subroutine
 	sta $4000+$b,y
 	dey
 	bpl .cache_to_apu_loop
+
 	; RNG updates
 	lda audio_rng
 	jsr rng_next
 	sta audio_rng
+
 	; SFX counter updates
-	ldx #2
-.sfx_counter_update
-	lda sfx_pu1_counter,x
-	beq .skip_sfx_counter
-	dec sfx_pu1_counter,x
-.skip_sfx_counter
-	dex
-	bpl .sfx_counter_update
+	lda sfx_pu2_counter
+	beq .sfx_pu2_counter_done
+	dec sfx_pu2_counter
+.sfx_pu2_counter_done
+	lda sfx_noi_counter
+	beq .sfx_noi_counter_done
+	dec sfx_noi_counter
+.sfx_noi_counter_done
+
 	rts
 
 

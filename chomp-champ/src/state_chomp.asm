@@ -47,4 +47,10 @@ state_chomp_update:
 	jsr sfx_pewpew
 .no_b_butt
 	
+	lda controller1_d
+	and #BUTTON_A
+	beq .no_a_butt
+	jsr sfx_powerup_1up
+.no_a_butt
+	
 	jmp nmi_update_done
