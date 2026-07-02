@@ -11,6 +11,7 @@
 	include "./_common/lib/apu_env.asm"
 	include "./_common/lib/apu_sfx.asm"
 	include "./_common/lib/apu_song.asm"
+	include "./_common/lib/apubab.asm"
 
 	include "./_common/lib/arctang24.asm"
 	include "./_common/lib/collision.asm"
@@ -25,12 +26,14 @@
 	include "./_common/lib/sprite.asm"
 	include "./_common/lib/timer.asm"
 	include "./_common/lib/util.asm"
+
+	; dpcm samples
+	org $e000
+	incbin "./chomp-champ/assets/chomp.dmc"
 	
 	org $f000
 	include "./_common/generated/dictionary.asm"
 
-	org $f000
-
-	org $f500
+	org $fe00
 	include "./_common/lib/sine_tables.asm"
 	include "./_common/lib/decimals.asm"

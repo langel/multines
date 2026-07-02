@@ -1,4 +1,3 @@
-
 song_rng_chord    EQM $00
 song_sick_dingle  EQM $01
 song_in_game      EQM $02
