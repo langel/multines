@@ -5,9 +5,9 @@
 
 apubab_song:
 	hex 06 ; tempo
-	hex 28 10 ; pu1 note
+	hex 23 10 17 ; pu1 note
 	hex 14 ; wait 4 16ths
-	hex 28 15 ; pu1 note
+	hex 25 15 1b; pu1 note
 	hex 14 ; wait 4 16ths
 	hex f0 ; restart song
 	
@@ -37,15 +37,17 @@ apubab_update: subroutine
 	lda apubab_btu_length
 	sta apubab_btu_counter
 	lda apubab_delay_counter
-	beq .delay_done
+	beq .process
 	dec apubab_delay_counter
 	jmp .done
-.delay_done
+.process
 	ldy #$00
 	lda (apubab_head_ptr_lo),y
 	sta temp00
 	apubab_head_advance
 	jsr apubab_command_trampoline
+	lda apubab_delay_counter
+	beq .process
 .done
 	rts
 
@@ -117,18 +119,9 @@ apubab_command_2: subroutine
 	; for each bit read channel note id
 	sty temp00
 	ldy #$00
-.noise
-	lsr temp00
-	bcc .triangle
-.triangle
-	lsr temp00
-	bcc .pulse2
-.pulse2
-	lsr temp00
-	bcc .pulse1
 .pulse1
 	lsr temp00
-	bcc .done
+	bcc .pulse2
 	lda (apubab_head_ptr_lo),y
 	tax
 	apubab_head_advance
@@ -137,10 +130,42 @@ apubab_command_2: subroutine
 	lda apu_period_hi,x
 	ora #%11111000
 	sta apu_cache+$3
-	sta apu_pu1_last_hi
 	ldx apu_pu1_env_id
 	lda apu_env_length,x
 	sta apu_pu1_counter
+.pulse2
+	lsr temp00
+	bcc .triangle
+	lda (apubab_head_ptr_lo),y
+	tax
+	apubab_head_advance
+	lda apu_period_lo,x
+	sta apu_cache+$6
+	lda apu_period_hi,x
+	ora #%11111000
+	sta apu_cache+$7
+	ldx apu_pu2_env_id
+	lda apu_env_length,x
+	sta apu_pu2_counter
+.triangle
+	lsr temp00
+	bcc .noise
+	lda (apubab_head_ptr_lo),y
+	tax
+	apubab_head_advance
+	lda apu_period_lo,x
+	sta apu_cache+$a
+	lda apu_period_hi,x
+	ora #%11111000
+	sta apu_cache+$b
+	ldx apu_tri_env_id
+	lda apu_env_length,x
+	; XXX need some work here
+	lda #$10
+	sta apu_tri_counter
+.noise
+	lsr temp00
+	bcc .done
 .done
 	rts
 
