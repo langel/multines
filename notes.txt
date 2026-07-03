@@ -26,10 +26,10 @@ some commands have trailing data
 7x noi set envelope
 8x pulses set duty cycle (pu1/pu2)
 Ax set loop1 point with count x
-*Bx set loop2 point with count x
+Bx set loop2 point with count x
 *Cx set pitch down speed
 *Dx set pitch up speed
-Ex halt channels
+*Ex halt channels
    each bit represents channels pu1..noise
 Fx song controls
    0 loop back to beginning

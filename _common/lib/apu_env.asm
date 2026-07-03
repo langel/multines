@@ -14,6 +14,14 @@ apu_env_table_hi:
 	byte #>apu_env_exp_short  ; 4
 	byte #>apu_env_exp_tiny	  ; 5
 	byte #>apu_env_exp_pico	  ; 6
+
+apu_env_length:
+	hex 40
+	hex 10 ; 01
+	hex 20 ; 02
+	hex 20 ; 03
+	hex 0e ; 04
+	hex 06 ; 05
 	
        
        

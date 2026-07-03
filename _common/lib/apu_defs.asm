@@ -37,19 +37,35 @@ apu_sfx_temp01     EQM $0189
 apu_sfx_temp02     EQM $018a
 apu_sfx_temp03     EQM $018b
 
-audio_song_id      EQM $0190
-audio_btu_length   EQM $0191
-audio_btu_countier EQM $0192
-audio_data_ptr_lo  EQM $0193
-audio_data_ptr_hi  EQM $0194
-audio_loop_ptr_lo  EQM $0195
-audio_loop_ptr_hi  EQM $0196
-audio_loop_counter EQM $0197
+audio_song_id      EQM $018f
 
-; 3 pointers
-; song start pos (indicated by song_id)
-; data pointer pos
-; loop pointer pos
+; defined in zero page:
+; apubab_head_ptr_(lo/hi)
+apubab_song_ptr_lo    eqm $0190
+apubab_song_ptr_hi    eqm $0191
+
+apubab_lop1_ptr_lo    eqm $0192
+apubab_lop1_ptr_hi    eqm $0193
+apubab_lop2_ptr_lo    eqm $0194
+apubab_lop2_ptr_hi    eqm $0195
+apubab_btu_length     eqm $0196
+apubab_btu_counter    eqm $0197
+apubab_delay_counter  eqm $0198
+
+apubab_lop1_counter   eqm $019a
+apubab_lop2_counter   eqm $019b
+
+	MAC apubab_head_advance
+	clc
+	lda apubab_head_ptr_lo
+	adc #$01
+	sta apubab_head_ptr_lo
+	lda apubab_head_ptr_hi
+	adc #$00
+	sta apubab_head_ptr_hi
+	ENDM
+
+
 
 
   
