@@ -70,7 +70,7 @@ state_init: subroutine
 	;jsr state_congration_init
 	;jsr state_continue_init
 	;jsr state_demo_init
-	jsr state_chomp_init
+	;jsr state_chomp_init
 
 	rts
 

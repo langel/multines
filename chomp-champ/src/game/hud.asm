@@ -94,6 +94,7 @@ hud_init: subroutine
 
 
 hud_sprite0: subroutine
+/*
 	; cache palette values in zp
 	lda #$15
 	sta temp00
@@ -173,6 +174,7 @@ hud_sprite0: subroutine
 	sta PPU_CTRL
 	lda #%00011110
 	sta PPU_MASK
+	*/
 	rts
 
 
