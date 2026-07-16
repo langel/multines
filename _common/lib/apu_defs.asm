@@ -40,29 +40,29 @@ apu_sfx_temp03     EQM $018b
 audio_song_id      EQM $018f
 
 ; defined in zero page:
-; apubab_head_ptr_(lo/hi)
-apubab_song_ptr_lo    eqm $0190
-apubab_song_ptr_hi    eqm $0191
+; babapu_head_ptr_(lo/hi)
+babapu_song_ptr_lo    eqm $0190
+babapu_song_ptr_hi    eqm $0191
 
-apubab_lop1_ptr_lo    eqm $0192
-apubab_lop1_ptr_hi    eqm $0193
-apubab_lop2_ptr_lo    eqm $0194
-apubab_lop2_ptr_hi    eqm $0195
-apubab_btu_length     eqm $0196
-apubab_btu_counter    eqm $0197
-apubab_delay_counter  eqm $0198
+babapu_lop1_ptr_lo    eqm $0192
+babapu_lop1_ptr_hi    eqm $0193
+babapu_lop2_ptr_lo    eqm $0194
+babapu_lop2_ptr_hi    eqm $0195
+babapu_btu_length     eqm $0196
+babapu_btu_counter    eqm $0197
+babapu_delay_counter  eqm $0198
 
-apubab_lop1_counter   eqm $019a
-apubab_lop2_counter   eqm $019b
+babapu_lop1_counter   eqm $019a
+babapu_lop2_counter   eqm $019b
 
-	MAC apubab_head_advance
+	MAC babapu_head_advance
 	clc
-	lda apubab_head_ptr_lo
+	lda babapu_head_ptr_lo
 	adc #$01
-	sta apubab_head_ptr_lo
-	lda apubab_head_ptr_hi
+	sta babapu_head_ptr_lo
+	lda babapu_head_ptr_hi
 	adc #$00
-	sta apubab_head_ptr_hi
+	sta babapu_head_ptr_hi
 	ENDM
 
 

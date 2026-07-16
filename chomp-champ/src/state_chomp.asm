@@ -26,7 +26,7 @@ state_chomp_init:
 	jsr state_set_update_routine
 
 	jsr apu_init
-	jsr apubab_start
+	jsr babapu_start
 	
 	NMI_ENABLE
 

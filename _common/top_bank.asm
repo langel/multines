@@ -11,7 +11,7 @@
 	include "./_common/lib/apu_env.asm"
 	include "./_common/lib/apu_sfx.asm"
 	include "./_common/lib/apu_song.asm"
-	include "./_common/lib/apubab.asm"
+	include "./_common/lib/babapu.asm"
 
 	include "./_common/lib/arctang24.asm"
 	include "./_common/lib/collision.asm"

@@ -94,8 +94,8 @@ controller2      byte
 controller2_d    byte
 
 
-apubab_head_ptr_lo  byte
-apubab_head_ptr_hi  byte
+babapu_head_ptr_lo  byte
+babapu_head_ptr_hi  byte
 
 
 

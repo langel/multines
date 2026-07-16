@@ -10,9 +10,9 @@ song_end_good     EQM $08
 
 
 song_table_lo:
-	byte <#apubab_update
+	byte <#babapu_update
 song_table_hi:
-	byte >#apubab_update
+	byte >#babapu_update
 
 
 song_update: subroutine
