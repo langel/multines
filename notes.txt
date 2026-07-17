@@ -35,6 +35,12 @@ Fx song controls
    0 loop back to beginning
    1 loop back to loop1 point	
    2 loop back to loop2 point
+   3 mend1 set begin pointer
+   4 mend1 set end pointer (or jump to mend1 next if already set)
+   5 mend1 set next pointer and jump to begin pointer
+   6 mend2 set begin pointer
+   7 mend2 set end pointer (or jump to mend2 next if already set)
+   8 mend2 set next pointer and jump to begin pointer
    F end song
 
 

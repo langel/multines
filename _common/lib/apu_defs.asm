@@ -70,6 +70,21 @@ song_tri_btu_count    eqm $01a3
 song_tri_frame_count  eqm $01a4
 babapu_tri_btu_mult   eqm $01a5
 
+; mend pointers (multi-ending loop sets)
+babapu_mnd1_begin_ptr_lo  eqm $01a6
+babapu_mnd1_begin_ptr_hi  eqm $01a7
+babapu_mnd1_end_ptr_lo    eqm $01a8
+babapu_mnd1_end_ptr_hi    eqm $01a9
+babapu_mnd1_next_ptr_lo   eqm $01aa
+babapu_mnd1_next_ptr_hi   eqm $01ab
+
+babapu_mnd2_begin_ptr_lo  eqm $01ac
+babapu_mnd2_begin_ptr_hi  eqm $01ad
+babapu_mnd2_end_ptr_lo    eqm $01ae
+babapu_mnd2_end_ptr_hi    eqm $01af
+babapu_mnd2_next_ptr_lo   eqm $01b0
+babapu_mnd2_next_ptr_hi   eqm $01b1
+
 PRIO_SONG_MUSIC       equ $01
 PRIO_SONG_PERC        equ $02
 PRIO_SFX_SOUND        equ $03
