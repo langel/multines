@@ -41,6 +41,7 @@ audio_song_id      EQM $018f
 
 ; defined in zero page:
 ; babapu_head_ptr_(lo/hi)
+; song_perc_ptr_(lo/hi)
 babapu_song_ptr_lo    eqm $0190
 babapu_song_ptr_hi    eqm $0191
 
@@ -54,6 +55,25 @@ babapu_delay_counter  eqm $0198
 
 babapu_lop1_counter   eqm $019a
 babapu_lop2_counter   eqm $019b
+
+; channel priorities (higher wins)
+ch_prio_pu1           eqm $019c
+ch_prio_pu2           eqm $019d
+ch_prio_tri           eqm $019e
+ch_prio_noi           eqm $019f
+
+; song percussion sequencer
+song_perc_update_id   eqm $01a0
+
+; song triangle note duration state
+song_tri_btu_count    eqm $01a3
+song_tri_frame_count  eqm $01a4
+babapu_tri_btu_mult   eqm $01a5
+
+PRIO_SONG_MUSIC       equ $01
+PRIO_SONG_PERC        equ $02
+PRIO_SFX_SOUND        equ $03
+PRIO_SFX_JINGLE       equ $04
 
 	MAC babapu_head_advance
 	clc

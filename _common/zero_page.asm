@@ -96,6 +96,8 @@ controller2_d    byte
 
 babapu_head_ptr_lo  byte
 babapu_head_ptr_hi  byte
+song_perc_ptr_lo    byte
+song_perc_ptr_hi    byte
 
 
 

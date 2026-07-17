@@ -34,11 +34,12 @@ Bx set loop2 point with count x
 Fx song controls
    0 loop back to beginning
    1 loop back to loop1 point	
-   *2 loop back to loop2 point
+   2 loop back to loop2 point
    F end song
 
 
 SFX Melodic Sequence Data
+always uses pu2 channel
 first byte is envelope id then
 2 byte pairs: note id (negative means end) and frames until next note action
 

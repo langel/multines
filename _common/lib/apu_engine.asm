@@ -62,8 +62,37 @@ apu_bend_down: subroutine
 
 apu_update: subroutine
 
+	; priority defaults
+	lda #PRIO_SONG_MUSIC
+	sta ch_prio_pu1
+	sta ch_prio_pu2
+	sta ch_prio_tri
+	sta ch_prio_noi
+	; song percussion currently owns tri/noi when active
+	lda song_perc_update_id
+	beq .prio_song_perc_done
+	lda #PRIO_SONG_PERC
+	sta ch_prio_tri
+	sta ch_prio_noi
+.prio_song_perc_done
+	; sfx state owns channel priority when active
+	lda sfx_pu2_update_id
+	ora sfx_pu2_counter
+	beq .prio_sfx_pu2_done
+	lda #PRIO_SFX_SOUND
+	sta ch_prio_pu2
+.prio_sfx_pu2_done
+	lda sfx_noi_update_id
+	ora sfx_noi_counter
+	beq .prio_sfx_noi_done
+	lda #PRIO_SFX_SOUND
+	sta ch_prio_noi
+.prio_sfx_noi_done
+
 	; MUSIC
 	jsr song_update
+	; song percussion step
+	jsr babapu_song_perc_update
 	; SFX Pulse 2
 	; SFX Noise
 	; MIX and Write to APU
@@ -130,10 +159,14 @@ apu_update: subroutine
 	sta apu_cache+12
 	jmp .noise_skip
 .noise_enabled
+	lda ch_prio_noi
+	cmp #PRIO_SONG_PERC
+	beq .noise_skip_env
 	ldx #$07
 	jsr apu_env_run
 	ora #%00010000
 	sta apu_cache+12
+.noise_skip_env
 .noise_skip
 	; copy cache to apu
 	ldy #$05

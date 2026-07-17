@@ -82,9 +82,9 @@ sfx_brush_down_id        equ $08
 sfx_update_delegator: subroutine
 	; a = sound effect id
 	tay
-	lda #sfx_update_table_lo,y
+	lda sfx_update_table_lo,y
 	sta temp00
-	lda #sfx_update_table_hi,y
+	lda sfx_update_table_hi,y
 	sta temp01
 	jmp (temp00)
 
@@ -148,6 +148,8 @@ sfx_tingler_update: subroutine
 	lda apu_period_hi,x
    ora #%01000000
 	sta $4007
+	lda #$ff
+	sta apu_pu2_last_hi
 	; next note
 	inc apu_sfx_temp01
 	lda apu_sfx_temp01
@@ -230,6 +232,10 @@ sfx_pewpew: subroutine
 	sta $4006
 	lda #%00010000
 	sta $4007
+	lda #$ff
+	sta apu_pu2_last_hi
+	lda #$06
+	sta sfx_pu2_counter
 	lda #0
 	sta apu_pu2_counter
 	sta sfx_pu2_update_id
@@ -262,6 +268,8 @@ sfx_player_death: subroutine
 	sta $4002
 	lda #%00001010
 	sta $4003
+	lda #$ff
+	sta apu_pu1_last_hi
 	; setup pulse 2
 	lda #%10001111
 	sta $4004
@@ -271,6 +279,8 @@ sfx_player_death: subroutine
 	sta $4006
 	lda #%00001001
 	sta $4007
+	lda #$ff
+	sta apu_pu2_last_hi
 	; setup noise handler
 	lda #$01
 	sta sfx_noi_update_id
@@ -323,6 +333,8 @@ sfx_enemy_damage: subroutine
 	sta $4006
 	lda #%00010001
 	sta $4007
+	lda #$ff
+	sta apu_pu2_last_hi
 	lda #$08
 	sta sfx_pu2_counter
 	lda #0
@@ -391,6 +403,8 @@ sfx_powerup_mask: subroutine
 	sta $4006
 	lda #%00010100
 	sta $4007
+	lda #$ff
+	sta apu_pu2_last_hi
 	lda #$10
 	sta sfx_pu2_counter
 	rts
@@ -429,16 +443,17 @@ sfx_powerup_1up_update: subroutine
 	adc #$24
 .trigger_note
 	tax
-	lda #%10000011
-	sta $4004
-	lda #$00
-	sta $4005
+	lda #$02
+	sta apu_pu2_env_id
 	lda apu_period_lo,x
-	sta $4006
+	sta apu_cache+$6
 	lda apu_period_hi,x
 	ora #%01000000
-	sta $4007
+	sta apu_cache+$7
+	lda #$ff
+	sta apu_pu2_last_hi
 	lda #$10
+	sta apu_pu2_counter
 	sta sfx_pu2_counter
 .done
 	inc apu_sfx_temp00
@@ -491,6 +506,8 @@ sfx_powerup_battery_update: subroutine
 	lda apu_period_hi,x
 	ora #%01000000
 	sta $4007
+	lda #$ff
+	sta apu_pu2_last_hi
 	lda #$10
 	sta sfx_pu2_counter
 .dont_trigger
@@ -514,6 +531,8 @@ sfx_shoot_dart: subroutine
 	sta $4002
 	lda #%00001000
 	sta $4003
+	lda #$ff
+	sta apu_pu1_last_hi
 	lda #$10
 	sta sfx_pu1_counter
 	rts

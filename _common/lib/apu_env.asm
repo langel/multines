@@ -34,9 +34,9 @@ apu_env_run: subroutine
 	; returns 4-bit volume in a
 	lda apu_pu1_env_id,x
 	tay
-	lda #apu_env_table_lo,y
+	lda apu_env_table_lo,y
 	sta temp00
-	lda #apu_env_table_hi,y
+	lda apu_env_table_hi,y
 	sta temp01
 	jmp (temp00)
         
@@ -63,7 +63,14 @@ apu_env_lin_tiny: subroutine
 
 apu_env_exp_long: subroutine
 	; #$40 counter =~ 54 frames / 1 second
-	ldy apu_pu1_counter,x
+	lda apu_pu1_env_id,x
+	tay
+	lda apu_env_length,y
+	sec
+	sbc apu_pu1_counter,x
+	sec
+	sbc #$01
+	tay
 	lda sine_table+$c0,y
 	lsr
 	lsr
@@ -72,7 +79,14 @@ apu_env_exp_long: subroutine
 
 apu_env_exp_short: subroutine
 	; #$20 counter =~ 28 frames / 0.5 second
-	ldy apu_pu1_counter,x
+	lda apu_pu1_env_id,x
+	tay
+	lda apu_env_length,y
+	sec
+	sbc apu_pu1_counter,x
+	sec
+	sbc #$01
+	tay
 	lda apu_env_exp_short_table,y
 	lsr
 	lsr
@@ -83,7 +97,14 @@ apu_env_exp_short_table:
 
 apu_env_exp_tiny: subroutine
 	; #$10 counter =~ 15 frames / 0.25 second
-	ldy apu_pu1_counter,x
+	lda apu_pu1_env_id,x
+	tay
+	lda apu_env_length,y
+	sec
+	sbc apu_pu1_counter,x
+	sec
+	sbc #$01
+	tay
 	lda apu_env_exp_tiny_table,y
 	rts
 apu_env_exp_tiny_table:
@@ -92,7 +113,14 @@ apu_env_exp_tiny_table:
 
 apu_env_exp_pico: subroutine
 	; #$06 counter =~ 15 frames / 0.25 second
-	ldy apu_pu1_counter,x
+	lda apu_pu1_env_id,x
+	tay
+	lda apu_env_length,y
+	sec
+	sbc apu_pu1_counter,x
+	sec
+	sbc #$01
+	tay
 	lda apu_env_exp_pico_table,y
 	rts
 apu_env_exp_pico_table:
