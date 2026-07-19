@@ -126,7 +126,7 @@ state_chomp_teeth_animate: subroutine
 .closing
 	lda state00 ; chomp_teeth_open
 	beq .flip_open
-	cmp #$20
+	cmp #$28
 	bne .chomp_sample_done
 	lda #$0f
 	sta $4010

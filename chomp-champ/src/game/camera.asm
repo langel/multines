@@ -18,7 +18,7 @@ state_game_camera: subroutine
 	lda player_x_hi
 	beq .not_right
 	lda player_x
-	cmp #$81
+	cmp #$77
 	bcc .not_far_end
 	; handle far right
 	lda #$01
@@ -30,7 +30,7 @@ state_game_camera: subroutine
 .not_far_end
 	lda player_x
 	sec
-	sbc #$80
+	sbc #$77
 	sta camera_x
 	lda player_x_hi
 	sbc #$00

@@ -147,19 +147,6 @@ state_nextlevel_update: subroutine
 	jsr render_enable
 	jsr controller_read
 	
-	lda controller1_d
-	and #BUTTON_START|BUTTON_B|BUTTON_A
-	beq .start_done
-.start_a_game
-	lda game_level
-	cmp #$1c
-	bne .next_level
-	jsr state_congration_init
-	jmp .start_done
-.next_level
-	jsr state_game_level_init
-.start_done
-
 	; rotate text color
 	lda wtf
 	and #$1f
@@ -171,6 +158,26 @@ state_nextlevel_update: subroutine
 	lda #$31
 	sta palette_cache+8
 .color_fine
+	
+	lda controller1_d
+	and #BUTTON_START|BUTTON_B|BUTTON_A
+	beq .start_done
+.start_a_game
+	lda game_level
+	cmp #$1c
+	bne .next_level
+	jsr state_congration_init
+	jmp .start_done
+.next_level
+	lda game_level
+	cmp #$01
+	bne .standard_start
+.chomp_start
+	jsr state_chomp_init
+	jmp .start_done
+.standard_start
+	jsr state_game_level_init
+.start_done
 
 	jmp nmi_update_done
 
