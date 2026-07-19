@@ -66,6 +66,9 @@ state_game_level_init: subroutine
 	bne .pal_loop
 	
 	jsr apu_init
+	ldx #<song_cc_level_start
+	ldy #>song_cc_level_start
+	jsr babapu_start
 	jsr ent_player_init
 
 	lda #$00

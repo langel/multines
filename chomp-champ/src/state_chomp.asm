@@ -10,15 +10,16 @@ state_chomp_init:
 	sta scroll_x
 	sta scroll_y
 	
-	; clear screen
-	lda #$08
-	sta temp00
-	lda #$00
-	sta temp01
-	lda #$20
-	jsr nametable_fill
-	lda #$24
-	jsr nametable_fill
+	jsr teeth_init_playfield
+	; load palette
+	ldx #$00
+.pal_loop
+	lda game_palette,x
+	sta palette_cache,x
+	inx
+	cpx #25
+	bne .pal_loop
+
 	
 	ldx #render_do_nothing_id
 	jsr state_set_render_routine

@@ -61,7 +61,7 @@ babapu_start: subroutine
 babapu_update: subroutine
 	jsr babapu_song_tri_tick
 	dec babapu_btu_counter
-	bmi .read
+	beq .read
 	jmp .done
 .read
 	lda babapu_btu_length
@@ -77,6 +77,8 @@ babapu_update: subroutine
 	sta temp00
 	babapu_head_advance
 	jsr babapu_command_trampoline
+	lda audio_song_id
+	bmi .done
 	lda babapu_delay_counter
 	beq .process
 .done

@@ -2,19 +2,37 @@
 
 song_cc_level_start:
 	
-	hex 02
+	hex 01
 	hex 43 53
 	hex 6f
 
-	
-
+	hex a2
+	hex 27
+	byte 34, 38, 22
+	hex 14
+	hex e7
+	hex 12
+	hex fa
+	hex 27
+	byte 34, 38, 22
+	hex 16
+	hex e7
+	hex 16
+	hex 27
+	byte 36, 39, 24
+	hex 16
+	hex e7
+	hex 16
+	byte 38, 41, 26
+	hex 19
+	hex e7
 	hex ff
 
 
 
 song_cc_congration:
 
-	hex 06
+	hex 08
 	hex 43 53 ; set ppu env
 	hex 64 ; tri length
 	hex f6 ; mend2 begin
