@@ -151,7 +151,8 @@ state_continue_update: subroutine
 	; replace all missing teeth
 	; replenish player lives
 	jsr chompchamp_reset_game
-	jsr state_game_level_init
+	jsr state_chomp_init
+	;jsr state_game_level_init
 	jmp nmi_update_done
 .not_yeah
 	; nope

@@ -169,7 +169,7 @@ apu_update: subroutine
 .noise_skip_env
 .noise_skip
 	; copy cache to apu
-	ldy #$05
+	ldy #$04
 .cache_to_apu_loop
 	lda apu_cache+$b,y
 	sta $4000+$b,y
