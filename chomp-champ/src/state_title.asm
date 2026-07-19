@@ -15,6 +15,7 @@ state_title_init: subroutine
 
 	jsr render_disable
 	jsr sprites_clear
+	jsr apu_init
 
 	lda #CTRL_8x16
 	sta ppu_ctrl_ora

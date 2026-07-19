@@ -26,6 +26,8 @@ state_chomp_init:
 	jsr state_set_update_routine
 
 	jsr apu_init
+	ldx #<song_cc_congration
+	ldy #>song_cc_congration
 	jsr babapu_start
 	
 	NMI_ENABLE

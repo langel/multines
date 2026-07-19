@@ -120,6 +120,9 @@ state_congration_init: subroutine
 	sta player_x ; player x pos
 
 	jsr apu_init
+	ldx #<song_cc_congration
+	ldy #>song_cc_congration
+	jsr babapu_start
 	
 	NMI_ENABLE
 
@@ -375,6 +378,7 @@ state_congration_update: subroutine
 	jsr state_title_init
 .not_title_screen
 	
+	jsr apu_update
 
 	jmp nmi_update_done
 

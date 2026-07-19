@@ -6,205 +6,6 @@
 
 
 
-babapu_song:
-
-	hex 06
-	hex 43 53 ; set ppu env
-	hex 64 ; tri length
-	hex f6 ; mend2 begin
-
-	; pattern0
-	hex f3 ; mend1 begin
-	; bar1
-	hex 27 ; chord
-	byte 36, 40, 22
-	hex 12
-	hex a3 ; set 4 loop1s
-	hex 23 ; chord
-	byte 36, 40
-	hex 12
-	hex f1 ; loop1 back
-	; bar2
-	hex 27 ; chord
-	byte 34, 38, 22
-	hex 12
-	hex a3 ; set 4 loop1s
-	hex 23 ; chord
-	byte 34, 38
-	hex 12
-	hex f1 ; loop1 back
-	hex f4 ; mend1 end
-	; bar3
-	hex 27 ; chord
-	byte 38, 41, 29
-	hex 14
-	hex 23
-	byte 33, 36
-	hex 14
-	; bar4
-	hex 27
-	byte 29, 21, 17
-	hex 18
-	hex f5 ; mend1 next
-	; bar1-2 repeat
-	; bar7
-	hex 27 ; chord
-	byte 38, 41, 29
-	hex 13
-	hex 23
-	byte 38, 41
-	hex 11
-	hex 23
-	byte 33, 36
-	hex 14
-	; bar8
-	hex 27
-	byte 29, 21, 17
-	hex 18
-
-	hex f7 ; mend2 end
-	; pattern2
-	; bar1
-	hex 27
-	byte 29, 33, 17
-	hex 14
-	hex a2 ; set loop1
-	hex 23
-	byte 29, 33
-	hex 12
-	hex f1 ; loop1
-	; bar2
-	hex 27
-	byte 31, 34, 19
-	hex 16
-	hex 23
-	byte 31, 34
-	hex 12
-	; bar3
-	hex 27 
-	byte 33, 36, 21
-	hex 14
-	hex a2 ; set loop1
-	hex 23
-	byte 33, 36
-	hex 12
-	hex f1 ; loop1
-	; bar4
-	hex 27 
-	byte 29, 34, 17
-	hex 18
-	; bar5
-	hex 61 ; tri length
-	hex a3 ; set loop1
-	hex 27
-	byte 29, 33, 17
-	hex 12
-	hex f1
-	hex 62 ; tri length
-	hex 27
-	byte 29, 33, 17
-	hex 12
-	; bar6
-	hex 27
-	byte 33, 36, 21
-	hex 12
-	hex 61 ; tri length
-	hex 27
-	byte 31, 34, 19
-	hex 16
-	; bar7
-	hex 62 ; tri length
-	hex 27
-	byte 33, 36, 21
-	hex 12
-	hex 61 ; tri length
-	hex a2 ; set loop1
-	hex 27
-	byte 31, 34, 19
-	hex 12
-	hex f1 ; loop1
-	hex 27
-	byte 29, 33, 17
-	hex 12
-	; bar8
-	hex 64 ; set tri
-	hex 27
-	byte 29, 33, 17
-	hex 18
-
-	; pattern1 repeat
-	hex f8 ; mend2 next
-
-	; pattern3
-	; bar1
-	hex 27
-	byte 33, 36, 21
-	hex 12
-	hex a3 ; set loop1
-	hex 23
-	byte 33, 36
-	hex 12
-	hex f1 ; loop1
-	; bar2
-	hex 27
-	byte 34, 38, 22
-	hex 12
-	hex 62 ; tri length
-	hex 27
-	byte 33, 36, 21
-	hex 16
-	; bar3
-	hex 64 ; tri length
-	hex 27
-	byte 34, 38, 22
-	hex 12
-	hex a3 ; set loop1
-	hex 23
-	byte 34, 38
-	hex 12
-	hex f1 ; loop1
-	; bar4
-	hex 27
-	byte 38, 41, 26
-	hex 12
-	hex 62 ; tri length
-	hex 27
-	byte 34, 38, 22
-	hex 16
-	; bar5
-	hex 68 ; tri length
-	hex 27
-	byte 36, 40, 24
-	hex 12
-	hex a3 ; set loop1
-	hex 23
-	byte 36, 40
-	hex 12
-	hex f1
-	; bar6
-	hex 27
-	byte 34, 38, 22
-	hex 12
-	hex a3 ; set loop1
-	hex 23
-	byte 34, 38
-	hex 12
-	hex f1
-	; bar7
-	hex 62 ; tri length
-	hex 27
-	byte 33, 36, 21
-	hex 12
-	hex 27
-	byte 31, 34, 19
-	hex 14
-	hex 27
-	byte 29, 33, 17
-	hex 1a
-
-	hex f0 ; restart song
-
-
 babapu_song_old:
 	hex 06 ; tempo
 	hex 63 ; tri 3 btu long
@@ -222,12 +23,10 @@ babapu_song_old:
 babapu_start: subroutine
 	; put song data addr into
 	; babapu_head_ptr_(lo/hi)
-	lda <#babapu_song
-	sta babapu_head_ptr_lo
-	sta babapu_song_ptr_lo
-	lda >#babapu_song
-	sta babapu_head_ptr_hi
-	sta babapu_song_ptr_hi
+	stx babapu_head_ptr_lo
+	stx babapu_song_ptr_lo
+	sty babapu_head_ptr_hi
+	sty babapu_song_ptr_hi
 
 	lda #$01
 	sta babapu_btu_length
@@ -235,6 +34,7 @@ babapu_start: subroutine
 	sta babapu_tri_btu_mult
 	sta song_tri_frame_count
 	lda #$00
+	sta audio_song_id
 	sta babapu_delay_counter
 	sta babapu_lop1_counter
 	sta babapu_lop2_counter
@@ -410,19 +210,19 @@ babapu_command_2: subroutine
 	sta apu_tri_counter
 .noise
 	lsr temp00
-	bcc .done
+	bcc .done_cmd2
 	lda (babapu_head_ptr_lo),y
 	tax
 	babapu_head_advance
 	lda sfx_noi_counter
 	ora sfx_noi_update_id
-	bne .done
+	bne .done_cmd2
 	lda apu_period_lo,x
 	sta apu_cache+$e
 	ldx apu_noi_env_id
 	lda apu_env_length,x
 	sta apu_noi_counter
-.done
+.done_cmd2
 	rts
 
 	; percussion macro trigger
@@ -519,6 +319,52 @@ babapu_command_d:
 
 	; channel(s) halt (reserved for now)
 babapu_command_e:
+	; low nibble bits: pu1, pu2, tri, noi
+	; song-only scope: only halt channels currently owned by song music
+	sty temp00
+.pu1
+	lsr temp00
+	bcc .pu2
+	lda ch_prio_pu1
+	cmp #PRIO_SONG_MUSIC
+	bne .pu2
+	lda #$00
+	sta apu_pu1_counter
+	lda #$30
+	sta apu_cache+$0
+	sta $4000
+.pu2
+	lsr temp00
+	bcc .tri
+	lda ch_prio_pu2
+	cmp #PRIO_SONG_MUSIC
+	bne .tri
+	lda #$00
+	sta apu_pu2_counter
+	lda #$30
+	sta apu_cache+$4
+	sta $4004
+.tri
+	lsr temp00
+	bcc .noi
+	lda ch_prio_tri
+	cmp #PRIO_SONG_MUSIC
+	bne .noi
+	lda #$00
+	sta apu_tri_counter
+	sta $4008
+.noi
+	lsr temp00
+	bcc .done_cmd_e
+	lda ch_prio_noi
+	cmp #PRIO_SONG_MUSIC
+	bne .done_cmd_e
+	lda #$00
+	sta apu_noi_counter
+	lda #%00010000
+	sta apu_cache+$c
+	sta $400c
+.done_cmd_e
 	rts
 
 	; song controls
@@ -574,28 +420,12 @@ babapu_controls_0:
 	sta babapu_head_ptr_hi
 	rts
 
-	; loop back to loop1 point
+	; reserved
 babapu_controls_1:
-	lda babapu_lop1_counter
-	beq .done_lop1
-	dec babapu_lop1_counter
-	lda babapu_lop1_ptr_lo
-	sta babapu_head_ptr_lo
-	lda babapu_lop1_ptr_hi
-	sta babapu_head_ptr_hi
-.done_lop1
 	rts
 
-	; loop back to loop2 point
+	; reserved
 babapu_controls_2:
-	lda babapu_lop2_counter
-	beq .done_lop2
-	dec babapu_lop2_counter
-	lda babapu_lop2_ptr_lo
-	sta babapu_head_ptr_lo
-	lda babapu_lop2_ptr_hi
-	sta babapu_head_ptr_hi
-.done_lop2
 	rts
 
 	; mend1 set begin pointer
@@ -604,11 +434,19 @@ babapu_controls_3:
 	sta babapu_mnd1_begin_ptr_lo
 	lda babapu_head_ptr_hi
 	sta babapu_mnd1_begin_ptr_hi
+	; begin starts a fresh mend1 set for this pass
+	lda #$00
+	sta babapu_mnd1_end_ptr_lo
+	sta babapu_mnd1_end_ptr_hi
+	sta babapu_mnd1_next_ptr_lo
+	sta babapu_mnd1_next_ptr_hi
 	rts
 	; mend1 set end pointer
 babapu_controls_4:
 	lda babapu_mnd1_end_ptr_hi
 	beq .set_end_mnd1
+	lda babapu_mnd1_next_ptr_hi
+	beq .done_mnd1
 	lda babapu_mnd1_next_ptr_lo
 	sta babapu_head_ptr_lo
 	lda babapu_mnd1_next_ptr_hi
@@ -626,6 +464,7 @@ babapu_controls_4:
 	sta babapu_mnd1_end_ptr_lo
 	lda babapu_head_ptr_hi
 	sta babapu_mnd1_end_ptr_hi
+.done_mnd1
 	rts
 	; mend1 set next pointer and jump to begin pointer
 babapu_controls_5:
@@ -644,11 +483,19 @@ babapu_controls_6:
 	sta babapu_mnd2_begin_ptr_lo
 	lda babapu_head_ptr_hi
 	sta babapu_mnd2_begin_ptr_hi
+	; begin starts a fresh mend2 set for this pass
+	lda #$00
+	sta babapu_mnd2_end_ptr_lo
+	sta babapu_mnd2_end_ptr_hi
+	sta babapu_mnd2_next_ptr_lo
+	sta babapu_mnd2_next_ptr_hi
 	rts
 	; mend2 set end pointer
 babapu_controls_7:
 	lda babapu_mnd2_end_ptr_hi
 	beq .set_end_mnd2
+	lda babapu_mnd2_next_ptr_hi
+	beq .done_mnd2
 	lda babapu_mnd2_next_ptr_lo
 	sta babapu_head_ptr_lo
 	lda babapu_mnd2_next_ptr_hi
@@ -666,6 +513,7 @@ babapu_controls_7:
 	sta babapu_mnd2_end_ptr_lo
 	lda babapu_head_ptr_hi
 	sta babapu_mnd2_end_ptr_hi
+.done_mnd2
 	rts
 	; mend2 set next pointer and jump to begin pointer
 babapu_controls_8:
@@ -680,9 +528,27 @@ babapu_controls_8:
 	rts
 babapu_controls_9:
 	rts
+	; loop back to loop1 point
 babapu_controls_a:
+	lda babapu_lop1_counter
+	beq .done_lop1
+	dec babapu_lop1_counter
+	lda babapu_lop1_ptr_lo
+	sta babapu_head_ptr_lo
+	lda babapu_lop1_ptr_hi
+	sta babapu_head_ptr_hi
+.done_lop1
 	rts
+	; loop back to loop2 point
 babapu_controls_b:
+	lda babapu_lop2_counter
+	beq .done_lop2
+	dec babapu_lop2_counter
+	lda babapu_lop2_ptr_lo
+	sta babapu_head_ptr_lo
+	lda babapu_lop2_ptr_hi
+	sta babapu_head_ptr_hi
+.done_lop2
 	rts
 babapu_controls_c:
 	rts

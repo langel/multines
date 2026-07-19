@@ -29,12 +29,13 @@ Ax set loop1 point with count x
 Bx set loop2 point with count x
 *Cx set pitch down speed
 *Dx set pitch up speed
-*Ex halt channels
+Ex halt channels (song-only)
    each bit represents channels pu1..noise
+   immediate silence + clear channel counters
 Fx song controls
    0 loop back to beginning
-   1 loop back to loop1 point	
-   2 loop back to loop2 point
+   A loop back to loop1 point	
+   B loop back to loop2 point
    3 mend1 set begin pointer
    4 mend1 set end pointer (or jump to mend1 next if already set)
    5 mend1 set next pointer and jump to begin pointer
