@@ -12,6 +12,7 @@ state_continue_init: subroutine
 	jsr render_disable
 	jsr sprites_clear
 	jsr registers_clear
+	jsr apu_init
 
 	; check for continues
 	lda continues
@@ -143,6 +144,15 @@ state_continue_update: subroutine
 	lda state00
 	and #$01
 	sta state00
+	; ping!
+	lda #%10001111
+	sta $4004
+	lda #$00
+	sta $4005
+	lda state05
+	sta $4006
+	lda #%00010001
+	sta $4007
 	jmp .controls_done
 .do_action
 	lda state00
@@ -152,7 +162,6 @@ state_continue_update: subroutine
 	; replenish player lives
 	jsr chompchamp_reset_game
 	jsr state_chomp_init
-	;jsr state_game_level_init
 	jmp nmi_update_done
 .not_yeah
 	; nope
@@ -185,13 +194,26 @@ state_continue_update: subroutine
 	cmp #$e0
 	bcc .skip_velocity_reset
 	jsr rng_update
-	lda rng_val0
-	sta state02
+	; high velocity/pitch
 	lda rng_val1
 	and #$07
 	sta state03
+	eor #$07
+	ora #$01
+	sta $4003
+	; low velocity/pitch
+	lda rng_val0
+	sta state02
+	eor #$ff
+	sta $4002
+	; other
 	lda #$e0
 	sta state05
+	; sound
+	lda #%00110100
+	sta $4000
+	lda #%11111110
+	sta $4001
 .skip_velocity_reset	
 	; x axis stuff
 	inc state01
@@ -254,5 +276,14 @@ state_continue_update: subroutine
 	sta ent_visible
 	ldy #$08
 	jsr ent_render_generic_8x16
+	
+	; adjust audio
+	lda state03
+	bpl .audio_adjust_done
+	lda #%00110010
+	sta $4000
+	lda #%10000111
+	sta $4001
+.audio_adjust_done
 
 	jmp nmi_update_done

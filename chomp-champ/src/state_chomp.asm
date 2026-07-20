@@ -6,6 +6,7 @@ state_chomp_init:
 	
 	jsr render_disable
 	jsr sprites_clear
+	jsr registers_clear
 
 	jsr teeth_init_playfield
 	; clear undesired tiles
@@ -185,10 +186,7 @@ state_chomp_sprite0_split: subroutine
 	and #%11111000
 	shift_l 2
 	sta temp04 ; temp
-	ldx camera_x
-	stx temp06
-	txa
-	shift_r 3
+	lda #$00
 	ora temp04 
 	sta temp07
 
