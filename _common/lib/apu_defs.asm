@@ -14,76 +14,74 @@ sfx_pu2_counter    EQM $0177
 
 apu_tri_env_id     EQM $0178
 apu_tri_counter    EQM $0179
-apu_tri_last_hi    EQM $017a
-sfx_tri_counter    EQM $017b
+sfx_tri_counter    EQM $017a
 
-apu_noi_env_id     EQM $017c
-apu_noi_counter    EQM $017d
-apu_noi_last_hi    EQM $017e
-sfx_noi_counter    EQM $017f
+apu_noi_env_id     EQM $017b
+apu_noi_counter    EQM $017c
+sfx_noi_counter    EQM $017d
 
-sfx_pu1_update_id  EQM $0180
-sfx_pu2_update_id  EQM $0181
-sfx_tri_update_id  EQM $0182
-sfx_noi_update_id  EQM $0183
+sfx_pu1_update_id  EQM $017e
+sfx_pu2_update_id  EQM $017f
+sfx_tri_update_id  EQM $0180
+sfx_noi_update_id  EQM $0181
 
-song_pu1_note_id   EQM $0184
-song_pu2_note_id   EQM $0185
-song_tri_note_id   EQM $0186
-audio_rng          eqm $0187
+song_pu1_note_id   EQM $0182
+song_pu2_note_id   EQM $0183
+song_tri_note_id   EQM $0184
+audio_rng          eqm $0185
 
-apu_sfx_temp00     EQM $0188
-apu_sfx_temp01     EQM $0189
-apu_sfx_temp02     EQM $018a
-apu_sfx_temp03     EQM $018b
+apu_sfx_temp00     EQM $0186
+apu_sfx_temp01     EQM $0187
+apu_sfx_temp02     EQM $0188
+apu_sfx_temp03     EQM $0189
 
-audio_song_id      EQM $018f
+audio_song_id      EQM $018d
 
 ; defined in zero page:
 ; babapu_head_ptr_(lo/hi)
 ; song_perc_ptr_(lo/hi)
-babapu_song_ptr_lo    eqm $0190
-babapu_song_ptr_hi    eqm $0191
+babapu_song_ptr_lo    eqm $018e
+babapu_song_ptr_hi    eqm $018f
 
-babapu_lop1_ptr_lo    eqm $0192
-babapu_lop1_ptr_hi    eqm $0193
-babapu_lop2_ptr_lo    eqm $0194
-babapu_lop2_ptr_hi    eqm $0195
-babapu_btu_length     eqm $0196
-babapu_btu_counter    eqm $0197
-babapu_delay_counter  eqm $0198
+babapu_lop1_ptr_lo    eqm $0190
+babapu_lop1_ptr_hi    eqm $0191
+babapu_lop2_ptr_lo    eqm $0192
+babapu_lop2_ptr_hi    eqm $0193
+babapu_btu_length     eqm $0194
+babapu_btu_counter    eqm $0195
+babapu_delay_counter  eqm $0196
 
-babapu_lop1_counter   eqm $019a
-babapu_lop2_counter   eqm $019b
+babapu_lop1_counter   eqm $0198
+babapu_lop2_counter   eqm $0199
 
 ; channel priorities (higher wins)
-ch_prio_pu1           eqm $019c
-ch_prio_pu2           eqm $019d
-ch_prio_tri           eqm $019e
-ch_prio_noi           eqm $019f
+ch_prio_pu1           eqm $019a
+ch_prio_pu2           eqm $019b
+ch_prio_tri           eqm $019c
+ch_prio_noi           eqm $019d
 
 ; song percussion sequencer
-song_perc_update_id   eqm $01a0
+song_perc_update_id   eqm $019e
 
 ; song triangle note duration state
-song_tri_btu_count    eqm $01a3
-song_tri_frame_count  eqm $01a4
-babapu_tri_btu_mult   eqm $01a5
+song_tri_btu_count    eqm $01a1
+song_tri_frame_count  eqm $01a2
+babapu_tri_btu_mult   eqm $01a3
 
 ; mend pointers (multi-ending loop sets)
-babapu_mnd1_begin_ptr_lo  eqm $01a6
-babapu_mnd1_begin_ptr_hi  eqm $01a7
-babapu_mnd1_end_ptr_lo    eqm $01a8
-babapu_mnd1_end_ptr_hi    eqm $01a9
-babapu_mnd1_next_ptr_lo   eqm $01aa
-babapu_mnd1_next_ptr_hi   eqm $01ab
+babapu_mnd1_begin_ptr_lo  eqm $01a4
+babapu_mnd1_begin_ptr_hi  eqm $01a5
+babapu_mnd1_end_ptr_lo    eqm $01a6
+babapu_mnd1_end_ptr_hi    eqm $01a7
+babapu_mnd1_next_ptr_lo   eqm $01a8
+babapu_mnd1_next_ptr_hi   eqm $01a9
 
-babapu_mnd2_begin_ptr_lo  eqm $01ac
-babapu_mnd2_begin_ptr_hi  eqm $01ad
-babapu_mnd2_end_ptr_lo    eqm $01ae
-babapu_mnd2_end_ptr_hi    eqm $01af
-babapu_mnd2_next_ptr_lo   eqm $01b0
-babapu_mnd2_next_ptr_hi   eqm $01b1
+babapu_mnd2_begin_ptr_lo  eqm $01aa
+babapu_mnd2_begin_ptr_hi  eqm $01ab
+babapu_mnd2_end_ptr_lo    eqm $01ac
+babapu_mnd2_end_ptr_hi    eqm $01ad
+babapu_mnd2_next_ptr_lo   eqm $01ae
+babapu_mnd2_next_ptr_hi   eqm $01af
 
 PRIO_SONG_MUSIC       equ $01
 PRIO_SONG_PERC        equ $02

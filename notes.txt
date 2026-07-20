@@ -76,10 +76,9 @@ stack page usage
 
 $0100-$015f nametable nmi caching
 $0160-$016f apu cache
-$0170-$019f audio subsystem (48 bytes)
---- palette fade cache?
-$01a0-$01cf free (system scratch?)
-$01d0-$01df program space
+$0170-$01af audio subsystem (64 bytes)
+$01c0-$01d1 system scratch (used by nametable lib)
+$01d2-$01df free program space?
 $01e0-$01ff stack
 
 move quordle poems to its own repo
