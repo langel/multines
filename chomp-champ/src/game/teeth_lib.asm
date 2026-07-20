@@ -188,10 +188,11 @@ teeth_update: subroutine
 	ldx tooth_index
 	lda tooth_true_clean,x
 	beq .animate_gleam
-	lda temp03
-	bne .animate_gleam
+	cmp temp03
+	beq .animate_gleam
 	lda #$3c
 	sta tooth_clean_gleam
+	jsr sfx_powerup_battery_25
 	jmp .animate_gleam
 .mark_not_true_clean
 	lda #$00

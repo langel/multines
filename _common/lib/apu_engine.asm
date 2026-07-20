@@ -46,8 +46,7 @@ apu_set_pitch: subroutine
 	lda #$ff
 	;sta apu_pu1_last_hi-2,y
 	; this makes "sick dingle" work
-	sta apu_pu1_last_hi
-	sta apu_pu2_last_hi
+	;sta apu_pu1_last_hi,y
 	rts
 
 

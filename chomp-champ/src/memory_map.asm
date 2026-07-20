@@ -88,4 +88,6 @@ big_teef_floss_damage byte
 big_teef_upper_hits   byte
 big_teef_lower_hits   byte
 
+food_fall  byte
+
 

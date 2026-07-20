@@ -64,6 +64,10 @@ sfx_update_table_lo:
 	byte #<sfx_brush_up_update
 	byte #<sfx_brush_down_update
 	byte #<sfx_hud_life_lost_update
+	byte #<sfx_egg_hatch_update
+	byte #<sfx_grub_converge_update
+	byte #<sfx_cc_enemy_death_update
+
 sfx_update_table_hi:
 	byte #>do_nothing                 ; 0
 	byte #>sfx_player_death_update    ; 1
@@ -75,12 +79,17 @@ sfx_update_table_hi:
 	byte #>sfx_brush_up_update
 	byte #>sfx_brush_down_update
 	byte #>sfx_hud_life_lost_update
+	byte #>sfx_egg_hatch_update
+	byte #>sfx_grub_converge_update
+	byte #>sfx_cc_enemy_death_update
 
 sfx_tingler_id           equ $06
 sfx_brush_up_id          equ $07
 sfx_brush_down_id        equ $08
 sfx_hud_life_lost_id     equ $09
-sfx_germ_step_id         equ $0a
+sfx_egg_hatch_id         equ $0a
+sfx_grub_converge_id     equ $0b
+sfx_cc_enemy_death_id    equ $0c
         
         
 sfx_update_delegator: subroutine
@@ -114,24 +123,30 @@ sfx_tingler_notes:
 	;   E  B  G# C# C  G  G# C#
 	hex 4c 47 44 49 48 43 44 49
 sfx_tingler: subroutine
-	lda sfx_pu2_counter
-	bne .done
 	lda #$00
 	sta apu_sfx_temp00
 	sta apu_sfx_temp01
 	sta apu_sfx_temp02
 	sta apu_sfx_temp03
+	sta sfx_noi_update_id
+	sta sfx_noi_counter
+	lda #$10
+	sta apu_cache+$c
 	lda #sfx_tingler_id
 	sta sfx_pu2_update_id
 .done
 	rts
 sfx_tingler_update: subroutine
+	lda food_fall
+	bne .done
 	lda apu_sfx_temp00
 	cmp #$05
 	bne .not_next
 	lda #$00
 	sta apu_sfx_temp00
 	; pulse 2
+	lda #$08
+	sta sfx_pu2_counter
 	lda apu_sfx_temp02
 	shift_l 3
 	sta temp00
@@ -169,6 +184,7 @@ sfx_tingler_update: subroutine
 	sta apu_sfx_temp02
 .not_next
 	inc apu_sfx_temp00
+.done
 	rts
 
 
@@ -368,6 +384,149 @@ sfx_egg_shake: subroutine
 .done
 	rts
 
+sfx_egg_hatch: subroutine
+	lda audio_song_id
+	bpl .done
+	lda #sfx_egg_hatch_id
+	sta sfx_noi_update_id
+	lda #$0b
+	sta sfx_noi_counter
+	; pitch/volume
+	lda #$0a
+	sta apu_cache+$0c
+	sta $400c
+	sta apu_cache+$0e
+	sta $400e
+.done
+	rts
+sfx_egg_hatch_update: subroutine
+	lda apu_cache+$0c
+	and #$0f
+	beq .end
+	tax
+	dex
+	txa
+	ora #$30
+	sta apu_cache+$0c
+	sta $400c
+	txa
+	lsr
+	lsr
+	clc
+	adc #$08
+	sta apu_cache+$0e
+	sta $400e
+	rts
+.end
+	lda #$30
+	sta apu_cache+$0c
+	sta $400c
+	lda #$00
+	sta sfx_noi_counter
+	sta sfx_noi_update_id
+	rts
+
+sfx_grub_converge: subroutine
+	lda audio_song_id
+	bpl .done
+	lda #sfx_grub_converge_id
+	sta sfx_noi_update_id
+	lda #$0b
+	sta sfx_noi_counter
+	; pitch/volume
+	lda #$0a
+	sta apu_cache+$0c
+	sta $400c
+	sta apu_cache+$0e
+	sta $400e
+.done
+	rts
+sfx_grub_converge_update: subroutine
+	lda apu_cache+$0c
+	and #$0f
+	beq .end
+	tax
+	dex
+	txa
+	ora #$30
+	sta apu_cache+$0c
+	sta $400c
+	txa
+	lsr
+	sta temp00
+	lda #$0f
+	sec
+	sbc temp00
+	sta apu_cache+$0e
+	sta $400e
+	rts
+.end
+	lda #$30
+	sta apu_cache+$0c
+	sta $400c
+	lda #$00
+	sta sfx_noi_counter
+	sta sfx_noi_update_id
+	rts
+
+sfx_cc_enemy_death: subroutine
+	lda player_is_dead
+	bne .done
+	lda audio_song_id
+	bpl .done
+	lda #sfx_cc_enemy_death_id
+	sta sfx_pu2_update_id
+	lda #$0d
+	sta sfx_pu1_counter
+	sta sfx_pu2_counter
+	lda apu_period_lo+43
+	sta apu_cache+2
+	lda apu_period_hi+43
+	sta apu_cache+3
+	lda apu_period_lo+44
+	sta apu_cache+6
+	lda apu_period_hi+44
+	sta apu_cache+7
+.done
+	rts
+sfx_cc_enemy_death_update: subroutine
+	lda sfx_pu2_counter
+	beq .done
+	lda #$bb
+	sta apu_cache+0
+	sta $4000
+	sta apu_cache+4
+	sta $4004
+	sec
+	lda apu_cache+2
+	sbc #$0c
+	sta apu_cache+2
+	sta $4002
+	lda apu_cache+3
+	sbc #$00
+	sta apu_cache+3
+	sta $4003
+	lda apu_cache+6
+	sbc #$0c
+	sta apu_cache+6
+	sta $4006
+	lda apu_cache+7
+	sbc #$00
+	sta apu_cache+7
+	sta $4007
+	rts
+.done
+	lda #$10
+	sta apu_cache+0
+	sta $4000
+	sta apu_cache+4
+	sta $4004
+	lda #$00
+	sta sfx_pu1_counter
+	sta sfx_pu2_counter
+	sta sfx_pu2_update_id
+	rts
+
 sfx_tooth_lost: subroutine
 	lda audio_song_id
 	bpl .done
@@ -399,6 +558,43 @@ sfx_tooth_lost: subroutine
 .done
 	rts
 
+sfx_cretin_walk: subroutine
+	lda audio_song_id
+	bpl .done
+	; tri
+	lda #$01
+	sta sfx_tri_counter
+	sta apu_tri_counter
+	lda #%10001111
+	sta $4008
+	sta apu_cache+8
+	lda audio_rng
+	sta apu_cache+$a
+	sta $400a
+	lda #%11111010
+	sta apu_cache+$b
+	sta $400b
+.done
+	rts
+
+sfx_food_fall: subroutine
+	; pulse 2
+	lda #%10001111
+	sta $4004
+	lda #%10000100
+	sta $4005
+	lda audio_rng
+	and #$3f
+	ora #$0f
+	sta $4006
+	lda #%00001000
+	sta $4007
+	lda #$ff
+	sta apu_pu2_last_hi
+	lda #$20
+	sta sfx_pu2_counter
+	rts
+
 ; sound test 00
 sfx_pewpew: subroutine
 	lda sfx_pu2_counter
@@ -406,13 +602,13 @@ sfx_pewpew: subroutine
 	; pulse 2
 	lda #%10001111
 	sta $4004
-	lda #%10000010
+	lda #%10000011
 	sta $4005
 	lda audio_rng
 	and #$3f
 	ora #$08
 	sta $4006
-	lda #%00010000
+	lda #%01110000
 	sta $4007
 	lda #$ff
 	sta apu_pu2_last_hi
@@ -645,17 +841,17 @@ sfx_powerup_1up_update: subroutine
 ; sound test 0a
 sfx_powerup_battery_25: subroutine
 	lda #$08
-	sta apu_sfx_temp00 ; counter
+	sta apu_sfx_temp03 ; counter
 	bne sfx_powerup_battery_set_update_id
 ; sound test 0b
 sfx_powerup_battery_50: subroutine
 	lda #$04
-	sta apu_sfx_temp00 ; counter
+	sta apu_sfx_temp03 ; counter
 	bne sfx_powerup_battery_set_update_id
 ; sound test 0c
 sfx_powerup_battery_100: subroutine
 	lda #$00
-	sta apu_sfx_temp00 ; counter
+	sta apu_sfx_temp03 ; counter
 sfx_powerup_battery_set_update_id:
 	lda #$03
 	sta sfx_pu2_update_id
@@ -665,10 +861,10 @@ sfx_powerup_battery_arp:
 	.byte	#$18, #$1c, #$1f, #$24
 
 sfx_powerup_battery_update: subroutine
-	lda apu_sfx_temp00
+	lda apu_sfx_temp03
 	and #%00000011
 	bne .dont_trigger
-	lda apu_sfx_temp00
+	lda apu_sfx_temp03
 	lsr
 	lsr
 	cmp #$04
@@ -693,7 +889,7 @@ sfx_powerup_battery_update: subroutine
 	lda #$10
 	sta sfx_pu2_counter
 .dont_trigger
-	inc apu_sfx_temp00 ; counter
+	inc apu_sfx_temp03 ; counter
 	rts
 .end_sound
 	lda #$00

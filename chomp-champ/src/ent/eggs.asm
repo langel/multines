@@ -82,6 +82,7 @@ ent_eggs_update: subroutine
 .hatch
 	jsr ent_grub_spawn_from_egg
 	jsr ent_particle_spawn_from_egg
+	jsr sfx_egg_hatch
 	jmp ent_z_update_return
 .dont_hatch
 

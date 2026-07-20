@@ -220,6 +220,17 @@ player_render_running: subroutine
 	lda #$00
 	sta ent_r2,x
 	inc ent_r1,x
+	; sfx
+	lda ent_r1,x
+	cmp #$02
+	beq .sfx_go
+	cmp #$05
+	beq .sfx_go
+	jmp .sfx_done
+.sfx_go
+	jsr sfx_cretin_walk
+.sfx_done
+	; bound anim
 	lda ent_r1,x
 	cmp #$06
 	bcc .not_next_frame

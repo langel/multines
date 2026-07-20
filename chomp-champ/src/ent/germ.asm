@@ -77,6 +77,7 @@ ent_germ_update: subroutine
 	; damage
 	lda ent_hp,x
 	bpl .dont_despawn
+	jsr sfx_cc_enemy_death
 	jsr ent_particle_spawn_from_baddie
 	jmp ent_z_update_return
 .dont_despawn

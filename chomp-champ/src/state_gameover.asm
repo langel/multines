@@ -13,6 +13,7 @@ state_gameover_init: subroutine
 
 	jsr render_disable
 	jsr sprites_clear
+	jsr apu_init
 	
 	ldx #state_gameover_update_id
 	jsr state_set_update_routine

@@ -105,7 +105,10 @@ ent_grub_update: subroutine
 	; update logic
 .update_grub
 
+	lda ent_r4,x
+	beq .sfx_done
 	jsr sfx_grub_slide 
+.sfx_done
 
 	lda ent_r1,x
 	cmp #grub_default_wait_length
@@ -356,6 +359,7 @@ ent_grub_update: subroutine
 .dont_reset_r5
 	lda ent_hp,x
 	bpl .damage_done
+	jsr sfx_cc_enemy_death
 	jsr ent_particle_spawn_from_baddie
 	jmp ent_z_update_return
 .damage_done
@@ -573,6 +577,7 @@ ent_grub_convergence: subroutine
 
 	; matched grub becomes particle
 	jsr ent_particle_spawn_from_baddie
+	jsr sfx_grub_converge
 	jmp .done
 
 .next_compare

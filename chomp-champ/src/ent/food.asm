@@ -357,6 +357,9 @@ ent_food_update: subroutine
 	lda tooth_total_dmg,y
 	bpl .not_falling
 .falling_state_init
+	jsr sfx_food_fall
+	lda #$10
+	sta food_fall
 	lda #$80
 	sta ent_r0,x
 	jsr rng_update

@@ -146,6 +146,7 @@ state_nextlevel_init: subroutine
 
 state_nextlevel_update: subroutine
 	jsr render_enable
+	jsr sprites_clear
 	jsr controller_read
 	
 	; rotate text color
@@ -190,7 +191,7 @@ state_nextlevel_update: subroutine
 	lda controller1_d
 	and #BUTTON_RIGHT
 	beq .right_done
-	jsr sfx_germ_poops
+	jsr sfx_cc_enemy_death
 .right_done
 
 

@@ -81,6 +81,27 @@ ent_big_teef_update: subroutine
 	jmp ent_big_teef_render
 
 .in_game_update
+	; chomp sound
+	lda ent_r4,x
+	cmp #$c0
+	beq .sfx_go
+	cmp #$c1
+	beq .sfx_go
+	cmp #$c2
+	beq .sfx_go
+	jmp .sfx_done
+.sfx_go
+	lda #$0f
+	sta $4010
+	lda #$80
+	sta $4012
+	lda #$2d
+	sta $4013
+	lda #%00001111
+	sta $4015
+	lda #%00011111
+	sta $4015
+.sfx_done
 	; world-space movement: +1 pixel +4 subpixels/frame
 	clc
 	lda ent_x_lo,x
@@ -126,6 +147,14 @@ ent_big_teef_update: subroutine
 	inc ent_r4,x
 
 	jsr ent_big_teef_damage_check
+	; level complete when total jaw hits overflows 8-bit sum
+	clc
+	lda big_teef_upper_hits
+	adc big_teef_lower_hits
+	bcc .no_level_complete
+	jsr state_nextlevel_init
+	jmp ent_z_update_return
+.no_level_complete
 	jmp ent_big_teef_render
 
 
