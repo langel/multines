@@ -80,6 +80,7 @@ sfx_tingler_id           equ $06
 sfx_brush_up_id          equ $07
 sfx_brush_down_id        equ $08
 sfx_hud_life_lost_id     equ $09
+sfx_germ_step_id         equ $0a
         
         
 sfx_update_delegator: subroutine
@@ -249,6 +250,149 @@ sfx_hud_life_lost_update: subroutine
 	lda #$00
 	sta sfx_noi_counter
 	sta sfx_noi_update_id
+	rts
+
+
+sfx_germ_step: subroutine
+	lda audio_song_id
+	bpl .done
+	lda sfx_pu2_counter
+	bne .done
+	; pulse 2
+	lda #$00
+	sta $4005
+	lda audio_rng
+	sta apu_cache+6
+	sta $4006
+	lda #$03
+	sta $4007
+	sta apu_cache+7
+	lda #$02
+	sta sfx_pu2_counter
+	sta apu_pu2_counter
+	lda #$02
+	sta apu_pu2_env_id
+.done
+	rts
+
+sfx_germ_poops: subroutine
+	lda audio_song_id
+	bpl .done
+	; pulse 1
+	lda #$00
+	sta apu_cache+1
+	sta $4001
+	lda audio_rng
+	sta apu_cache+2
+	sta $4002
+	lda #$06
+	sta $4003
+	sta apu_cache+3
+	lda #$10
+	sta sfx_pu1_counter
+	sta apu_pu1_counter
+	lda #$02
+	sta apu_pu1_env_id
+.done
+	rts
+
+sfx_grub_slide: subroutine
+	lda audio_song_id
+	bpl .done
+	lda apu_pu1_counter
+	bne .done
+	; pulse 2
+	lda #$00
+	sta $4001
+	lda audio_rng
+	and #$3f
+	sta apu_cache+2
+	sta $4002
+	lda #$01
+	sta $4003
+	sta apu_cache+3
+	lda #$02
+	sta sfx_pu1_counter
+	sta apu_pu1_counter
+	lda #$02
+	sta apu_pu1_env_id
+.done
+	rts
+
+sfx_gnat_buzz: subroutine
+	lda apu_noi_counter
+	bne .done
+	lda sfx_noi_counter
+	bne .done
+	lda audio_song_id
+	bpl .done
+	; noise
+	lda ent_visible
+	clc
+	adc #$01
+	ora #$30
+	sta apu_cache+$c
+	sta $400c
+	lda audio_rng
+	and #$07
+	sta apu_cache+$e
+	sta $400e
+.done
+	rts
+
+sfx_egg_shake: subroutine
+	lda audio_song_id
+	bpl .done
+	lda sfx_pu2_counter
+	bne .done
+	; pulse 2
+	lda #$00
+	sta $4005
+	lda audio_rng
+	and #$3f
+	adc #$20
+	sta apu_cache+6
+	sta $4006
+	lda #$00
+	sta $4007
+	sta apu_cache+7
+	lda #$03
+	sta sfx_pu2_counter
+	sta apu_pu2_counter
+	lda #$03
+	sta apu_pu2_env_id
+.done
+	rts
+
+sfx_tooth_lost: subroutine
+	lda audio_song_id
+	bpl .done
+	; pulse 1+2
+	lda #$00
+	sta apu_cache+1
+	sta apu_cache+5
+	lda audio_rng
+	and #$07
+	sta $4002
+	sta apu_cache+2
+	eor #$ff
+	sta $4006
+	sta apu_cache+6
+	ldx #$01
+	stx $4003
+	stx apu_cache+3
+	dex
+	stx $4007
+	stx apu_cache+7
+	lda #$3f
+	sta sfx_pu1_counter
+	sta apu_pu1_counter
+	sta sfx_pu2_counter
+	sta apu_pu2_counter
+	lda #$00
+	sta apu_pu1_env_id
+	sta apu_pu2_env_id
+.done
 	rts
 
 ; sound test 00

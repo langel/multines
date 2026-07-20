@@ -76,6 +76,12 @@ apu_update: subroutine
 	sta ch_prio_noi
 .prio_song_perc_done
 	; sfx state owns channel priority when active
+	lda sfx_pu1_update_id
+	ora sfx_pu1_counter
+	beq .prio_sfx_pu1_done
+	lda #PRIO_SFX_SOUND
+	sta ch_prio_pu1
+.prio_sfx_pu1_done
 	lda sfx_pu2_update_id
 	ora sfx_pu2_counter
 	beq .prio_sfx_pu2_done
@@ -182,6 +188,10 @@ apu_update: subroutine
 	sta audio_rng
 
 	; SFX counter updates
+	lda sfx_pu1_counter
+	beq .sfx_pu1_counter_done
+	dec sfx_pu1_counter
+.sfx_pu1_counter_done
 	lda sfx_pu2_counter
 	beq .sfx_pu2_counter_done
 	dec sfx_pu2_counter

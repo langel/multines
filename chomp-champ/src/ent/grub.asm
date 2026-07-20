@@ -105,6 +105,8 @@ ent_grub_update: subroutine
 	; update logic
 .update_grub
 
+	jsr sfx_grub_slide 
+
 	lda ent_r1,x
 	cmp #grub_default_wait_length
 	beq .speed_done

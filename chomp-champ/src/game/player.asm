@@ -7,7 +7,7 @@
 
 
 
-player_death_timer    eqm #$40
+player_death_timer    eqm #$48
 player_iframes_timer  eqm #$40
 
 

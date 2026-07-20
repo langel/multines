@@ -96,6 +96,9 @@ ent_eggs_update: subroutine
 	adc ent_r3,x
 	sta ent_r3,x
 	tay
+	bcc .no_carry
+	jsr sfx_egg_shake
+.no_carry
 	lda sine_table,y
 	sta temp01
 	clc

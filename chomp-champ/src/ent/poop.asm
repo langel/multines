@@ -40,6 +40,7 @@ ent_poop_from_germ: subroutine
 	; poop causes dirt
 	ldy #$05
 	jsr ent_sully_cell
+	jsr sfx_germ_poops
 .done
 	rts
 

@@ -294,6 +294,10 @@ ent_germ_update: subroutine
 	lda ent_r1,x
 	and #$03
 	sta ent_r1,x
+	; step sfx
+	and #$01
+	beq .not_next_frame
+	jsr sfx_germ_step
 .not_next_frame
 	
 	; set z position

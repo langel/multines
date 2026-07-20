@@ -274,6 +274,12 @@ ent_gnat_render: subroutine
 	ldy ent_spr_ptr
 	; RENDER
 	jsr ent_calc_position
+	; buzz audio
+	lda ent_visible
+	sta $1c0
+	beq .buzz_done
+.buzz_done
+	jsr sfx_gnat_buzz
 	; metasprite
 	lda wtf
 	lsr

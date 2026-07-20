@@ -232,6 +232,7 @@ hud_update: subroutine
 	; spawn particle
 	inc tooth_hud_gone,x
 	jsr ent_particle_spawn_from_tooth_indicator
+	jsr sfx_tooth_lost
 .tooth_particle_done
 
 	; lives sprites

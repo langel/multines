@@ -189,9 +189,9 @@ state_nextlevel_update: subroutine
 .death_done
 	lda controller1_d
 	and #BUTTON_RIGHT
-	beq .life_done
-	jsr sfx_hud_life_lost
-.life_done
+	beq .right_done
+	jsr sfx_germ_poops
+.right_done
 
 
 	jsr apu_update
