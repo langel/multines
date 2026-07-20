@@ -13,6 +13,7 @@ nextlevel_text_left_margin:
 
 state_nextlevel_init: subroutine
 	jsr render_disable
+	jsr apu_init
 
 	; set up next level in ram
 	inc game_level

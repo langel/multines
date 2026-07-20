@@ -63,7 +63,7 @@ state_init: subroutine
 	sta alphabet_table_hi
 
 	; start initial state
-	jsr state_title_init
+	;jsr state_title_init
 	;jsr state_gameover_init
 	;jsr init_new_game
 	;jsr state_nextlevel_init
@@ -71,7 +71,7 @@ state_init: subroutine
 	;lda #$01
 	;sta game_level
 	;jsr state_game_level_init
-	;jsr state_congration_init
+	jsr state_congration_init
 	;jsr state_continue_init
 	;jsr state_demo_init
 	;jsr state_chomp_init

@@ -16,7 +16,7 @@ state_continue_init: subroutine
 
 	; check for continues
 	lda continues
-	bpl .continues_left
+	bne .continues_left
 	jsr state_title_init
 	rts
 .continues_left

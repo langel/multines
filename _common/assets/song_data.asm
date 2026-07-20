@@ -32,7 +32,7 @@ song_cc_level_start:
 
 song_cc_congration:
 
-	hex 08
+	hex 06
 	hex 43 53 ; set ppu env
 	hex 64 ; tri length
 	hex f6 ; mend2 begin

@@ -34,14 +34,14 @@ Ex halt channels (song-only)
    immediate silence + clear channel counters
 Fx song controls
    0 loop back to beginning
-   A loop back to loop1 point	
-   B loop back to loop2 point
    3 mend1 set begin pointer
    4 mend1 set end pointer (or jump to mend1 next if already set)
    5 mend1 set next pointer and jump to begin pointer
    6 mend2 set begin pointer
    7 mend2 set end pointer (or jump to mend2 next if already set)
    8 mend2 set next pointer and jump to begin pointer
+   A loop back to loop1 point	
+   B loop back to loop2 point
    F end song
 
 

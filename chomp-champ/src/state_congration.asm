@@ -214,16 +214,6 @@ state_congration_update: subroutine
 	jsr congration_sprite0
 .skip_wait
 
-/*
-	; a good place to test sound?
-	jsr apu_update
-
-	lda wtf
-	cmp #$20
-	bne .no_sound
-	jsr sfx_brush_down
-.no_sound
-*/
 	; rotate text color
 	lda wtf
 	and #$1f
