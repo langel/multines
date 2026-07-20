@@ -4,7 +4,7 @@ state_game_camera: subroutine
 	lda player_x_hi
 	bne .not_left
 	lda player_x
-	cmp #$7f
+	cmp #$77
 	bcs .not_far_end
 	; handle far left
 	lda #$ff

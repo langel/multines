@@ -61,7 +61,14 @@ song music
 $128e top of shared lib address
 
 
-
+to do sounds
+- grubs become germ
+- enemy death
+- tooth cleared
+- level cleared
+- player steps
+- grubs converge
+- egg hatch
 
 
 AERO

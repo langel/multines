@@ -179,6 +179,8 @@ sfx_brush_up: subroutine
 	sta apu_sfx_temp01
 	lda #sfx_brush_up_id
 	sta sfx_noi_update_id
+	lda #$08
+	sta sfx_noi_counter
 	rts
 sfx_brush_up_update: subroutine
 	inc apu_sfx_temp00
@@ -203,6 +205,8 @@ sfx_brush_down: subroutine
 	sta apu_sfx_temp01
 	lda #sfx_brush_down_id
 	sta sfx_noi_update_id
+	lda #$08
+	sta sfx_noi_counter
 	rts
 sfx_brush_down_update: subroutine
 	inc apu_sfx_temp00
