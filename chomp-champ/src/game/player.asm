@@ -25,11 +25,14 @@ game_player_update: subroutine
 	sta ent_r0
 	sta player_is_dead
 	jsr ent_particle_spawn_from_lives
+	jsr sfx_hud_life_lost
 	rts
 .death_timer_running
-	cmp #$40
+	cmp #player_death_timer
 	bne .death_init_done
-	jsr sfx_player_death
+	ldx #<song_cc_player_death
+	ldy #>song_cc_player_death
+	jsr babapu_start
 	lda #$00
 	sta brush_status
 	sta floss_status

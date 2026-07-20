@@ -2,6 +2,7 @@
 state_demo_init: subroutine
 	jsr render_disable
 	jsr sprites_clear
+	jsr apu_init
 
 	ldx #state_game_render_id
 	jsr state_set_render_routine
@@ -122,6 +123,7 @@ state_demo_update: subroutine
 	jsr state_title_init
 .not_gameover
 
+	jsr apu_update
 
 	jmp nmi_update_done
 	

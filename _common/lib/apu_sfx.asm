@@ -63,6 +63,7 @@ sfx_update_table_lo:
 	byte #<sfx_tingler_update      ; 
 	byte #<sfx_brush_up_update
 	byte #<sfx_brush_down_update
+	byte #<sfx_hud_life_lost_update
 sfx_update_table_hi:
 	byte #>do_nothing                 ; 0
 	byte #>sfx_player_death_update    ; 1
@@ -73,10 +74,12 @@ sfx_update_table_hi:
 	byte #>sfx_tingler_update
 	byte #>sfx_brush_up_update
 	byte #>sfx_brush_down_update
+	byte #>sfx_hud_life_lost_update
 
 sfx_tingler_id           equ $06
 sfx_brush_up_id          equ $07
 sfx_brush_down_id        equ $08
+sfx_hud_life_lost_id     equ $09
         
         
 sfx_update_delegator: subroutine
@@ -215,6 +218,37 @@ sfx_brush_down_update: subroutine
 	sta apu_cache+$c
 	lda apu_sfx_temp01
 	sta apu_cache+$e
+	rts
+
+sfx_hud_life_lost_table:
+	hex 0f 0e 0d 0c 0b 0b 0a 0a
+	hex 09 09 08 08 07 07 06 06
+	hex 05 05 04 04 03 03 02 02
+	hex 02 01 01 01 01 00 00 
+sfx_hud_life_lost: subroutine
+	lda #sfx_hud_life_lost_id
+	sta sfx_noi_update_id
+	lda #$1e
+	sta sfx_noi_counter
+	lda #$0c
+	sta apu_cache+$0e
+	sta $400e
+	rts
+sfx_hud_life_lost_update: subroutine
+	lda sfx_noi_counter
+	beq .end
+	lda #$1e
+	sec
+	sbc sfx_noi_counter
+	tax
+	lda sfx_hud_life_lost_table,x
+	ora #$30
+	sta apu_cache+$c
+	rts
+.end
+	lda #$00
+	sta sfx_noi_counter
+	sta sfx_noi_update_id
 	rts
 
 ; sound test 00

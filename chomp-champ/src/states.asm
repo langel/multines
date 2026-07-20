@@ -71,9 +71,9 @@ state_init: subroutine
 	;lda #$01
 	;sta game_level
 	;jsr state_game_level_init
-	jsr state_congration_init
+	;jsr state_congration_init
 	;jsr state_continue_init
-	;jsr state_demo_init
+	jsr state_demo_init
 	;jsr state_chomp_init
 
 	rts

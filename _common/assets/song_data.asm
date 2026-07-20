@@ -29,6 +29,26 @@ song_cc_level_start:
 	hex ff
 
 
+song_cc_player_death:
+
+	hex 03
+	hex 43 53
+	hex 62
+	hex 27
+	byte 20, 23, 20
+	hex 13
+	hex a2
+	hex 27
+	byte 19, 22, 19
+	hex 14
+	hex fa
+	hex a2
+	hex 27
+	byte 17, 20, 17
+	hex 14
+	hex fa
+	hex ff
+
 
 song_cc_congration:
 

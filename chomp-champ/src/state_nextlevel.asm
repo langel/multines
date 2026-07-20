@@ -180,6 +180,22 @@ state_nextlevel_update: subroutine
 	jsr state_game_level_init
 .start_done
 
+	lda controller1_d
+	and #BUTTON_LEFT
+	beq .death_done
+	ldx #<song_cc_player_death
+	ldy #>song_cc_player_death
+	jsr babapu_start
+.death_done
+	lda controller1_d
+	and #BUTTON_RIGHT
+	beq .life_done
+	jsr sfx_hud_life_lost
+.life_done
+
+
+	jsr apu_update
+
 	jmp nmi_update_done
 
 
