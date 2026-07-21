@@ -513,6 +513,12 @@ player_render_brushing: subroutine
 	and #$02
 	bne .right_leg_up
 .left_leg_up
+	; sfx
+	lda ent_r2,x
+	bne .sfx_done
+.sfx_go
+	jsr sfx_cretin_walk
+.sfx_done
 	lda #$e4
 	sta spr_p+8,y
 	lda #$e6
@@ -633,6 +639,12 @@ player_render_flossing: subroutine
 	and #$02
 	bne .right_leg_up
 .left_leg_up
+	; sfx
+	lda ent_r2,x
+	bne .sfx_done
+.sfx_go
+	jsr sfx_cretin_walk
+.sfx_done
 	lda #$e4
 	sta spr_p+8,y
 	lda #$e6

@@ -376,10 +376,10 @@ sfx_egg_shake: subroutine
 	lda #$00
 	sta $4007
 	sta apu_cache+7
-	lda #$03
+	lda #$06
 	sta sfx_pu2_counter
 	sta apu_pu2_counter
-	lda #$03
+	lda #$01
 	sta apu_pu2_env_id
 .done
 	rts
@@ -535,16 +535,17 @@ sfx_tooth_lost: subroutine
 	sta apu_cache+1
 	sta apu_cache+5
 	lda audio_rng
-	and #$07
+	lsr
+	and #$3f
+	adc #$40
 	sta $4002
 	sta apu_cache+2
-	eor #$ff
+	adc #$03
 	sta $4006
 	sta apu_cache+6
-	ldx #$01
+	ldx #$00
 	stx $4003
 	stx apu_cache+3
-	dex
 	stx $4007
 	stx apu_cache+7
 	lda #$3f
@@ -569,26 +570,28 @@ sfx_cretin_walk: subroutine
 	sta $4008
 	sta apu_cache+8
 	lda audio_rng
+	and #$7f
+	adc #$40
 	sta apu_cache+$a
 	sta $400a
-	lda #%11111010
+	lda #%11111001
 	sta apu_cache+$b
 	sta $400b
 .done
 	rts
 
 sfx_food_fall: subroutine
-	; pulse 2
+	; pulse 1
 	lda #%10001111
-	sta $4004
+	sta $4000
 	lda #%10000100
-	sta $4005
+	sta $4001
 	lda audio_rng
-	and #$3f
-	ora #$0f
-	sta $4006
+	and #$1f
+	adc #$17
+	sta $4002
 	lda #%00001000
-	sta $4007
+	sta $4003
 	lda #$ff
 	sta apu_pu2_last_hi
 	lda #$20

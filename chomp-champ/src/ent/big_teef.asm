@@ -32,8 +32,6 @@ ent_big_teef_spawn: subroutine
 	lda #$80
 	sta ent_y,x
 	lda #$00
-	sta big_teef_brush_damage
-	sta big_teef_floss_damage
 	sta big_teef_upper_hits
 	sta big_teef_lower_hits
 
@@ -354,8 +352,6 @@ ent_big_teef_hitbox_upper: subroutine
 	cmp #$10
 	bcs .check_floss
 	inc big_teef_upper_hits
-	inc big_teef_brush_damage
-	lda big_teef_brush_damage
 	and #$03
 	bne .check_floss
 	ldx ent_slot
@@ -380,8 +376,6 @@ ent_big_teef_hitbox_upper: subroutine
 	cmp #$10
 	bcs .done
 	inc big_teef_upper_hits
-	inc big_teef_floss_damage
-	inc big_teef_floss_damage
 	ldx ent_slot
 	dec ent_hp,x
 	dec ent_hp,x
@@ -409,8 +403,6 @@ ent_big_teef_hitbox_lower: subroutine
 	cmp #$10
 	bcs .check_floss
 	inc big_teef_lower_hits
-	inc big_teef_brush_damage
-	lda big_teef_brush_damage
 	and #$03
 	bne .check_floss
 	ldx ent_slot
@@ -435,8 +427,6 @@ ent_big_teef_hitbox_lower: subroutine
 	cmp #$10
 	bcs .done
 	inc big_teef_lower_hits
-	inc big_teef_floss_damage
-	inc big_teef_floss_damage
 	ldx ent_slot
 	dec ent_hp,x
 	dec ent_hp,x

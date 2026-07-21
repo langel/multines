@@ -192,7 +192,7 @@ teeth_update: subroutine
 	beq .animate_gleam
 	lda #$3c
 	sta tooth_clean_gleam
-	jsr sfx_powerup_battery_25
+	jsr sfx_powerup_battery_100
 	jmp .animate_gleam
 .mark_not_true_clean
 	lda #$00

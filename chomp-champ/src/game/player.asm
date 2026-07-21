@@ -513,6 +513,8 @@ game_player_update: subroutine
 .flooth_stop
 	lda #$00
 	sta floss_status
+	sta sfx_pu2_update_id
+	jmp .skip_flossing
 .flooth_not_row_gap
 	; set state/render index
 	lda #$03 

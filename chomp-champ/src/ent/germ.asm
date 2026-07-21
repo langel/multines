@@ -104,9 +104,15 @@ ent_germ_update: subroutine
 	bmi .germ_brushed_right
 .germ_brushed_left
 	dec ent_x,x
+	lda ent_x,x
+	cmp #$ff
+	bne .germ_attacked_done
+	dec ent_x_hi,x
 	jmp .germ_attacked_done
 .germ_brushed_right
 	inc ent_x,x
+	bne .germ_attacked_done
+	inc ent_x_hi,x
 .germ_attacked_done
 	jmp .movement_done
 .damage_done

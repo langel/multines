@@ -9,6 +9,7 @@ song_cc_level_start:
 	hex a2
 	hex 27
 	byte 34, 38, 22
+	hex 30
 	hex 14
 	hex e7
 	hex 12
@@ -24,8 +25,83 @@ song_cc_level_start:
 	hex e7
 	hex 16
 	byte 38, 41, 26
+	hex 31
 	hex 19
 	hex e7
+	hex ff
+
+
+song_cc_level_clear:
+	hex 0d
+	hex 40 50
+	hex 6f
+
+	hex 25
+	byte 26, 26
+	hex 30
+	hex 11
+
+	hex 22
+	byte 30
+	hex 11
+
+	hex 21
+	byte 33
+	hex 11
+
+	hex 21
+	byte 37
+	hex 31
+	hex 12
+
+	hex ff
+
+
+song_cc_game_clear:
+	hex 0d
+	hex 40 50
+	hex 6f
+
+	hex 25
+	byte 26, 26
+	hex 30
+	hex 11
+
+	hex 22
+	byte 30
+	hex 11
+
+	hex 21
+	byte 33
+	hex 11
+
+	hex 21
+	byte 36
+	hex 31
+	hex 12
+
+	hex 27
+	byte 21, 37, 30
+	hex 12
+	
+	hex 27
+	byte 26, 42, 45
+	hex 11
+	hex 27
+	byte 26, 42, 46
+	hex 11
+	hex 27
+	byte 26, 42, 45
+	hex 11
+	hex 27
+	byte 26, 42, 46
+	hex 11
+	hex 27
+	byte 26, 42, 45
+	hex 13
+
+	hex e4
+
 	hex ff
 
 

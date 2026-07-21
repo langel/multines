@@ -61,10 +61,6 @@ song music
 $128e top of shared lib address
 
 
-to do sounds
-- tooth cleared
-- level cleared
-- boss chomp
 
 AERO
 GRID

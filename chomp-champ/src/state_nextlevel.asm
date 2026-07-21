@@ -15,6 +15,21 @@ state_nextlevel_init: subroutine
 	jsr render_disable
 	jsr apu_init
 
+	; jingles
+	lda game_level
+	beq .no_song
+	cmp #$1b ; last level?
+	beq .song_game_clear
+.song_level_clear
+	ldx #<song_cc_level_clear
+	ldy #>song_cc_level_clear
+	jmp .play_song
+.song_game_clear
+	ldx #<song_cc_game_clear
+	ldy #>song_cc_game_clear
+.play_song
+	jsr babapu_start
+.no_song
 	; set up next level in ram
 	inc game_level
 
@@ -181,18 +196,20 @@ state_nextlevel_update: subroutine
 	jsr state_game_level_init
 .start_done
 
+/*
 	lda controller1_d
 	and #BUTTON_LEFT
 	beq .death_done
-	ldx #<song_cc_player_death
-	ldy #>song_cc_player_death
+	ldx #<song_cc_game_clear
+	ldy #>song_cc_game_clear
 	jsr babapu_start
 .death_done
 	lda controller1_d
 	and #BUTTON_RIGHT
 	beq .right_done
-	jsr sfx_cc_enemy_death
+	jsr sfx_food_fall
 .right_done
+*/
 
 
 	jsr apu_update
