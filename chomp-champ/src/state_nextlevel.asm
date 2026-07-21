@@ -108,10 +108,6 @@ state_nextlevel_init: subroutine
 	; dictionary text plotting
 	clc
 	lda game_level
-;; xxxx test stuff
-	;lda #$1c
-	;sta game_level
-;; xxxx done
 	adc #$08
 	tax
 	lda chomp_champ_passage_ptr_lo,x
@@ -195,21 +191,6 @@ state_nextlevel_update: subroutine
 .standard_start
 	jsr state_game_level_init
 .start_done
-
-/*
-	lda controller1_d
-	and #BUTTON_LEFT
-	beq .death_done
-	ldx #<song_cc_game_clear
-	ldy #>song_cc_game_clear
-	jsr babapu_start
-.death_done
-	lda controller1_d
-	and #BUTTON_RIGHT
-	beq .right_done
-	jsr sfx_food_fall
-.right_done
-*/
 
 
 	jsr apu_update

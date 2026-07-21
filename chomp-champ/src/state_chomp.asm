@@ -3,6 +3,13 @@
 
 
 state_chomp_init:
+
+	lda continues
+	bpl .no_chomps
+	jsr chompchamp_reset_game
+	jsr state_game_level_init
+	rts
+.no_chomps
 	
 	jsr render_disable
 	jsr sprites_clear
@@ -108,12 +115,6 @@ state_chomp_update:
 
 	jsr apu_update
 	jsr controller_read
-
-	lda controller1_d
-	and #BUTTON_B
-	beq .no_b_butt
-	jsr sfx_pewpew
-.no_b_butt
 
 	jsr state_chomp_sprite0_split
 	

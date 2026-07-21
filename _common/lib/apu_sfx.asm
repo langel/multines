@@ -321,6 +321,8 @@ sfx_grub_slide: subroutine
 	bpl .done
 	lda apu_pu1_counter
 	bne .done
+	lda food_fall
+	bne .done
 	; pulse 2
 	lda #$00
 	sta $4001
@@ -592,10 +594,9 @@ sfx_food_fall: subroutine
 	sta $4002
 	lda #%00001000
 	sta $4003
-	lda #$ff
-	sta apu_pu2_last_hi
 	lda #$20
-	sta sfx_pu2_counter
+	sta sfx_pu1_counter
+	sta food_fall
 	rts
 
 ; sound test 00
