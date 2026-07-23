@@ -192,7 +192,6 @@ state_nextlevel_update: subroutine
 	jsr state_game_level_init
 .start_done
 
-
 	jsr apu_update
 
 	jmp nmi_update_done

@@ -33,6 +33,10 @@ apu_env_run: subroutine
 	; #$07 = noise
 	; returns 4-bit volume in a
 	lda apu_pu1_env_id,x
+	cmp #$06
+	bcc .env_id_ok
+	lda #$00
+.env_id_ok
 	tay
 	lda apu_env_table_lo,y
 	sta temp00
@@ -64,6 +68,10 @@ apu_env_lin_tiny: subroutine
 apu_env_exp_long: subroutine
 	; #$40 counter =~ 54 frames / 1 second
 	lda apu_pu1_env_id,x
+	cmp #$06
+	bcc .env_id_ok_long
+	lda #$00
+.env_id_ok_long
 	tay
 	lda apu_env_length,y
 	sec
@@ -80,6 +88,10 @@ apu_env_exp_long: subroutine
 apu_env_exp_short: subroutine
 	; #$20 counter =~ 28 frames / 0.5 second
 	lda apu_pu1_env_id,x
+	cmp #$06
+	bcc .env_id_ok_short
+	lda #$00
+.env_id_ok_short
 	tay
 	lda apu_env_length,y
 	sec
@@ -98,6 +110,10 @@ apu_env_exp_short_table:
 apu_env_exp_tiny: subroutine
 	; #$10 counter =~ 15 frames / 0.25 second
 	lda apu_pu1_env_id,x
+	cmp #$06
+	bcc .env_id_ok_tiny
+	lda #$00
+.env_id_ok_tiny
 	tay
 	lda apu_env_length,y
 	sec
@@ -114,6 +130,10 @@ apu_env_exp_tiny_table:
 apu_env_exp_pico: subroutine
 	; #$06 counter =~ 15 frames / 0.25 second
 	lda apu_pu1_env_id,x
+	cmp #$06
+	bcc .env_id_ok_pico
+	lda #$00
+.env_id_ok_pico
 	tay
 	lda apu_env_length,y
 	sec

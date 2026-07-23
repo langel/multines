@@ -94,6 +94,10 @@ sfx_cc_enemy_death_id    equ $0c
         
 sfx_update_delegator: subroutine
 	; a = sound effect id
+	cmp #$0d
+	bcc .id_ok
+	lda #$00
+.id_ok
 	tay
 	lda sfx_update_table_lo,y
 	sta temp00

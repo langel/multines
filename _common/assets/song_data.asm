@@ -57,6 +57,33 @@ song_cc_level_clear:
 	hex ff
 
 
+song_cc_game_over:
+	hex 40 50
+	hex 65
+
+	hex 08
+	hex 27
+	byte 32, 24, 29
+	hex 14
+
+	hex 0a
+	hex 27
+	byte 31, 22, 27
+	hex 14
+
+	hex 0b
+	hex 27
+	byte 29, 20, 25
+	hex 15
+
+	hex 0c
+	hex 27
+	byte 27, 19, 24
+	hex 14
+
+	hex ff
+
+
 song_cc_game_clear:
 	hex 0d
 	hex 40 50

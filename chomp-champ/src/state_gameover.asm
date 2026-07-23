@@ -14,6 +14,10 @@ state_gameover_init: subroutine
 	jsr render_disable
 	jsr sprites_clear
 	jsr apu_init
+
+	ldx #<song_cc_game_over
+	ldy #>song_cc_game_over
+	jsr babapu_start
 	
 	ldx #state_gameover_update_id
 	jsr state_set_update_routine
@@ -181,6 +185,8 @@ state_gameover_update: subroutine
 .goto_title_screen
 	jsr state_continue_init
 .dont_start
+	
+	jsr apu_update
 
 	jmp nmi_update_done
 	

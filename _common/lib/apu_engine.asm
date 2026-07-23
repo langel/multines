@@ -26,8 +26,18 @@ apu_init: subroutine
 	sta audio_rng
 	sta audio_song_id
 	lda #$00
+	sta sfx_pu1_counter
+	sta sfx_pu2_counter
+	sta sfx_tri_counter
+	sta sfx_noi_counter
+	sta sfx_pu1_update_id
 	sta sfx_pu2_update_id
+	sta sfx_tri_update_id
 	sta sfx_noi_update_id
+	sta apu_sfx_temp00
+	sta apu_sfx_temp01
+	sta apu_sfx_temp02
+	sta apu_sfx_temp03
 	rts
         
         
@@ -60,7 +70,6 @@ apu_bend_down: subroutine
 
 
 apu_update: subroutine
-
 	; priority defaults
 	lda #PRIO_SONG_MUSIC
 	sta ch_prio_pu1

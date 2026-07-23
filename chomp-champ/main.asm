@@ -70,6 +70,7 @@ title_screen_nam:
 	org $c000
 	include "./_common/top_bank.asm"
 
+
 	seg VECTORS
 	org $fffa 
 	.word nmi_handler ; $fffa vblank nmi
