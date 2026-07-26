@@ -299,7 +299,7 @@ hud_update: subroutine
 	lsr
 	lsr
 	clc
-	adc #$9d
+	adc #$a5
 	sta spr_x+4
 	lda #$24
 	sta spr_y+4
