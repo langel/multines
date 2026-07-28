@@ -86,6 +86,5 @@ floss_box_right_x byte
 big_teef_upper_hits   byte
 big_teef_lower_hits   byte
 
-food_fall  byte
 
 

@@ -53,6 +53,13 @@ ent_germ_spawn: subroutine
 	jsr rng_update
 	lda rng_val0
 	sta ent_r2,x
+	; randomized animation start
+	lda rng_val0
+	and #$03
+	sta ent_r0,x
+	lda rng_val1
+	and #$03
+	sta ent_r1,x
 	; set direction
 	lda rng_val0
 	and #$07

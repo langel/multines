@@ -196,6 +196,22 @@ apu_update: subroutine
 	sta audio_rng
 
 	; SFX counter updates
+	lda sfx_counter_0
+	beq .sfx_counter_0_done
+	dec sfx_counter_0
+.sfx_counter_0_done
+	lda sfx_counter_1
+	beq .sfx_counter_1_done
+	dec sfx_counter_1
+.sfx_counter_1_done
+	lda sfx_counter_2
+	beq .sfx_counter_2_done
+	dec sfx_counter_2
+.sfx_counter_2_done
+	lda sfx_counter_3
+	beq .sfx_counter_3_done
+	dec sfx_counter_3
+.sfx_counter_3_done
 	lda sfx_pu1_counter
 	beq .sfx_pu1_counter_done
 	dec sfx_pu1_counter

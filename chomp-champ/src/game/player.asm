@@ -437,7 +437,12 @@ game_player_update: subroutine
 .floss_disable
 	lda #$00
 	sta floss_status
+	lda sfx_pu2_update_id
+	cmp #sfx_tingler_id
+	bne .floss_disable_done
+	lda #$00
 	sta sfx_pu2_update_id
+.floss_disable_done
 	jmp .skip_flossing
 .floss_button_pressed
 	lda controller1_d
@@ -460,7 +465,6 @@ game_player_update: subroutine
 	inc floss_length
 	; if tooth dead can't find gap
 .floss_check_for_gap
-	ldx ent_slot
 	; check for tooth gap
 	lda ent_r3
 	bpl .floss_right_gap_check
@@ -488,9 +492,8 @@ game_player_update: subroutine
 .no_gap
 	; if max length then start decrease
 	lda floss_length
-	cmp #$18
+	cmp #$1c ; <-- MAX LENGTH!!
 	bcc .floss_state_done
-	lda floss_status
 	lda #$81
 	sta floss_status
 .floss_decrease
@@ -555,6 +558,9 @@ game_player_update: subroutine
 	adc #$10
 	sta floss_hit_y
 .skip_flossing
+	; audio handling
+	lda floss_status
+	sta sfx_counter_2 ; floss_status
 
 	; set arctang position
 	lda player_x_hi

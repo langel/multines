@@ -54,7 +54,6 @@ cart_start: subroutine
 	include "src/ent/particle.asm"
 	include "src/ent/player.asm"
 	include "src/ent/poop.asm"
-	include "src/palette.asm"
 
 	org $b380
 	include "src/generated/dict_text.asm"

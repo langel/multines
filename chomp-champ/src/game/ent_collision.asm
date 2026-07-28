@@ -182,7 +182,7 @@ game_ent_collision: subroutine
 	bcc .flossing_done
 .floss_collision
 	lda wtf
-	and #$01
+	and #$03
 	bne .flossing_done
 	; halve hit points
 	lsr ent_hp,x

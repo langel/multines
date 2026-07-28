@@ -19,11 +19,6 @@ state_game_update: subroutine
 	;lda #%00011000 ; diable left 8 pixels row
 	;sta PPU_MASK
 
-	lda food_fall
-	beq .food_fall_done
-	dec food_fall
-.food_fall_done
-
 	jsr teeth_update
 	
 	lda player_lives

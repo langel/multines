@@ -98,6 +98,10 @@ babapu_head_ptr_lo  byte
 babapu_head_ptr_hi  byte
 song_perc_ptr_lo    byte
 song_perc_ptr_hi    byte
+sfx_counter_0       byte
+sfx_counter_1       byte
+sfx_counter_2       byte
+sfx_counter_3       byte
 
 
 

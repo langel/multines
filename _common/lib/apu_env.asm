@@ -2,18 +2,18 @@
    
 apu_env_table_lo:
 	byte #<apu_env_lin_long   ; 0
-	byte #<apu_env_lin_tiny	  ; 2
-	byte #<apu_env_exp_long	  ; 3
-	byte #<apu_env_exp_short  ; 4
-	byte #<apu_env_exp_tiny	  ; 5
-	byte #<apu_env_exp_pico	  ; 6
+	byte #<apu_env_lin_tiny	  ; 1
+	byte #<apu_env_exp_long	  ; 2
+	byte #<apu_env_exp_short  ; 3
+	byte #<apu_env_exp_tiny	  ; 4
+	byte #<apu_env_exp_pico	  ; 5
 apu_env_table_hi:
 	byte #>apu_env_lin_long   ; 0
-	byte #>apu_env_lin_tiny	  ; 2
-	byte #>apu_env_exp_long	  ; 3
-	byte #>apu_env_exp_short  ; 4
-	byte #>apu_env_exp_tiny	  ; 5
-	byte #>apu_env_exp_pico	  ; 6
+	byte #>apu_env_lin_tiny	  ; 1
+	byte #>apu_env_exp_long	  ; 2
+	byte #>apu_env_exp_short  ; 3
+	byte #>apu_env_exp_tiny	  ; 4
+	byte #>apu_env_exp_pico	  ; 5
 
 apu_env_length:
 	hex 40

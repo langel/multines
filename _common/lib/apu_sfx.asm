@@ -136,12 +136,13 @@ sfx_tingler: subroutine
 	sta sfx_noi_counter
 	lda #$10
 	sta apu_cache+$c
+	; set pu2 sfx updater
 	lda #sfx_tingler_id
 	sta sfx_pu2_update_id
 .done
 	rts
 sfx_tingler_update: subroutine
-	lda food_fall
+	lda sfx_counter_0 ; food_fall
 	bne .done
 	lda apu_sfx_temp00
 	cmp #$05
@@ -193,6 +194,8 @@ sfx_tingler_update: subroutine
 
 
 sfx_brush_up: subroutine
+	lda sfx_counter_1 ; grub_converge
+	bne .done
 	lda #$00
 	sta apu_sfx_temp00
 	lda #$0a
@@ -201,6 +204,7 @@ sfx_brush_up: subroutine
 	sta sfx_noi_update_id
 	lda #$08
 	sta sfx_noi_counter
+.done
 	rts
 sfx_brush_up_update: subroutine
 	inc apu_sfx_temp00
@@ -219,6 +223,8 @@ sfx_brush_up_update: subroutine
 	sta apu_cache+$e
 	rts
 sfx_brush_down: subroutine
+	lda sfx_counter_1 ; grub_converge
+	bne .done
 	lda #$00
 	sta apu_sfx_temp00
 	lda #$04
@@ -227,6 +233,7 @@ sfx_brush_down: subroutine
 	sta sfx_noi_update_id
 	lda #$08
 	sta sfx_noi_counter
+.done
 	rts
 sfx_brush_down_update: subroutine
 	inc apu_sfx_temp00
@@ -286,15 +293,17 @@ sfx_germ_step: subroutine
 	lda #$00
 	sta $4005
 	lda audio_rng
+	and #$3f
+	eor #$ff
 	sta apu_cache+6
 	sta $4006
-	lda #$03
+	lda #$02
 	sta $4007
 	sta apu_cache+7
 	lda #$02
 	sta sfx_pu2_counter
 	sta apu_pu2_counter
-	lda #$02
+	lda #$04
 	sta apu_pu2_env_id
 .done
 	rts
@@ -325,7 +334,7 @@ sfx_grub_slide: subroutine
 	bpl .done
 	lda apu_pu1_counter
 	bne .done
-	lda food_fall
+	lda sfx_counter_0 ; food_fall
 	bne .done
 	; pulse 2
 	lda #$00
@@ -439,6 +448,7 @@ sfx_grub_converge: subroutine
 	sta sfx_noi_update_id
 	lda #$0b
 	sta sfx_noi_counter
+	sta sfx_counter_1 ; grub_converge
 	; pitch/volume
 	lda #$0a
 	sta apu_cache+$0c
@@ -531,6 +541,12 @@ sfx_cc_enemy_death_update: subroutine
 	sta sfx_pu1_counter
 	sta sfx_pu2_counter
 	sta sfx_pu2_update_id
+	lda sfx_counter_2 ; floss_status
+	beq .donedone
+	; reinstate flossing sfx
+	lda #sfx_tingler_id
+	sta sfx_pu2_update_id
+.donedone
 	rts
 
 sfx_tooth_lost: subroutine
@@ -600,7 +616,7 @@ sfx_food_fall: subroutine
 	sta $4003
 	lda #$20
 	sta sfx_pu1_counter
-	sta food_fall
+	sta sfx_counter_0 ;food_fall
 	rts
 
 sfx_dpcm_chomp: subroutine
