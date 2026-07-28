@@ -130,16 +130,7 @@ state_chomp_teeth_animate: subroutine
 	beq .flip_open
 	cmp #$28
 	bne .chomp_sample_done
-	lda #$0f
-	sta $4010
-	lda #$80
-	sta $4012
-	lda #$2d
-	sta $4013
-	lda #%00001111
-	sta $4015
-	lda #%00011111
-	sta $4015
+	jsr sfx_dpcm_chomp
 .chomp_sample_done
 	lda state00
 	sec

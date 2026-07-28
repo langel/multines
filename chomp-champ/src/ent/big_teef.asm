@@ -89,16 +89,7 @@ ent_big_teef_update: subroutine
 	beq .sfx_go
 	jmp .sfx_done
 .sfx_go
-	lda #$0f
-	sta $4010
-	lda #$80
-	sta $4012
-	lda #$2d
-	sta $4013
-	lda #%00001111
-	sta $4015
-	lda #%00011111
-	sta $4015
+	jsr sfx_dpcm_chomp
 .sfx_done
 	; world-space movement: +1 pixel +4 subpixels/frame
 	clc

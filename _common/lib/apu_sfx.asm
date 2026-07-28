@@ -603,6 +603,19 @@ sfx_food_fall: subroutine
 	sta food_fall
 	rts
 
+sfx_dpcm_chomp: subroutine
+	lda #$0f
+	sta $4010
+	lda #$80
+	sta $4012
+	lda #$2d
+	sta $4013
+	lda #%00001111
+	sta $4015
+	lda #%00011111
+	sta $4015
+	rts
+
 ; sound test 00
 sfx_pewpew: subroutine
 	lda sfx_pu2_counter

@@ -66,9 +66,7 @@ AERO
 GRID
 
 
-boss fight
-nextlevel -> congration
-move nextlevel screen down 8px or so
+
 
 stack page usage
 
