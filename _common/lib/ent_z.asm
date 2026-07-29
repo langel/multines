@@ -141,6 +141,11 @@ ent_z_despawn: subroutine
 	ent_despawn_2
 	jmp ent_z_update_return
 
+ent_z_despawn_rts: subroutine
+	ent_despawn
+	ent_despawn_2
+	rts
+
 
 ent_z_calc_sort_vals: subroutine
 	; call with z pos + height in a

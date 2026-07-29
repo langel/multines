@@ -41,36 +41,6 @@ ent_food_gap_tooth_b:
 
 ent_food_starting_hp   eqm #$10
 
-ent_food_cache_tooth_id: subroutine
-	; cache tooth id from current food position
-	lda #$ff
-	sta ent_r5,x
-	lda ent_x_hi,x
-	lsr
-	lda ent_x,x
-	ror
-	clc
-	adc #$02
-	shift_r 3
-	sta temp00
-	lda ent_y,x
-	sec
-	sbc #$33
-	bmi .invalid
-	shift_r 4
-	shift_l 5
-	clc
-	adc temp00
-	tay
-	lda tooth_cell2tooth,y
-	sta ent_r4,x
-	rts
-.invalid
-	lda #$ff
-	sta ent_r4,x
-	rts
-
-
 ent_food_spawn: subroutine
 	jsr ent_find_slot
 	bmi .done
@@ -99,8 +69,10 @@ ent_food_spawn: subroutine
 	; hit points
 	lda #ent_food_starting_hp
 	sta ent_hp,x
-	jsr ent_food_cache_tooth_id
-	lda ent_r4,x
+	lda #$ff
+	sta ent_r5,x
+	jsr ent_find_tooth_id
+	sta ent_r4,x
 	bmi .done
 	tay
 	lda #$00

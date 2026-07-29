@@ -428,6 +428,22 @@ game_player_update: subroutine
 	; FLOSSING
 	lda player_is_dead
 	bne .floss_disable
+	; on a tooth?
+	lda player_x_hi
+	lsr
+	lda player_x
+	ror
+	shift_r 5
+	sta temp00
+	ldy player_y
+	cpy #$76
+	bcc .row_adjust_done
+	ora #%00001000
+.row_adjust_done
+	tay
+	sty $740
+	lda tooth_total_dmg,y
+	bmi .floss_disable
 	lda controller1
 	and #FLOSS_BUTTON
 	bne .floss_button_pressed
@@ -445,6 +461,7 @@ game_player_update: subroutine
 .floss_disable_done
 	jmp .skip_flossing
 .floss_button_pressed
+	; initial press?
 	lda controller1_d
 	and #FLOSS_BUTTON
 	beq .not_initial_press
@@ -509,9 +526,9 @@ game_player_update: subroutine
 	and #$40
 	beq .flooth_not_row_gap
 	lda player_y
-	cmp #$6f
+	cmp #$74
 	bcc .flooth_not_row_gap
-	cmp #$73
+	cmp #$77
 	bcs .flooth_not_row_gap
 .flooth_stop
 	lda #$00

@@ -47,6 +47,19 @@ state_nextlevel_init: subroutine
 	
 	jsr sprites_clear
 
+	; clear falling food
+	ldx #$1f
+.food_fall_check
+	lda ent_type,x
+	cmp #ent_food_id
+	bne .food_fall_next
+	lda ent_r0,x
+	bpl .food_fall_next
+	jsr ent_z_despawn_rts
+.food_fall_next
+	dex
+	bpl .food_fall_check
+
 	; draw next level screen
 	lda #$08
 	sta temp00

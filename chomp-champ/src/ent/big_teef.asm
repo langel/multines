@@ -25,10 +25,9 @@ ent_big_teef_spawn: subroutine
 	ldx #$1f
 	lda #ent_big_teef_id
 	sta ent_type,x
-	lda #$60
-	sta ent_hp,x
 	lda #$00
 	sta ent_x_lo,x
+	sta ent_x_hi,x
 	lda #$80
 	sta ent_y,x
 	lda #$00
@@ -47,10 +46,6 @@ ent_big_teef_spawn: subroutine
 
 
 ent_big_teef_update: subroutine
-
-	; xxx TO DO
-	;     upper mandible should go up and down instead of lower manidble going down and up
-	;     sine movement should be upward hald sine so it looks like its bouncing (or maybe even use gravity instead)
 
 	ldx ent_slot
 	lda state_update_id
@@ -72,10 +67,6 @@ ent_big_teef_update: subroutine
 	inc ent_r4,x
 	inc ent_r4,x
 
-	; for z sort
-	lda player_x_hi
-	sta ent_x_hi,x
-	; ^ this sucks
 	jmp ent_big_teef_render
 
 .in_game_update
@@ -106,34 +97,44 @@ ent_big_teef_update: subroutine
 	bne .wrap_done
 	lda #$ff
 	sta ent_x_hi,x
-	lda #$a0
+	lda #$d0
 	sta ent_x,x
 	lda #$00
 	sta ent_x_lo,x
 .wrap_done
 
-	; every other frame, move 1px toward player_y
-	lda wtf
-	and #$01
-	bne .y_track_done
-	clc
+	; y position move toward player_y
+	sec
 	lda player_y
-	adc #$02
-	sta temp04
+	sbc #$04 ; difference with player pos
+	cmp ent_y,x
+	beq .y_move_done
+	bcs .move_down
+.move_up
+	sec
+	lda ent_y_lo,x
+	sbc #$60
+	sta ent_y_lo,x
 	lda ent_y,x
-	cmp temp04
-	beq .y_track_done
-	bcc .move_down
-	dec ent_y,x
-	bne .y_track_done
+	sbc #$00
+	sta ent_y,x
+	jmp .y_move_done
 .move_down
-	inc ent_y,x
-.y_track_done
+	clc
+	lda ent_y_lo,x
+	adc #$60
+	sta ent_y_lo,x
+	lda ent_y,x
+	adc #$00
+	sta ent_y,x
+.y_move_done
 
 	; keep jaw animation phase moving
 	inc ent_r4,x
 	inc ent_r4,x
 	inc ent_r4,x
+
+
 
 	jsr ent_big_teef_damage_check
 	; level complete when total jaw hits overflows 8-bit sum
@@ -145,6 +146,8 @@ ent_big_teef_update: subroutine
 	jmp ent_z_update_return
 .no_level_complete
 	jmp ent_big_teef_render
+
+
 
 
 ent_big_teef_render: subroutine
@@ -246,9 +249,8 @@ ent_big_teef_render: subroutine
 	cpx #$0c
 	bne .lower_loop
 
-	; define floor point
-	clc
-	adc #$09
+	; render above all ents
+	lda #$df
 	ldx ent_slot
 	jsr ent_z_calc_sort_vals_9bit
 	
@@ -288,8 +290,8 @@ ent_big_teef_render: subroutine
 	rts
 .dont_rts
 	
-
 	jmp ent_z_update_return
+
 
 
 ent_big_teef_damage_check: subroutine
@@ -301,24 +303,24 @@ ent_big_teef_damage_check: subroutine
 	sta temp00
 	lda ent_x_hi,x
 	sbc camera_x_hi
+	sta temp01
 	beq .x_in_range
 	cmp #$ff
 	beq .x_in_range
 	rts
 .x_in_range
+	jsr ent_big_teef_player_hitbox_check
 	; upper hitbox y = ent_y - 8
 	sec
 	lda ent_y,x
 	sbc #$08
-	sta temp01
-	jsr ent_big_teef_player_hitbox_check
+	sta temp02
 	jsr ent_big_teef_hitbox_upper
 	; lower hitbox y = ent_y + 8
 	clc
 	lda ent_y,x
 	adc #$08
-	sta temp01
-	jsr ent_big_teef_player_hitbox_check
+	sta temp02
 	jsr ent_big_teef_hitbox_lower
 	rts
 
@@ -327,49 +329,27 @@ ent_big_teef_hitbox_upper: subroutine
 	; brush in upper hitbox?
 	lda controller1
 	and #BRUSH_BUTTON
-	beq .check_floss
+	beq .done
 	lda brush_hit_x
 	cmp temp00
-	bcc .check_floss
+	bcc .done
 	sec
 	sbc temp00
 	cmp #$30
-	bcs .check_floss
+	bcs .done
 	lda brush_hit_y
-	cmp temp01
-	bcc .check_floss
+	cmp temp02
+	bcc .done
 	sec
-	sbc temp01
+	sbc temp02
 	cmp #$10
-	bcs .check_floss
+	bcs .done
+	inc big_teef_upper_hits
 	inc big_teef_upper_hits
 	and #$03
-	bne .check_floss
+	bne .done
 	ldx ent_slot
-	dec ent_hp,x
 
-.check_floss
-	; floss in upper hitbox?
-	lda floss_status
-	beq .done
-	lda floss_hit_x
-	cmp temp00
-	bcc .done
-	sec
-	sbc temp00
-	cmp #$30
-	bcs .done
-	lda floss_hit_y
-	cmp temp01
-	bcc .done
-	sec
-	sbc temp01
-	cmp #$10
-	bcs .done
-	inc big_teef_upper_hits
-	ldx ent_slot
-	dec ent_hp,x
-	dec ent_hp,x
 .done
 	rts
 
@@ -387,17 +367,16 @@ ent_big_teef_hitbox_lower: subroutine
 	cmp #$30
 	bcs .check_floss
 	lda brush_hit_y
-	cmp temp01
+	cmp temp02
 	bcc .check_floss
 	sec
-	sbc temp01
+	sbc temp02
 	cmp #$10
 	bcs .check_floss
 	inc big_teef_lower_hits
 	and #$03
 	bne .check_floss
 	ldx ent_slot
-	dec ent_hp,x
 
 .check_floss
 	; floss in lower hitbox?
@@ -411,16 +390,14 @@ ent_big_teef_hitbox_lower: subroutine
 	cmp #$30
 	bcs .done
 	lda floss_hit_y
-	cmp temp01
+	cmp temp02
 	bcc .done
 	sec
-	sbc temp01
+	sbc temp02
 	cmp #$10
 	bcs .done
 	inc big_teef_lower_hits
 	ldx ent_slot
-	dec ent_hp,x
-	dec ent_hp,x
 .done
 	rts
 
@@ -432,65 +409,58 @@ ent_big_teef_player_hitbox_check: subroutine
 	bne .done
 	lda player_iframes
 	bne .done
+	lda ent_visible
+	beq .done
 
-	; player hit point (world): X = player_x + 8
-	clc
-	lda player_x
-	adc #$08
-	sta temp02
-	lda player_x_hi
-	adc #$00
-	sta temp03
+	; setup player
+	lda player_hit_x
+	sta collision_1_x
+	lda player_hit_y
+	sta collision_1_y
+	lda #$10
+	sta collision_1_w
+	lda #$20
+	sta collision_1_h
 
-	; hitbox left/right (world): [ent_x, ent_x + 48)
-	ldx ent_slot
-	lda ent_x,x
-	sta temp04
-	lda ent_x_hi,x
-	sta temp05
+	; setup big_teef
+	lda temp01
+	bmi .off_left
 	clc
-	lda temp04
+	lda temp00
 	adc #$30
-	sta temp06
-	lda temp05
-	adc #$00
-	sta temp07
-
-	; reject if right < player_x_hit (16-bit)
-	lda temp07
-	cmp temp03
-	bcc .done
-	bne .left_check
-	lda temp06
-	cmp temp02
-	bcc .done
-
-.left_check
-	; reject if left >= player_x_hit (16-bit)
-	lda temp05
-	cmp temp03
-	bcc .y_check
-	bne .done
-	lda temp04
-	cmp temp02
-	bcs .done
-
-.y_check
-	; player hit point (world) Y = player_y + $18
+	bcs .off_right
+	lda temp00
+	sta collision_0_x
+	lda #$30
+	sta collision_0_w
+	jmp .x_done
+.off_left
+	lda #$00
+	sta collision_0_x
 	clc
-	lda player_y
-	adc #$18
-	sta temp06
+	lda temp00
+	adc #$30
+	sta collision_0_w
+	jmp .x_done
+.off_right
+	lda temp00
+	sta collision_0_x
+	sec
+	lda #$ff
+	sbc temp00
+	sta collision_0_w
+.x_done
+	clc
+	lda ent_y,x
+	adc #$08
+	sta collision_0_y
+	; XXX depends on oscillation
+	lda #$20
+	sta collision_0_h
 
-	clc
-	lda temp01
-	adc #$10
-	cmp temp06
-	bcc .done
-	clc
-	lda temp01
-	cmp temp06
-	bcs .done
+	; process collision
+	jsr collision_detect
+	beq .done
 .player_collides
 	lda #player_death_timer
 	sta player_is_dead
@@ -509,6 +479,7 @@ ent_big_teef_cache_visible_columns: subroutine
 	lda ent_x_hi,x
 	sta temp01
 	ldx #$00
+	stx ent_visible
 .column_loop
 	; screen = world - camera
 	sec
@@ -520,6 +491,7 @@ ent_big_teef_cache_visible_columns: subroutine
 	beq .visible
 	bne .not_visible
 .visible
+	inc ent_visible
 	lda #$01
 	bne .store
 .not_visible

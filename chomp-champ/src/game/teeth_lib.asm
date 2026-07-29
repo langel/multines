@@ -116,6 +116,8 @@ teeth_update: subroutine
 	adc temp01
 	cmp #$10
 	bne .not_nextlevel
+	lda sfx_counter_0 ; food_fall
+	bne .not_nextlevel
 	jsr state_nextlevel_init
 .not_nextlevel
 ;check_mouth_state FINISH

@@ -48,6 +48,31 @@ ent_random_spawn_pos: subroutine
 	rts
 
 
+ent_find_tooth_id: subroutine
+	; find tooth id from current ent position
+	lda ent_x_hi,x
+	lsr
+	lda ent_x,x
+	ror
+	clc
+	adc #$02
+	shift_r 3
+	sta temp00
+	lda ent_y,x
+	sec
+	sbc #$33
+	bmi .invalid
+	shift_r 4
+	shift_l 5
+	clc
+	adc temp00
+	tay
+	lda tooth_cell2tooth,y
+	rts
+.invalid
+	lda #$ff
+	rts
+
 
 ent_sully_cell: subroutine
 	; dirt some tooth
@@ -85,7 +110,7 @@ ent_sully_cell: subroutine
 	shift_l 5
 	clc
 	adc temp00
-	sta temp01
+	sta temp01 ; tooth_id
 
 	; check tooth is present
 	tax
