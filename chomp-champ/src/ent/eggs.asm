@@ -74,6 +74,7 @@ ent_eggs_update: subroutine
 	sbc #$07
 	bcc .hatch
 	sta ent_r0,x
+	jmp .dont_hatch
 .damage_done
 
 	dec ent_r0,x

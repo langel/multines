@@ -137,6 +137,9 @@ state_title_update: subroutine
 	jsr controller_read
 
 	jsr sprites_clear
+
+	ldx #$1f
+	stx ent_slot
 	jsr ent_big_teef_update
 
 .palette_cycle

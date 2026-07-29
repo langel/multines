@@ -181,14 +181,10 @@ game_ent_collision: subroutine
 	cmp collision_0_y
 	bcc .flossing_done
 .floss_collision
-	lda wtf
-	and #$03
-	bne .flossing_done
-	; halve hit points
-	lsr ent_hp,x
-	bne .dont_subtract
+	; take hit points
 	dec ent_hp,x
-.dont_subtract
+	dec ent_hp,x
+	dec ent_hp,x
 	lda ent_damaged
 	ora #$02
 	sta ent_damaged
