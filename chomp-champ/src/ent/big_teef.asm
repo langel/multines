@@ -379,25 +379,6 @@ ent_big_teef_hitbox_lower: subroutine
 	ldx ent_slot
 
 .check_floss
-	; floss in lower hitbox?
-	lda floss_status
-	beq .done
-	lda floss_hit_x
-	cmp temp00
-	bcc .done
-	sec
-	sbc temp00
-	cmp #$30
-	bcs .done
-	lda floss_hit_y
-	cmp temp02
-	bcc .done
-	sec
-	sbc temp02
-	cmp #$10
-	bcs .done
-	inc big_teef_lower_hits
-	ldx ent_slot
 .done
 	rts
 

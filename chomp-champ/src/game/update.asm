@@ -3,16 +3,6 @@ state_game_update: subroutine
 
 	jsr render_enable
 
-	jsr controller_read
-
-	lda controller1_d
-	and #BUTTON_START
-	beq .no_start_button
-	inc paused_active
-	ldx #state_hud_render_id
-	jsr state_set_render_routine
-.no_start_button
-
 	; debug visualization on
 	;lda #%00011111 ; b/w
 	;lda #%11111110 ; emph
@@ -39,6 +29,24 @@ state_game_update: subroutine
 
 	jsr hud_sprite0
 	
+	jsr controller_read
+
+	lda controller1_d
+	and #BUTTON_SELECT
+	beq .no_select_button
+	lda player_is_dead
+	bne .no_select_button
+	jsr player_dies
+.no_select_button
+
+	lda controller1_d
+	and #BUTTON_START
+	beq .no_start_button
+	inc paused_active
+	ldx #state_hud_render_id
+	jsr state_set_render_routine
+.no_start_button
+
 	;lda #%00011111 ; b/w
 	;sta PPU_MASK
 

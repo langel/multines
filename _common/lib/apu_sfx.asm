@@ -380,6 +380,8 @@ sfx_egg_shake: subroutine
 	bpl .done
 	lda sfx_pu2_counter
 	bne .done
+	lda sfx_counter_0 ;food_fall
+	bne .done
 	; pulse 2
 	lda #$00
 	sta $4005

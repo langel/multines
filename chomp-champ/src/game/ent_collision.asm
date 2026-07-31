@@ -127,12 +127,13 @@ game_ent_collision: subroutine
 	cmp player_hit_y
 	bcs .player_collision_done
 .player_collides
+	lda #$ff
+	sta ent_hp,x
+player_dies:
 	lda #player_death_timer
 	sta player_is_dead
 	lda #$04
 	sta ent_r0
-	lda #$ff
-	sta ent_hp,x
 	rts
 .player_collision_done
 
