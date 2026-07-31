@@ -41,7 +41,7 @@ ent_big_teef_spawn: subroutine
 	sta palette_cache+23
 	lda #$27
 	sta palette_cache+24
-.done
+
 	rts
 
 
@@ -82,7 +82,8 @@ ent_big_teef_update: subroutine
 .sfx_go
 	jsr sfx_dpcm_chomp
 .sfx_done
-	; world-space movement: +1 pixel +4 subpixels/frame
+	; world-space movement: 
+	; +1 pixel +4 subpixels/frame
 	clc
 	lda ent_x_lo,x
 	adc #$04
@@ -106,7 +107,7 @@ ent_big_teef_update: subroutine
 	; y position move toward player_y
 	sec
 	lda player_y
-	sbc #$04 ; difference with player pos
+	sbc #$04 ; player_y target offset
 	cmp ent_y,x
 	beq .y_move_done
 	bcs .move_down
@@ -134,9 +135,89 @@ ent_big_teef_update: subroutine
 	inc ent_r4,x
 	inc ent_r4,x
 
+	; render above all ents
+	lda #$df
+	ldx ent_slot
+	jsr ent_z_calc_sort_vals_9bit
 
+	; calc screen position
+	; temp00 x cam offset
+	; temp01 x cam hi offset
+	sec
+	lda ent_x,x
+	sbc camera_x
+	sta temp00
+	lda ent_x_hi,x
+	sbc camera_x_hi
+	sta temp01
 
-	jsr ent_big_teef_damage_check
+	; calc mouf parts y offsets
+	; temp05 upper mandible y pos
+	lda ent_y,x
+	sta temp05
+	; temp06 lower mandible y pos
+	lda ent_r4,x
+	tax
+	lda sine_table,x
+	SHIFT_R 5
+	ldx ent_slot
+	clc
+	adc #$08
+	sta temp06 
+	; temp07 connective tissue y pos
+	lda ent_r4,x
+	tax
+	lda sine_table,x
+	SHIFT_R 6
+	ldx ent_slot
+	clc
+	adc #$04
+	adc ent_y,x
+	sta temp07
+	
+	; visibility and hit boxes
+	lda #$00
+	sta ent_visible
+	sta ent_damaged
+	; hitbox horizontal defaults
+	lda temp00
+	sta collision_0_x
+	lda #$30
+	sta collision_0_w
+	; hitbox width
+	lda temp01
+	beq .left_visible
+	cmp #$ff
+	bne .visibility_done
+.right_visible
+	clc
+	lda collision_0_x
+	adc collision_0_w
+	bcc .visibility_done
+	inc ent_visible
+	sta collision_0_w
+	lda #$00
+	sta collision_0_x
+	beq .visibility_done
+.left_visible
+	inc ent_visible
+	clc
+	lda collision_0_x
+	adc collision_0_w
+	bcc .visibility_done
+	sec
+	lda #$ff
+	sbc collision_0_x
+	sta collision_0_w
+.visibility_done
+
+	; top mandible collisions
+	;jsr custom_hitbox_entry
+
+	; bottom mandible collisions
+	;jsr custom_hitbox_entry
+
+	
 	; level complete when total jaw hits overflows 8-bit sum
 	clc
 	lda big_teef_upper_hits
@@ -149,131 +230,62 @@ ent_big_teef_update: subroutine
 
 
 
-
 ent_big_teef_render: subroutine
-	ldx ent_slot
+	; temp02 x cam offset
+	; temp03 x cam hi offset
+	; temp04 bitwise columns to render
+
+	; copy screen position
+	lda temp00
+	sta temp02
+	lda temp01
+	sta temp03
+
 	lda state_update_id
 	cmp #state_game_update_id
-	beq .render_in_game
-	lda #$00
-	sta temp06 ; cache disabled in title mode
-	lda ent_x,x
-	jmp .render_x_done
-.render_in_game
-	jsr ent_big_teef_cache_visible_columns
-	lda #$01
-	sta temp06 ; cache enabled in game mode
-	ldx ent_slot ; cache routine clobbers X
-	sec
-	lda ent_x,x
-	sbc camera_x
-	sta temp00
-	lda temp00
-.render_x_done
+	beq .get_in_game_columns
+	lda #%11111100
+	sta temp04
+	jmp .render_columns
 
-	; upper mandible
-	sta temp00
-	sta temp03 ; cache base screen x for all parts
-	lda ent_y,x
-	sta temp01
-	lda #$16
-	sta temp02 ; sprite pattern
-	ldx #$00
-.upper_loop
-	lda temp06
-	beq .upper_visible
-	lda $01da,x
-	beq .upper_skip
-.upper_visible
-	lda big_teef_sprites,x
-	sta spr_p,y
-	lda big_teef_attrs,x
-	sta spr_a,y
-	; x
-	lda temp00
-	sta spr_x,y
-	; y
-	sec
-	lda temp01
-	sbc big_teef_y_offset,x
-	sta spr_y,y
-	inc_y 4
-.upper_skip
-	clc
-	lda temp00
-	adc #$08
-	sta temp00
-	inx
-	cpx #$06
-	bne .upper_loop
-
-	; lower mandible
+.get_in_game_columns
+	lda #%00000000
+	sta temp04
+	ldy #$06
+.calc_columns_loop
 	lda temp03
-	sta temp00
-	ldx ent_slot
-	; y pos
-	lda ent_r4,x
-	tax
-	lda sine_table,x
-	SHIFT_R 5
+	bne .unvisible
+.visible
+	sec
+	bcs .push_column_bit
+.unvisible
 	clc
-	adc temp01 ; y origin
+.push_column_bit
+	ror temp04
+	; move x pos
+	clc
+	lda temp02
 	adc #$08
-	sta temp01
-	ldx #$06
-.lower_loop
-	lda temp06
-	beq .lower_visible
-	lda $01d4,x
-	beq .lower_skip
-.lower_visible
-	lda big_teef_sprites,x
-	sta spr_p,y
-	lda big_teef_attrs,x
-	sta spr_a,y
-	; x
-	lda temp00
-	sta spr_x,y
-	; y
-	clc
-	lda temp01
-	adc big_teef_y_offset,x
-	sta spr_y,y
-	inc_y 4
-.lower_skip
-	clc
-	lda temp00
-	adc #$08
-	sta temp00
-	inx
-	cpx #$0c
-	bne .lower_loop
+	sta temp02
+	lda temp03
+	adc #$00
+	sta temp03
+	; next
+	dey
+	bne .calc_columns_loop
 
-	; render above all ents
-	lda #$df
-	ldx ent_slot
-	jsr ent_z_calc_sort_vals_9bit
-	
+.render_columns
+	ldy ent_spr_ptr
+
 	; connective tissue
+	lda temp04
+	and #$04
+	beq .connective_tissue_done
 	; x pos
-	lda temp06
-	beq .tissue_visible
-	lda $01da
-	beq .skip_tissue
-.tissue_visible
-	lda temp03
+	lda temp00
 	sta spr_x,y
 	; y pos
-	ldx ent_slot
-	lda ent_y,x
-	sta temp01
-	lda ent_r4,x
-	tax
-	lda sine_table,x
-	SHIFT_R 6
-	clc
-	adc #$04
-	adc temp01
+	lda temp07
 	sta spr_y,y
 	; pattern
 	lda #$14
@@ -281,7 +293,63 @@ ent_big_teef_render: subroutine
 	lda #$03
 	sta spr_a,y
 	inc_y 4	
-.skip_tissue
+.connective_tissue_done
+
+	; mandibles
+	; draw right-to-left
+	; copy/adjust screen position
+	clc
+	lda temp00
+	adc #$28
+	sta temp02
+	lda temp01
+	adc #$00
+	sta temp03
+	; setup col loop
+	ldx #$05
+.mandible_render_loop
+	asl temp04 ; col cache
+	bcc .mandible_column_done
+	; x pos
+	lda temp02
+	sta spr_x+0,y
+	sta spr_x+4,y
+	; y pos
+	sec
+	lda temp05
+	sbc big_teef_y_offset+0,x
+	sta spr_y+0,y
+	clc
+	lda temp05
+	adc temp06
+	adc big_teef_y_offset+6,x
+	sta spr_y+4,y
+	; attr
+	lda big_teef_attrs+0,x
+	sta spr_a+0,y
+	lda big_teef_attrs+6,x
+	sta spr_a+4,y
+	; spr
+	lda big_teef_sprites+0,x
+	sta spr_p+0,y
+	lda big_teef_sprites+6,x
+	sta spr_p+4,y
+.mandible_column_done
+	tya
+	clc
+	adc #$08
+	tay
+	; move x pos
+	sec
+	lda temp02
+	sbc #$08
+	sta temp02
+	lda temp03
+	sbc #$00
+	sta temp03
+	; next
+	dex
+	bpl .mandible_render_loop
 
 .render_return
 	lda state_update_id
@@ -309,7 +377,7 @@ ent_big_teef_damage_check: subroutine
 	beq .x_in_range
 	rts
 .x_in_range
-	jsr ent_big_teef_player_hitbox_check
+	;jsr ent_big_teef_player_hitbox_check
 	; upper hitbox y = ent_y - 8
 	sec
 	lda ent_y,x
@@ -383,111 +451,3 @@ ent_big_teef_hitbox_lower: subroutine
 	rts
 
 
-ent_big_teef_player_hitbox_check: subroutine
-	; Player point-vs-box check in world-space.
-	; Box uses current mandible Y origin in temp01, size 48x16.
-	lda player_is_dead
-	bne .done
-	lda player_iframes
-	bne .done
-	lda ent_visible
-	beq .done
-
-	; setup player
-	lda player_hit_x
-	sta collision_1_x
-	lda player_hit_y
-	sta collision_1_y
-	lda #$10
-	sta collision_1_w
-	lda #$20
-	sta collision_1_h
-
-	; setup big_teef
-	lda temp01
-	bmi .off_left
-	clc
-	lda temp00
-	adc #$30
-	bcs .off_right
-	lda temp00
-	sta collision_0_x
-	lda #$30
-	sta collision_0_w
-	jmp .x_done
-.off_left
-	lda #$00
-	sta collision_0_x
-	clc
-	lda temp00
-	adc #$30
-	sta collision_0_w
-	jmp .x_done
-.off_right
-	lda temp00
-	sta collision_0_x
-	sec
-	lda #$ff
-	sbc temp00
-	sta collision_0_w
-.x_done
-	clc
-	lda ent_y,x
-	adc #$08
-	sta collision_0_y
-	; XXX depends on oscillation
-	lda #$20
-	sta collision_0_h
-
-	; process collision
-	jsr collision_detect
-	beq .done
-.player_collides
-	lda #player_death_timer
-	sta player_is_dead
-	lda #$04
-	sta ent_r0
-.done
-	rts
-
-
-ent_big_teef_cache_visible_columns: subroutine
-	; Cache visibility for 6 horizontal sprite columns.
-	; $01da-$01df = column 0..5 visible flags (1=render, 0=skip)
-	ldx ent_slot
-	lda ent_x,x
-	sta temp00
-	lda ent_x_hi,x
-	sta temp01
-	ldx #$00
-	stx ent_visible
-.column_loop
-	; screen = world - camera
-	sec
-	lda temp00
-	sbc camera_x
-	sta temp02
-	lda temp01
-	sbc camera_x_hi
-	beq .visible
-	bne .not_visible
-.visible
-	inc ent_visible
-	lda #$01
-	bne .store
-.not_visible
-	lda #$00
-.store
-	sta $01da,x
-	; advance world x by 8 pixels for next column
-	clc
-	lda temp00
-	adc #$08
-	sta temp00
-	lda temp01
-	adc #$00
-	sta temp01
-	inx
-	cpx #$06
-	bne .column_loop
-	rts

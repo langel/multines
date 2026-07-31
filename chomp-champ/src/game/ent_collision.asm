@@ -94,6 +94,9 @@ game_ent_collision: subroutine
 	sta ent_coll_w,x
 .collision_box_done
 
+
+custom_hitbox_entry:
+
 	; check ent is visible
 	lda ent_visible
 	bne .ent_is_visible
