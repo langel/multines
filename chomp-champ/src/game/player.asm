@@ -509,7 +509,7 @@ game_player_update: subroutine
 .no_gap
 	; if max length then start decrease
 	lda floss_length
-	cmp #$1e ; <-- MAX LENGTH!!
+	cmp #$27 ; <-- MAX LENGTH!!
 	bcc .floss_state_done
 	lda #$81
 	sta floss_status

@@ -75,18 +75,22 @@ game_ent_collision: subroutine
 	sta ent_coll_w,x
 	jmp .collision_box_done
 .collision_box_full
+	sec
+	lda #$00
+	sbc collision_0_w
+	sta temp00
 	lda collision_0_x
-	cmp #$f0
+	cmp temp00
 	bcc .not_in_right_edge
 	; Clamp width so collision_0_x + collision_0_w never wraps.
 	lda #$ff
 	sec
 	sbc collision_0_x
+	sta collision_0_w
 	jmp .collision_box_full_width_clamped
 .not_in_right_edge
-	lda #$10
+	lda collision_0_w
 .collision_box_full_width_clamped
-	sta collision_0_w
 	sta ent_coll_w,x
 .collision_box_done
 

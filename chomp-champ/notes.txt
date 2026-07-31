@@ -1,6 +1,7 @@
 
 
 
+
 sfx (bite sound + moar)
 spawn food only on teeth?
 scan playfield before level starts
@@ -36,3 +37,28 @@ chomp-champ___0070 = blackout teeth render as red gums on next level
 chomp-champ___0071 = blackout teeth render missing gum line
 
 
+hardware crash notes
+0080 - frozen playfield / testing no sprite 0
+0084 - blank screen
+0085 - blank screen with repeating noises
+0086 - half a mouth of teeth crashed with tone
+0087 - half mouth no sound
+0088 - same
+0089 - same
+0090 - flashing red
+0091 - restarting attract mode constantly
+0092 - title screen works - everything else resets
+0093 - same but displays half the playfield for a frame
+0094 - same as 0092
+0095 - crashes to empty nametable (brk/irq caught)
+0096 - same but display is in b/w mode
+0097 - works but most sound is disabled
+0099 - game crashes to screen of noise and jumps to congration
+0100 - same
+0101 - same
+0102 - same
+0103 - works
+0104 - works
+0105 - works (demo has some garbled sounds at beginning)
+
+0108 - starts on level 8 (floss longer / grub hitbox fix)
