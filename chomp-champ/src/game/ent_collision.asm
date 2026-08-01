@@ -133,11 +133,13 @@ custom_hitbox_entry:
 	lda #$ff
 	sta ent_hp,x
 player_dies:
+/*
 	lda #player_death_timer
 	sta player_is_dead
 	lda #$04
 	sta ent_r0
 	rts
+	*/
 .player_collision_done
 
 	; brush collision

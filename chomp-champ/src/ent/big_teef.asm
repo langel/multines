@@ -67,7 +67,7 @@ ent_big_teef_update: subroutine
 	inc ent_r4,x
 	inc ent_r4,x
 
-	jmp ent_big_teef_render
+	jmp ent_big_teef_prerender
 
 .in_game_update
 	; chomp sound
@@ -140,6 +140,7 @@ ent_big_teef_update: subroutine
 	ldx ent_slot
 	jsr ent_z_calc_sort_vals_9bit
 
+ent_big_teef_prerender:
 	; calc screen position
 	; temp00 x cam offset
 	; temp01 x cam hi offset
@@ -155,7 +156,7 @@ ent_big_teef_update: subroutine
 	; temp05 upper mandible y pos
 	lda ent_y,x
 	sta temp05
-	; temp06 lower mandible y pos
+	; temp06 lower mandible y offset
 	lda ent_r4,x
 	tax
 	lda sine_table,x
@@ -212,10 +213,31 @@ ent_big_teef_update: subroutine
 .visibility_done
 
 	; top mandible collisions
-	;jsr custom_hitbox_entry
+	sec
+	lda temp05
+	sbc #$04
+	sta collision_0_y
+	lda #$0a
+	sta collision_0_h
+	jsr custom_hitbox_entry
+	clc
+	lda big_teef_upper_hits
+	adc ent_damaged
+	sta big_teef_upper_hits
 
+	lda #$00
+	sta ent_damaged
 	; bottom mandible collisions
-	;jsr custom_hitbox_entry
+	clc
+	lda temp05
+	adc #$04
+	adc temp06
+	sta collision_0_y
+	jsr custom_hitbox_entry
+	clc
+	lda big_teef_lower_hits
+	adc ent_damaged
+	sta big_teef_lower_hits
 
 	
 	; level complete when total jaw hits overflows 8-bit sum
@@ -226,7 +248,6 @@ ent_big_teef_update: subroutine
 	jsr state_nextlevel_init
 	jmp ent_z_update_return
 .no_level_complete
-	jmp ent_big_teef_render
 
 
 
@@ -277,24 +298,6 @@ ent_big_teef_render: subroutine
 .render_columns
 	ldy ent_spr_ptr
 
-	; connective tissue
-	lda temp04
-	and #$04
-	beq .connective_tissue_done
-	; x pos
-	lda temp00
-	sta spr_x,y
-	; y pos
-	lda temp07
-	sta spr_y,y
-	; pattern
-	lda #$14
-	sta spr_p,y
-	lda #$03
-	sta spr_a,y
-	inc_y 4	
-.connective_tissue_done
-
 	; mandibles
 	; draw right-to-left
 	; copy/adjust screen position
@@ -314,20 +317,50 @@ ent_big_teef_render: subroutine
 	lda temp02
 	sta spr_x+0,y
 	sta spr_x+4,y
-	; y pos
+	; y pos upper
 	sec
 	lda temp05
 	sbc big_teef_y_offset+0,x
 	sta spr_y+0,y
+	; y pos lower
 	clc
 	lda temp05
 	adc temp06
 	adc big_teef_y_offset+6,x
 	sta spr_y+4,y
-	; attr
+	; attr upper
+	lda big_teef_upper_hits
+	cmp #$20
+	bcc .no_upper_flash
+	lda wtf
+	shift_r 3
+	and #$03
+	ora #$02
+	sta temp01 ; done with cam_x_hi
 	lda big_teef_attrs+0,x
+	and #$f8
+	ora temp01
+	jmp .set_upper_attr
+.no_upper_flash
+	lda big_teef_attrs+0,x
+.set_upper_attr
 	sta spr_a+0,y
+	; attr lower
+	lda big_teef_lower_hits
+	cmp #$20
+	bcc .no_lower_flash
+	lda wtf
+	shift_r 3
+	and #$03
+	ora #$02
+	sta temp01
 	lda big_teef_attrs+6,x
+	and #$f8
+	ora temp01
+	jmp .set_lower_attr
+.no_lower_flash
+	lda big_teef_attrs+6,x
+.set_lower_attr
 	sta spr_a+4,y
 	; spr
 	lda big_teef_sprites+0,x
@@ -349,7 +382,28 @@ ent_big_teef_render: subroutine
 	sta temp03
 	; next
 	dex
-	bpl .mandible_render_loop
+	bmi .mandible_render_done
+	jmp .mandible_render_loop
+.mandible_render_done
+	
+	; connective tissue
+	lda temp03
+	bne .connective_tissue_done
+	lda ent_visible
+	beq .connective_tissue_done
+	; x pos
+	lda temp00
+	sta spr_x,y
+	; y pos
+	lda temp07
+	sta spr_y,y
+	; pattern
+	lda #$14
+	sta spr_p,y
+	lda #$03
+	sta spr_a,y
+	inc_y 4	
+.connective_tissue_done
 
 .render_return
 	lda state_update_id
@@ -360,94 +414,5 @@ ent_big_teef_render: subroutine
 	
 	jmp ent_z_update_return
 
-
-
-ent_big_teef_damage_check: subroutine
-	ldx ent_slot
-	; screen-space X from world-space position
-	sec
-	lda ent_x,x
-	sbc camera_x
-	sta temp00
-	lda ent_x_hi,x
-	sbc camera_x_hi
-	sta temp01
-	beq .x_in_range
-	cmp #$ff
-	beq .x_in_range
-	rts
-.x_in_range
-	;jsr ent_big_teef_player_hitbox_check
-	; upper hitbox y = ent_y - 8
-	sec
-	lda ent_y,x
-	sbc #$08
-	sta temp02
-	jsr ent_big_teef_hitbox_upper
-	; lower hitbox y = ent_y + 8
-	clc
-	lda ent_y,x
-	adc #$08
-	sta temp02
-	jsr ent_big_teef_hitbox_lower
-	rts
-
-
-ent_big_teef_hitbox_upper: subroutine
-	; brush in upper hitbox?
-	lda controller1
-	and #BRUSH_BUTTON
-	beq .done
-	lda brush_hit_x
-	cmp temp00
-	bcc .done
-	sec
-	sbc temp00
-	cmp #$30
-	bcs .done
-	lda brush_hit_y
-	cmp temp02
-	bcc .done
-	sec
-	sbc temp02
-	cmp #$10
-	bcs .done
-	inc big_teef_upper_hits
-	inc big_teef_upper_hits
-	and #$03
-	bne .done
-	ldx ent_slot
-
-.done
-	rts
-
-
-ent_big_teef_hitbox_lower: subroutine
-	; brush in lower hitbox?
-	lda controller1
-	and #BRUSH_BUTTON
-	beq .check_floss
-	lda brush_hit_x
-	cmp temp00
-	bcc .check_floss
-	sec
-	sbc temp00
-	cmp #$30
-	bcs .check_floss
-	lda brush_hit_y
-	cmp temp02
-	bcc .check_floss
-	sec
-	sbc temp02
-	cmp #$10
-	bcs .check_floss
-	inc big_teef_lower_hits
-	and #$03
-	bne .check_floss
-	ldx ent_slot
-
-.check_floss
-.done
-	rts
 
 
