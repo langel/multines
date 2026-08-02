@@ -244,6 +244,7 @@ ent_big_teef_prerender:
 	clc
 	lda big_teef_upper_hits
 	adc big_teef_lower_hits
+	sta ent_hp,x
 	bcc .no_level_complete
 	jsr state_nextlevel_init
 	jmp ent_z_update_return
@@ -329,38 +330,16 @@ ent_big_teef_render: subroutine
 	adc big_teef_y_offset+6,x
 	sta spr_y+4,y
 	; attr upper
+	lda big_teef_attrs+0,x
+	sta temp00 ; done with og cam x
 	lda big_teef_upper_hits
-	cmp #$20
-	bcc .no_upper_flash
-	lda wtf
-	shift_r 3
-	and #$03
-	ora #$02
-	sta temp01 ; done with cam_x_hi
-	lda big_teef_attrs+0,x
-	and #$f8
-	ora temp01
-	jmp .set_upper_attr
-.no_upper_flash
-	lda big_teef_attrs+0,x
-.set_upper_attr
+	jsr big_teef_mandible_attr
 	sta spr_a+0,y
 	; attr lower
+	lda big_teef_attrs+6,x
+	sta temp00 ; done with og cam x
 	lda big_teef_lower_hits
-	cmp #$20
-	bcc .no_lower_flash
-	lda wtf
-	shift_r 3
-	and #$03
-	ora #$02
-	sta temp01
-	lda big_teef_attrs+6,x
-	and #$f8
-	ora temp01
-	jmp .set_lower_attr
-.no_lower_flash
-	lda big_teef_attrs+6,x
-.set_lower_attr
+	jsr big_teef_mandible_attr
 	sta spr_a+4,y
 	; spr
 	lda big_teef_sprites+0,x
@@ -392,7 +371,9 @@ ent_big_teef_render: subroutine
 	lda ent_visible
 	beq .connective_tissue_done
 	; x pos
-	lda temp00
+	clc
+	lda temp02
+	adc #$08
 	sta spr_x,y
 	; y pos
 	lda temp07
@@ -400,7 +381,18 @@ ent_big_teef_render: subroutine
 	; pattern
 	lda #$14
 	sta spr_p,y
+	; attr
+	lda ent_hp+$1f
+	cmp #$c0
+	bcc .ct_norm_attr
+.ct_flash_attr
+	lda wtf
+	shift_r 3
+	and #$03
+	jmp .ct_set_attr
+.ct_norm_attr
 	lda #$03
+.ct_set_attr
 	sta spr_a,y
 	inc_y 4	
 .connective_tissue_done
@@ -416,3 +408,30 @@ ent_big_teef_render: subroutine
 
 
 
+big_teef_mandible_attr: subroutine
+	cmp #$20
+	bcc .no_flash
+	cmp #$a0
+	bcs .flash_more
+.flash_less
+	lda wtf
+	shift_r 3
+	and #$03
+	ora #$02
+	sta temp01 ; done with og cam_x_hi
+	lda temp00
+	and #$f8
+	ora temp01
+	rts
+.flash_more
+	lda wtf
+	shift_r 3
+	and #$03
+	sta temp01 ; done with og cam_x_hi
+	lda temp00
+	and #$f8
+	ora temp01
+	rts
+.no_flash
+	lda temp00
+	rts
