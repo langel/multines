@@ -17,7 +17,7 @@ state_nextlevel_init: subroutine
 
 	; jingles
 	lda game_level
-	beq .no_song
+	beq .new_game_song
 	cmp #$1b ; last level?
 	beq .song_game_clear
 .song_level_clear
@@ -27,9 +27,12 @@ state_nextlevel_init: subroutine
 .song_game_clear
 	ldx #<song_cc_game_clear
 	ldy #>song_cc_game_clear
+	jmp .play_song
+.new_game_song
+	ldx #<song_cc_game_new
+	ldy #>song_cc_game_new
 .play_song
 	jsr babapu_start
-.no_song
 	; set up next level in ram
 	inc game_level
 

@@ -7,14 +7,8 @@ chompchamp_reset_game: subroutine
 	sta #$00,x
 	inx
 	bne .clear_zp
-.clear_most_ram
-	sta $300,x
-	sta $400,x
-	sta $500,x
-	sta $600,x
-	sta $700,x
-	inx
-	bne .clear_most_ram
+
+	jsr ram_clear_most
 	
 	jsr ent_z_init
 

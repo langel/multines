@@ -1,4 +1,43 @@
 
+song_cc_game_new:
+	hex 0d
+	hex 40 50
+	hex 6f
+
+	hex 21
+	byte 33
+	hex 11
+
+	hex 21
+	byte 36
+	hex 31
+	hex 12
+
+	hex 27
+	byte 21, 37, 30
+	hex 30
+	hex 12
+	
+	hex a2 ; loop 2x
+	hex 27
+	byte 26, 42, 45
+	hex 30
+	hex 11
+	hex 27
+	byte 26, 42, 46
+	hex 30
+	hex 11
+	hex fa ; loop return
+
+	hex 27
+	byte 26, 42, 47
+	hex 31
+	hex 13
+
+	hex e4
+
+	hex ff
+
 
 song_cc_level_start:
 	
@@ -57,6 +96,27 @@ song_cc_level_clear:
 	hex ff
 
 
+song_cc_player_death:
+
+	hex 03
+	hex 43 53
+	hex 62
+	hex 27
+	byte 20, 23, 20
+	hex 13
+	hex a2
+	hex 27
+	byte 19, 22, 19
+	hex 14
+	hex fa
+	hex a2
+	hex 27
+	byte 17, 20, 17
+	hex 14
+	hex fa
+	hex ff
+
+
 song_cc_game_over:
 	hex 40 50
 	hex 65
@@ -85,71 +145,55 @@ song_cc_game_over:
 
 
 song_cc_game_clear:
-	hex 0d
-	hex 40 50
-	hex 6f
-
-	hex 25
-	byte 26, 26
-	hex 30
-	hex 11
-
-	hex 22
-	byte 30
-	hex 11
-
-	hex 21
-	byte 33
-	hex 11
-
-	hex 21
-	byte 36
-	hex 31
-	hex 12
-
-	hex 27
-	byte 21, 37, 30
-	hex 12
-	
-	hex 27
-	byte 26, 42, 45
-	hex 11
-	hex 27
-	byte 26, 42, 46
-	hex 11
-	hex 27
-	byte 26, 42, 45
-	hex 11
-	hex 27
-	byte 26, 42, 46
-	hex 11
-	hex 27
-	byte 26, 42, 45
-	hex 13
-
-	hex e4
-
-	hex ff
-
-
-song_cc_player_death:
-
 	hex 03
-	hex 43 53
-	hex 62
+	hex 40 50
+	hex 63
+	; 00
 	hex 27
-	byte 20, 23, 20
-	hex 13
-	hex a2
-	hex 27
-	byte 19, 22, 19
+	byte 29, 32, 29
+	hex 30
 	hex 14
-	hex fa
-	hex a2
+	hex a2 ; loop1 set
+	; 04
 	hex 27
-	byte 17, 20, 17
+	byte 31, 34, 31
 	hex 14
-	hex fa
+	; 08
+	hex 27
+	byte 34, 38, 34
+	hex 14
+	hex fa ; loop1 return
+	; 14
+	hex 27
+	byte 35, 40, 35
+	hex 14
+	; 18
+	hex 30
+	hex 27
+	byte 34, 38, 34
+	hex 14
+	; 1c
+	hex 27
+	byte 35, 40, 35
+	hex 14
+	; 20
+	hex 30
+	hex 27
+	byte 37, 41, 37
+	hex 14
+	; 24
+	hex 27
+	byte 34, 31, 34
+	hex 14
+	; 28
+	hex 27
+	byte 36, 32, 36
+	hex 14
+	; 2c
+	hex 31
+	hex 27
+	byte 39, 31, 39
+	
 	hex ff
 
 

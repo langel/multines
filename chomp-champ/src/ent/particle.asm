@@ -83,6 +83,19 @@ ent_particle_spawn_from_egg: subroutine
 	rts
 
 
+ent_particle_spawn_from_big_teef: subroutine
+	jsr ent_find_slot
+	bmi .done
+	lda #ent_particle_id
+	sta ent_type,x
+	lda #$07
+	sta ent_hp,x
+	jsr ent_random_spawn_pos
+	jmp ent_particle_setup_2nd
+.done
+	rts
+
+
 ent_particle_spawn_from_baddie: subroutine
 	; replaces baddy slot
 	lda #ent_particle_id

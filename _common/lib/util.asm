@@ -59,6 +59,17 @@ ram_clear: subroutine
 	bne .loop	; loop 256 times
 	rts
 
+ram_clear_most: subroutine
+	ldx #$00
+.clear_most_ram
+	sta $300,x
+	sta $400,x
+	sta $500,x
+	sta $600,x
+	sta $700,x
+	inx
+	bne .clear_most_ram
+
 
 
 

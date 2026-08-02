@@ -1,4 +1,10 @@
-
+/*
+	ent_r4 - jaw animation counter
+	ent_r5 - chomp dpcm lockout
+	state05 - wait for win
+	state06 - big_teef is dead
+	state07 - big_teef hp
+*/
 big_teef_sprites:
 	; upper mandible
 	hex 16 18 1a 3a 1c 1e
@@ -28,6 +34,8 @@ ent_big_teef_spawn: subroutine
 	lda #$00
 	sta ent_x_lo,x
 	sta ent_x_hi,x
+	lda #$40
+	sta ent_x,x
 	lda #$80
 	sta ent_y,x
 	lda #$00
@@ -41,6 +49,12 @@ ent_big_teef_spawn: subroutine
 	sta palette_cache+23
 	lda #$27
 	sta palette_cache+24
+
+	; hp backup++
+	lda #$00
+	sta state07
+	sta state06
+	sta state05
 
 	rts
 
@@ -69,19 +83,65 @@ ent_big_teef_update: subroutine
 
 	jmp ent_big_teef_prerender
 
+
+
 .in_game_update
+
 	; chomp sound
+	lda ent_r5,x
+	bne .dpcm_chomp_done
 	lda ent_r4,x
 	cmp #$c0
-	beq .sfx_go
-	cmp #$c1
-	beq .sfx_go
-	cmp #$c2
-	beq .sfx_go
-	jmp .sfx_done
-.sfx_go
+	bcc .dpcm_chomp_done
+.dpcm_chomp_go
+	inc ent_r5,x
 	jsr sfx_dpcm_chomp
+.dpcm_chomp_done
+
+	lda state05
+	beq .alive_or_dying
+	jmp .big_teef_battle_ended
+
+.alive_or_dying
+	lda state06
+	beq .movement
+	; death particles
+	lda wtf
+	and #$01
+	bne .particle_done
+	jsr ent_particle_spawn_from_big_teef
+.particle_done
+	; death sfx
+	jsr rng_update
+	lda rng_val0
+	and #$0f
+	sta temp00
+	beq .sfx_00
+	cmp #$01
+	beq .sfx_01
+	cmp #$02
+	beq .sfx_02
+	jmp .sfx_done
+.sfx_00
+	jsr sfx_food_fall
+	jmp .sfx_done
+.sfx_01
+	jsr sfx_egg_hatch
+	jmp .sfx_done
+.sfx_02
+	jsr sfx_grub_converge
 .sfx_done
+
+	dec state07
+	lda wtf
+	and #$03
+	bne .reg_slow
+	dec state07
+.reg_slow
+	inc state06
+	bne .movement_done
+
+.movement
 	; world-space movement: 
 	; +1 pixel +4 subpixels/frame
 	clc
@@ -109,7 +169,7 @@ ent_big_teef_update: subroutine
 	lda player_y
 	sbc #$04 ; player_y target offset
 	cmp ent_y,x
-	beq .y_move_done
+	beq .movement_done
 	bcs .move_down
 .move_up
 	sec
@@ -119,7 +179,7 @@ ent_big_teef_update: subroutine
 	lda ent_y,x
 	sbc #$00
 	sta ent_y,x
-	jmp .y_move_done
+	jmp .movement_done
 .move_down
 	clc
 	lda ent_y_lo,x
@@ -128,19 +188,51 @@ ent_big_teef_update: subroutine
 	lda ent_y,x
 	adc #$00
 	sta ent_y,x
-.y_move_done
+.movement_done
 
 	; keep jaw animation phase moving
-	inc ent_r4,x
-	inc ent_r4,x
-	inc ent_r4,x
+	lda state07
+	shift_r 3
+	clc
+	adc #$03
+	adc ent_r4,x
+	sta ent_r4,x
+	bmi .dpcm_reset_done
+	lda #$00
+	sta ent_r5,x
+.dpcm_reset_done
 
+
+	lda state06
+	cmp #$c0
+	bcs .big_teef_battle_ended
+	lda state06
+	bne .no_level_complete
+	; level complete when total jaw hits overflows 8-bit sum
+	clc
+	lda big_teef_upper_hits
+	adc big_teef_lower_hits
+	sta state07
+	bcc .no_level_complete
+	inc state06
+	bne .no_level_complete
+.big_teef_battle_ended
+	inc state05
+	lda state05
+	cmp #$56
+	bne .no_level_complete
+	jsr state_nextlevel_init
+	jmp ent_z_update_return
+.no_level_complete
+
+
+
+ent_big_teef_prerender:
 	; render above all ents
 	lda #$df
 	ldx ent_slot
 	jsr ent_z_calc_sort_vals_9bit
 
-ent_big_teef_prerender:
 	; calc screen position
 	; temp00 x cam offset
 	; temp01 x cam hi offset
@@ -239,16 +331,6 @@ ent_big_teef_prerender:
 	adc ent_damaged
 	sta big_teef_lower_hits
 
-	
-	; level complete when total jaw hits overflows 8-bit sum
-	clc
-	lda big_teef_upper_hits
-	adc big_teef_lower_hits
-	sta ent_hp,x
-	bcc .no_level_complete
-	jsr state_nextlevel_init
-	jmp ent_z_update_return
-.no_level_complete
 
 
 
@@ -382,9 +464,12 @@ ent_big_teef_render: subroutine
 	lda #$14
 	sta spr_p,y
 	; attr
-	lda ent_hp+$1f
-	cmp #$c0
-	bcc .ct_norm_attr
+	lda state06
+	bne .ct_norm_attr
+	lda big_teef_upper_hits
+	beq .ct_norm_attr
+	lda big_teef_lower_hits
+	beq .ct_norm_attr
 .ct_flash_attr
 	lda wtf
 	shift_r 3
@@ -414,6 +499,8 @@ big_teef_mandible_attr: subroutine
 	cmp #$a0
 	bcs .flash_more
 .flash_less
+	lda state06
+	bne .no_flash
 	lda wtf
 	shift_r 3
 	and #$03
@@ -424,6 +511,8 @@ big_teef_mandible_attr: subroutine
 	ora temp01
 	rts
 .flash_more
+	lda state06
+	bne .no_flash
 	lda wtf
 	shift_r 3
 	and #$03
