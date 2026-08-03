@@ -10,6 +10,14 @@
 player_death_timer    eqm #$48
 player_iframes_timer  eqm #$40
 
+player_reset_velocity: subroutine
+	lda #$00
+	sta pl_vel_h_hi
+	sta pl_vel_h_lo
+	sta pl_vel_v_hi
+	sta pl_vel_v_lo
+	rts
+
 
 game_player_update: subroutine
 
@@ -41,6 +49,23 @@ game_player_update: subroutine
 	dec player_is_dead
 	rts
 .not_dead
+	
+	; on a tooth?
+	lda player_x_hi
+	lsr
+	lda player_x
+	ror
+	shift_r 5
+	sta temp00
+	ldy player_y
+	cpy #$76
+	bcc .row_adjust_done
+	ora #%00001000
+.row_adjust_done
+	tay
+	sty $740
+	lda tooth_total_dmg,y
+	sta ent_r7
 
 	; handle directional inputs
 	lda #$00
@@ -74,11 +99,7 @@ game_player_update: subroutine
 	lda controller1
 	and #BRUSH_BUTTON|FLOSS_BUTTON
 	beq .not_brush_or_floss
-	lda #$00
-	sta pl_vel_h_lo
-	sta pl_vel_h_hi
-	sta pl_vel_v_lo
-	sta pl_vel_v_hi
+	jsr player_reset_velocity
 	; no acceleration with actions
 	lda floss_status
 	beq .floss_move_cleared
@@ -246,11 +267,7 @@ game_player_update: subroutine
 	jmp .moving_done
 
 .not_moving
-	lda #$00
-	sta pl_vel_h_hi
-	sta pl_vel_h_lo
-	sta pl_vel_v_hi
-	sta pl_vel_v_lo
+	jsr player_reset_velocity
 .moving_done
 	; velocity movement
 	clc
@@ -428,21 +445,7 @@ game_player_update: subroutine
 	; FLOSSING
 	lda player_is_dead
 	bne .floss_disable
-	; on a tooth?
-	lda player_x_hi
-	lsr
-	lda player_x
-	ror
-	shift_r 5
-	sta temp00
-	ldy player_y
-	cpy #$76
-	bcc .row_adjust_done
-	ora #%00001000
-.row_adjust_done
-	tay
-	sty $740
-	lda tooth_total_dmg,y
+	lda ent_r7
 	bmi .floss_disable
 	lda controller1
 	and #FLOSS_BUTTON

@@ -23,6 +23,7 @@ state_title_init: subroutine
 	sta scroll_nm
 	sta scroll_x
 	sta scroll_y
+	sta camera_x
 
 	; setup pallete
 	ldx #$00

@@ -37,11 +37,7 @@ ent_player_init: subroutine
 	lda #$ff
 	sta ent_r3
 	; reset velocity
-	lda #$00
-	sta pl_vel_h_hi
-	sta pl_vel_h_lo
-	sta pl_vel_v_hi
-	sta pl_vel_v_lo
+	jsr player_reset_velocity
 	; escape baddies quickly
 	lda #$40
 	sta player_iframes
