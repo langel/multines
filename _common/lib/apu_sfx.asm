@@ -619,6 +619,8 @@ sfx_food_fall: subroutine
 	lda #$20
 	sta sfx_pu1_counter
 	sta sfx_counter_0 ;food_fall
+	lda #$00
+	sta apu_pu1_counter
 	rts
 
 sfx_dpcm_chomp: subroutine

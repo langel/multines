@@ -1,5 +1,9 @@
 nmi_handler: subroutine
 	pha
+	tya
+	pha
+	txa
+	pha
 	lda nmi_lockout
 	beq no_lock
 	jmp nmi_end
@@ -46,6 +50,10 @@ nmi_update_done
 	dec nmi_lockout
 nmi_end
 	jsr timer_update
+	pla
+	tax
+	pla
+	tay
 	pla
 	rti
 

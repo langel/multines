@@ -33,10 +33,6 @@ apu_env_run: subroutine
 	; #$07 = noise
 	; returns 4-bit volume in a
 	lda apu_pu1_env_id,x
-	cmp #$06
-	bcc .env_id_ok
-	lda #$00
-.env_id_ok
 	tay
 	lda apu_env_table_lo,y
 	sta temp00
