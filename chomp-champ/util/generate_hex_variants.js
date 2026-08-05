@@ -2,8 +2,8 @@ const fs = require('fs');
 const path = require('path');
 
 const HEADER_SIZE = 0x10;
-const TENS_OFFSET = 0xF6;
-const ONES_OFFSET = 0xFB;
+const TENS_OFFSET = 0x24d;
+const ONES_OFFSET = 0x252;
 const TENS_PATCH_OFFSET = HEADER_SIZE + TENS_OFFSET;
 const ONES_PATCH_OFFSET = HEADER_SIZE + ONES_OFFSET;
 const TILE_BASE = 0x50;

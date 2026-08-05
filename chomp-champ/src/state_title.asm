@@ -97,10 +97,12 @@ state_title_init: subroutine
 
 	; cart id
 	; xxx for individual carts
+	; multicart these are all #$08's
 	lda #$08
 	sta PPU_DATA
 	lda #$22
 	sta PPU_DATA
+hex_id_number:
 	; tens hexadigit
 	; rom address 00f6
 	lda #$71
