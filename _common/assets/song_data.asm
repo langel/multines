@@ -147,7 +147,7 @@ song_cc_game_over:
 song_cc_game_clear:
 	hex 03
 	hex 40 50
-	hex 63
+	hex 6f
 	; 00
 	hex 27
 	byte 29, 32, 29
@@ -193,6 +193,7 @@ song_cc_game_clear:
 	hex 31
 	hex 27
 	byte 39, 31, 39
+	hex 1f
 	
 	hex ff
 

@@ -75,7 +75,19 @@ $0160-$016f apu cache
 $0170-$01af audio subsystem (64 bytes)
 $01c0-$01d1 system scratch (used by nametable lib)
 $01d2-$01df free program space?
-$01e0-$01ff stack
+$01e0-$01e3 game sig for resets 42 69 ef [game_id]
+$01e4-$01ff stack
+
+
+
+game calls set_game_sig with id in accumulator
+multicart can demo each games attract mode
+demo mode uses zp timer with hours set to #$ff
+pressing something during attract mode releases multicart demo mode
+holding something on the controller on boot can shuffle game order
+reset verifies game sig and reboots to game_id at $01e3 set by game
+
+
 
 move quordle poems to its own repo
 

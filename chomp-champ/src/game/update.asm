@@ -44,6 +44,7 @@ state_game_update: subroutine
 	beq .no_start_button
 	inc paused_active
 	ldx #state_hud_render_id
+	jsr apu_init
 	jsr state_set_render_routine
 .no_start_button
 
