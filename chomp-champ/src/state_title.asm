@@ -85,9 +85,9 @@ state_title_init: subroutine
 	lda #>chomp_champ_passage_00
 	sta temp01
 	; xxx for multicart
-	;lda #$65
+	lda #$65
 	; xxx for individual carts
-	lda #$63
+	;lda #$63
 	sta temp02
 	lda #$23
 	sta temp03
@@ -100,16 +100,19 @@ state_title_init: subroutine
 	; multicart these are all #$08's
 	lda #$08
 	sta PPU_DATA
-	lda #$22
+	;lda #$22
+	lda #$08
 	sta PPU_DATA
 hex_id_number:
 	; tens hexadigit
 	; rom address 00f6
-	lda #$71
+	;lda #$71
+	lda #$08
 	sta PPU_DATA
 	; ones hexadigit
 	; rom address 00fb
-	lda #$71
+	;lda #$71
+	lda #$08
 	sta PPU_DATA
 
 	; setup big teef

@@ -3,6 +3,7 @@ palette fade functions in common
 move palette_cache into common zp
 need palette_source put somewhere in ram too
 
+prg rom outputter should make 64k (doubled) prg rom files
 
 
 
