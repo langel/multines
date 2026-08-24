@@ -28,6 +28,7 @@ cart_start: subroutine
 	;   $8080
 	include "src/states.asm"
 	include "src/ents.asm"
+	include "src/ent/_template.asm"
 
 	seg COMMON
 	org $c000
@@ -42,3 +43,5 @@ cart_start: subroutine
 
 	seg GRAPHICS
 	org $010000
+	incbin "assets/sprites.chr"
+	incbin "assets/tiles.chr"

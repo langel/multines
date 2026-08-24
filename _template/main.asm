@@ -28,6 +28,7 @@ cart_start: subroutine
 	;   $8080
 	include "src/states.asm"
 	include "src/ents.asm"
+	include "src/ent/_template.asm"
 
 	seg COMMON
 	org $c000

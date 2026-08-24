@@ -82,11 +82,11 @@ ent_z_update_return:
 .sortup_loop
 	lda ent_z_sortup,y
 	tax
-	lda ent_r6,x
+	lda ent_r4c0,x
 	sta temp00
 	lda ent_z_sortup+1,y
 	tax
-	lda ent_r6,x
+	lda ent_r4c0,x
 	sta temp01
 	cmp temp00
 	bcc .sortup_lesser
@@ -107,11 +107,11 @@ ent_z_update_return:
 .sortdown_loop
 	lda ent_z_sortdown,y
 	tax
-	lda ent_r7,x
+	lda ent_r4e0,x
 	sta temp00
 	lda ent_z_sortdown+1,y
 	tax
-	lda ent_r7,x
+	lda ent_r4e0,x
 	sta temp01
 	cmp temp00
 	bcc .sortdown_lesser
@@ -158,7 +158,7 @@ ent_z_calc_sort_vals: subroutine
 	sta temp01
 	clc
 	adc temp00
-	sta ent_r6,x
+	sta ent_r4c0,x
 	lda ent_x,x ; y - (x / 4)
 	lsr
 	lsr
@@ -166,7 +166,7 @@ ent_z_calc_sort_vals: subroutine
 	lda temp00
 	sec
 	sbc temp01
-	sta ent_r7,x
+	sta ent_r4e0,x
 	rts
 
 
@@ -184,7 +184,7 @@ ent_z_calc_sort_vals_9bit: subroutine
 	sta temp01
 	clc
 	adc temp00
-	sta ent_r6,x
+	sta ent_r4c0,x
 	lda ent_x_hi,x
 	lsr
 	lda ent_x,x ; y - (x / 4)
@@ -195,5 +195,5 @@ ent_z_calc_sort_vals_9bit: subroutine
 	lda temp00
 	sec
 	sbc temp01
-	sta ent_r7,x
+	sta ent_r4e0,x
 	rts
