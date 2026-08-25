@@ -3,7 +3,7 @@ song_sick_dingle  EQM $01
 song_in_game      EQM $02
 song_boss_intro   EQM $03
 song_boss_fight   EQM $04
-song_game_over    EQM $05
+song_game_over_   EQM $05
 song_end_bad      EQM $06
 song_end_ok       EQM $07
 song_end_good     EQM $08
