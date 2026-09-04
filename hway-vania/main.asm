@@ -14,7 +14,7 @@
 	; $bff0 = 1 PRG ; $7ff0 = 2+ PRG
 	org $7ff0
 	; mapper, PRGs (16k), CHRs (8k), mirror
-	NES_HEADER 0,2,1,NES_MIRR_VERT 
+	NES_HEADER 0,2,1,NES_MIRR_HORIZ
 
 	seg CODE
 	; $c000 = 1 PRG ; $8000 = 2+ PRG
@@ -26,9 +26,10 @@ cart_start: subroutine
 .idle_cpu
 	jmp .idle_cpu
 	;   $8080
-	include "src/states.asm"
 	include "src/ents.asm"
 	include "src/ent/_template.asm"
+	include "src/states.asm"
+	include "src/state/game/main.asm"
 
 	seg COMMON
 	org $c000
