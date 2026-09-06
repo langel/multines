@@ -3,7 +3,8 @@
 
 speed_hi       byte
 speed_lo       byte
-scroll_y_lo    byte
+direction      byte
+scroll_y_lo    byte ; sub pixels
 
 
 player_is_dead       byte

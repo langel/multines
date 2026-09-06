@@ -1,0 +1,22 @@
+
+
+
+mph ?= pixels per frame how
+
+8px = 10ft
+
+(5280 / 10) * 8px = 4,224px per mile
+
+4,224 / 240 = 17.6 screens long
+
+pixels per frame = mph * (1.1733 / fps)
+aka
+
+ppf = mph * 0.019556
+
+255 * 0.019556 = 4.98678
+so
+
+using fixed point each mph = $00.05
+
+70mph ~= 1.3671875ppf or $01.5e
