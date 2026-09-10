@@ -20,3 +20,8 @@ so
 using fixed point each mph = $00.05
 
 70mph ~= 1.3671875ppf or $01.5e
+
+
+
+
+REMOVE state dir from new game template:w

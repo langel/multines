@@ -104,6 +104,79 @@ state_game_init: subroutine
 
 state_game_update: subroutine
 
+	; setup next nametable row
+	lda #$00
+	sta temp01
+	sec
+	lda scroll_y
+	sbc #$07
+	php ; push status
+	bcs .y_within_screen
+	sbc #$10
+.y_within_screen
+	and #$f8
+	asl
+	rol temp01
+	asl
+	rol temp01
+	sta temp00
+	; addr hi
+	lda scroll_nm
+	plp ; pull status
+	bcs .nm_off_screen
+	eor #$02
+.nm_off_screen
+	shift_l 2
+	clc
+	adc #$20
+	adc temp01
+	sta PPU_ADDR
+	lda temp00
+	clc
+	adc #$04
+	sta PPU_ADDR
+	; road
+	lda scroll_y_hi
+	lda wtf
+	lda scroll_y
+	shift_r 2
+	and #$03
+	sta temp00
+	tax
+	inx
+	ldy #$01
+	lda wtf
+	tay
+.road_loop
+	sty PPU_DATA
+	iny
+	dex
+	bpl .road_loop
+	; dirt
+	lda temp00
+	eor #$03
+	tax
+	lda #$00
+.dirt_loop
+	sta PPU_DATA
+	dex
+	bpl .dirt_loop
+
+	
+
+	; set scroll position
+	lda #$00
+	sta PPU_SCROLL
+	lda scroll_y
+	sta PPU_SCROLL
+	lda scroll_y_hi
+	and #$01
+	asl
+	sta scroll_nm
+
+	jsr render_enable
+
+
 	; acceleration
 	lda speed_hi
 	cmp #$fb
@@ -159,21 +232,9 @@ state_game_update: subroutine
 .scroll_done
 
 
-	
-	lda #$00
-	sta PPU_SCROLL
-	lda scroll_y
-	sta PPU_SCROLL
-	lda scroll_y_hi
-	and #$01
-	asl
-	sta scroll_nm
-
-	jsr render_enable
-
-
 
 
 	jsr ents_update
+	jsr game_hud_update
 
 	jmp nmi_update_done

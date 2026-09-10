@@ -30,6 +30,7 @@ cart_start: subroutine
 	include "src/ent/_template.asm"
 	include "src/ent/car.asm"
 	include "src/states.asm"
+	include "src/game/hud.asm"
 	include "src/game/main.asm"
 
 	seg COMMON

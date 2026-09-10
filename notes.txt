@@ -123,3 +123,11 @@ blasm
 
 
 
+
+
+FINAL MULTICART LAYOUT
+UNROM
+
+each game has one 16k PRG bank   = 10 banks
+two games CHR fills one 16k bank =  5 banks
+shared bank contains games menu  =  1 banks

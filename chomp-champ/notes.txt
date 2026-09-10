@@ -62,3 +62,5 @@ hardware crash notes
 0105 - works (demo has some garbled sounds at beginning)
 
 0108 - starts on level 8 (floss longer / grub hitbox fix)
+
+0116 - starts on level 25 -- frame drops cause cart reset
