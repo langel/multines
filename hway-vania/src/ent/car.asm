@@ -13,9 +13,36 @@ ent_car_spawn: subroutine
 	sta ent_y,x
 	rts
 
+
+
 ent_car_update: subroutine
 	; update logic
+
+	lda state02
+	sec
+	sbc #$10
+	and #$1f
+	tay
+	lda $700,y
+	clc
+	adc #$0e
+	cmp ent_x,x
+	bcs .x_less
+.x_more
+	clc
+	adc #$18
+	cmp ent_x,x
+	bcs .x_done
+	sta ent_x,x
+	jmp .x_done
+.x_less
+	sec
+	sbc #$04
+	sta ent_x,x
+.x_done
+
 	; render (reload y?)
+	ldy ent_spr_ptr
 
 	lda #$00
 	sta spr_p,y

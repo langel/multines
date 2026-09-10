@@ -26,10 +26,10 @@ cart_start: subroutine
 .idle_cpu
 	jmp .idle_cpu
 	;   $8080
+	include "src/states.asm"
 	include "src/ents.asm"
 	include "src/ent/_template.asm"
 	include "src/ent/car.asm"
-	include "src/states.asm"
 	include "src/game/hud.asm"
 	include "src/game/main.asm"
 

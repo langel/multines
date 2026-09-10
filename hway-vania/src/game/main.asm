@@ -1,6 +1,7 @@
 
 ; state00 road sine pos
 ; state01 last frame nm row
+; state02 road x offset per nm row
 
 game_palette:
 	; bg
@@ -91,6 +92,15 @@ state_game_init: subroutine
 	lda temp00
 	adc #$00
 	sta temp00
+	; store x offset of tile row
+	dec state02
+	lda state02
+	and #$1f
+	sta state02
+	tay
+	lda #$04
+	shift_l 3
+	sta $700,y
 	inx
 	cpx #$1e
 	bne .road_row_loop
@@ -117,10 +127,16 @@ state_game_update: subroutine
 	sbc #$10
 .y_within_screen
 	and #$f8
+	sta temp00 
 	cmp state01
 	beq .sine_advance_done
 	inc state00
+	dec state02
+	lda state02
+	and #$1f
+	sta state02
 .sine_advance_done
+	lda temp00
 	sta state01
 	asl
 	rol temp01
@@ -151,6 +167,10 @@ state_game_update: subroutine
 	adc #$04
 	tax
 	stx temp00
+	; store x offset of tile row
+	ldy state02
+	shift_l 3
+	sta $700,y
 	lda #$00
 .dirt_pre_loop
 	sta PPU_DATA
