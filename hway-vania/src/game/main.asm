@@ -1,4 +1,6 @@
 
+; state00 road sine pos
+; state01 last frame nm row
 
 game_palette:
 	; bg
@@ -14,7 +16,7 @@ game_palette:
 	hex 05 16 27 ; oranges
 	hex 09 19 29 ; greens
 
-road_x_pos     eqm #$0c
+road_x_pos     eqm #$05
 
 road_row_stripes:
 	hex 01 02 03 04 05
@@ -47,14 +49,14 @@ state_game_init: subroutine
 	lda #road_x_pos
 	sta temp01 ; lo ppu addr
 	lda #$00
-	sta state00
+	sta temp02
 	ldx #$00
 .road_row_loop
 	lda temp00
 	sta PPU_ADDR
 	lda temp01
 	sta PPU_ADDR
-	lda state00
+	lda temp02
 	beq .plot_stripes
 .plot_asphalt
 	ldy #$00
@@ -74,14 +76,14 @@ state_game_init: subroutine
 	cpy #$05
 	bne .plot_stripes_loop
 .plot_row_done
-	lda state00
+	lda temp02
 	clc
 	adc #$01
 	cmp #$04
 	bcc .phase_ok
 	lda #$00
 .phase_ok
-	sta state00
+	sta temp02
 	lda temp01
 	clc
 	adc #$20
@@ -115,46 +117,75 @@ state_game_update: subroutine
 	sbc #$10
 .y_within_screen
 	and #$f8
+	cmp state01
+	beq .sine_advance_done
+	inc state00
+.sine_advance_done
+	sta state01
 	asl
 	rol temp01
 	asl
 	rol temp01
 	sta temp00
 	; addr hi
-	lda scroll_nm
+	lda scroll_y_hi
+	and #$01
+	asl
 	plp ; pull status
 	bcs .nm_off_screen
 	eor #$02
 .nm_off_screen
+	sta temp02 ; target nametable parity
 	shift_l 2
 	clc
 	adc #$20
 	adc temp01
 	sta PPU_ADDR
 	lda temp00
+	sta PPU_ADDR
+	; pre dirt
+	ldx state00
+	lda sine_table,x
+	shift_r 4
 	clc
 	adc #$04
-	sta PPU_ADDR
-	; road
-	lda scroll_y_hi
-	lda wtf
-	lda scroll_y
-	shift_r 2
-	and #$03
-	sta temp00
 	tax
-	inx
-	ldy #$01
-	lda wtf
-	tay
-.road_loop
-	sty PPU_DATA
-	iny
+	stx temp00
+	lda #$00
+.dirt_pre_loop
+	sta PPU_DATA
 	dex
-	bpl .road_loop
-	; dirt
-	lda temp00
-	eor #$03
+	bpl .dirt_pre_loop
+	; road render with target parity
+	lda state01
+	shift_r 3
+	clc
+	adc temp02
+	and #$03
+	beq .plot_stripes
+.plot_asphalt
+	ldy #$00
+.plot_asphalt_loop
+	lda road_row_asphalt,y
+	sta PPU_DATA
+	iny
+	cpy #$05
+	bne .plot_asphalt_loop
+	jmp .plot_row_done
+.plot_stripes
+	ldy #$00
+.plot_stripes_loop
+	lda road_row_stripes,y
+	sta PPU_DATA
+	iny
+	cpy #$05
+	bne .plot_stripes_loop
+.plot_row_done
+	; post dirt
+	sec
+	lda #$1f
+	sbc #$05
+	sbc temp00
 	tax
 	lda #$00
 .dirt_loop
@@ -162,7 +193,6 @@ state_game_update: subroutine
 	dex
 	bpl .dirt_loop
 
-	
 
 	; set scroll position
 	lda #$00
@@ -230,6 +260,12 @@ state_game_update: subroutine
 	sta scroll_y
 	inc scroll_y_hi
 .scroll_done
+
+	; scroll_nm single source of truth
+	lda scroll_y_hi
+	and #$01
+	asl
+	sta scroll_nm
 
 
 
