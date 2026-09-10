@@ -20,7 +20,7 @@ ent_car_update: subroutine
 
 	lda state02
 	sec
-	sbc #$10
+	sbc #$0f
 	and #$1f
 	tay
 	lda $700,y

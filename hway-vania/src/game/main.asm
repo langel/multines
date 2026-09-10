@@ -20,9 +20,9 @@ game_palette:
 road_x_pos     eqm #$05
 
 road_row_stripes:
-	hex 01 02 03 04 05
+	hex 0a 0b 0c 0d 0e 0f
 road_row_asphalt:
-	hex 01 03 03 03 05
+	hex 8a 8b 8c 8d 8e 8f
 
 state_game_init: subroutine
 
@@ -162,7 +162,16 @@ state_game_update: subroutine
 	; pre dirt
 	ldx state00
 	lda sine_table,x
-	shift_r 4
+	shift_r 1
+	sta temp03 ; store offset
+	; fine x
+	and #$07
+	sta temp05
+	shift_l 4
+	sta temp04
+	; coarse x
+	lda temp03
+	shift_r 3
 	clc
 	adc #$04
 	tax
@@ -170,6 +179,8 @@ state_game_update: subroutine
 	; store x offset of tile row
 	ldy state02
 	shift_l 3
+	clc
+	adc temp05
 	sta $700,y
 	lda #$00
 .dirt_pre_loop
@@ -187,18 +198,22 @@ state_game_update: subroutine
 	ldy #$00
 .plot_asphalt_loop
 	lda road_row_asphalt,y
+	clc
+	adc temp04
 	sta PPU_DATA
 	iny
-	cpy #$05
+	cpy #$06
 	bne .plot_asphalt_loop
 	jmp .plot_row_done
 .plot_stripes
 	ldy #$00
 .plot_stripes_loop
 	lda road_row_stripes,y
+	clc
+	adc temp04
 	sta PPU_DATA
 	iny
-	cpy #$05
+	cpy #$06
 	bne .plot_stripes_loop
 .plot_row_done
 	; post dirt
