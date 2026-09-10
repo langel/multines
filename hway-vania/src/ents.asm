@@ -13,3 +13,11 @@ ent_update_hi:
 	byte >#ent_template_update
 	byte >#ent_car_update
 
+ent_r0   eqm ent_r400
+ent_r1   eqm ent_r420
+ent_r2   eqm ent_r440
+ent_r3   eqm ent_r460
+ent_r4   eqm ent_r480
+ent_r5   eqm ent_r4a0
+ent_r6   eqm ent_r4b0
+ent_r7   eqm ent_r4c0

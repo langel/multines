@@ -12,6 +12,18 @@ game_hud_update: subroutine
 	sta temp01
 .speed_ready
 
+	lda speed_lo
+	eor #$ff
+	sta temp00
+	lda speed_hi
+	eor #$ff
+	sta temp01
+	lda #$05
+	sta temp02
+	jsr shift_divide_7_into_16
+
+	lda temp00
+	sta $0361
 
 	; tens
 	ldx temp00
@@ -28,7 +40,7 @@ game_hud_update: subroutine
 	inc_y 4
 	
 	; lesser number
-	lda temp01
+	lda temp00
 	shift_r 1
 	tax
 	lda zero_pad_10s_table,x
