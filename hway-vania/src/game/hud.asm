@@ -78,6 +78,75 @@ game_hud_update: subroutine
 
 	; test decimal conversion
 	lda mph
+	jsr decimal_by_divide_0to255
+	lda temp02
+	beq .divide_no_hundreds
+	sta $80
+	clc
+	adc #$f0
+	sta $90
+	sta spr_p,y
+	lda #$00
+	sta spr_a,y
+	lda #$b8
+	sta spr_x,y
+	lda #$30
+	sta spr_y,y
+	inc_y 4
+.divide_no_hundreds
+	lda temp03
+	bne .do_tens
+	lda temp02
+	beq .divide_no_tens
+.do_tens
+	sta $80
+	clc
+	adc #$f0
+	sta $90
+	sta spr_p,y
+	lda #$00
+	sta spr_a,y
+	lda #$c0
+	sta spr_x,y
+	lda #$30
+	sta spr_y,y
+	inc_y 4
+.divide_no_tens
+	lda temp04
+	sta $81
+	clc
+	adc #$f0
+	sta $91
+	sta spr_p,y
+	lda #$00
+	sta spr_a,y
+	lda #$c8
+	sta spr_x,y
+	lda #$30
+	sta spr_y,y
+	inc_y 4
+	; MPH
+	lda #$fa
+	sta spr_p,y
+	lda #$00
+	sta spr_a,y
+	lda #$d0
+	sta spr_x,y
+	lda #$30
+	sta spr_y,y
+	inc_y 4
+	lda #$fb
+	sta spr_p,y
+	lda #$00
+	sta spr_a,y
+	lda #$d8
+	sta spr_x,y
+	lda #$30
+	sta spr_y,y
+	inc_y 4
+
+	; test decimal conversion
+	lda mph
 	jsr decimal_tennis_0to99
 	lda temp00
 	beq .tennis_no_tens
@@ -88,9 +157,9 @@ game_hud_update: subroutine
 	sta spr_p,y
 	lda #$00
 	sta spr_a,y
-	lda #$d0
+	lda #$c0
 	sta spr_x,y
-	lda #$30
+	lda #$40
 	sta spr_y,y
 	inc_y 4
 .tennis_no_tens
@@ -102,9 +171,28 @@ game_hud_update: subroutine
 	sta spr_p,y
 	lda #$00
 	sta spr_a,y
+	lda #$c8
+	sta spr_x,y
+	lda #$40
+	sta spr_y,y
+	inc_y 4
+	; MPH
+	lda #$fa
+	sta spr_p,y
+	lda #$00
+	sta spr_a,y
+	lda #$d0
+	sta spr_x,y
+	lda #$40
+	sta spr_y,y
+	inc_y 4
+	lda #$fb
+	sta spr_p,y
+	lda #$00
+	sta spr_a,y
 	lda #$d8
 	sta spr_x,y
-	lda #$30
+	lda #$40
 	sta spr_y,y
 	inc_y 4
 
@@ -114,9 +202,31 @@ game_hud_update: subroutine
 
 
 
+decimal_by_divide_0to255: subroutine
+	; a = value 0..255
+	; temp02 = hundreds
+	; temp03 = tens
+	; temp04 = ones
+	sta temp00
+	lda #100
+	sta temp01
+	jsr shift_divide_7_into_8
+	lda temp00
+	sta temp02 ; store hundreds
+	lda temp01
+	sta temp00
+	lda #10
+	sta temp01
+	jsr shift_divide_7_into_8
+	sta temp04 ; store ones
+	lda temp00
+	sta temp03 ; store tens
+	rts
+
+
 decimal_tennis_0to99: subroutine
 	; kills x
-	; a = value 00..99
+	; a = value 0..99
 	; RETURNS
 	; temp00 = tens
 	; temp01 = ones
