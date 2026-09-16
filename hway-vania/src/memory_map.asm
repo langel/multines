@@ -3,6 +3,7 @@
 
 speed_hi       byte
 speed_lo       byte
+mph            byte
 scroll_y_lo    byte ; sub pixels
 
 
