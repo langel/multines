@@ -78,9 +78,9 @@ game_hud_update: subroutine
 
 	; test decimal conversion
 	lda mph
-	sta temp00
 	jsr decimal_tennis_0to99
-	lda temp04
+	lda temp00
+	beq .tennis_no_tens
 	sta $80
 	clc
 	adc #$f0
@@ -93,7 +93,8 @@ game_hud_update: subroutine
 	lda #$30
 	sta spr_y,y
 	inc_y 4
-	lda temp05
+.tennis_no_tens
+	lda temp01
 	sta $81
 	clc
 	adc #$f0
@@ -114,34 +115,25 @@ game_hud_update: subroutine
 
 
 decimal_tennis_0to99: subroutine
-	; temp00 holds n
-	; uses temp01-temp03
-	; temp04 = tens results
-	; temp05 = ones results
-
-	lda #$00
-	sta temp01 ; tens
-	lda #$50
-	sta temp02 ; subtrahend
-	lda #$04
-	sta temp03 ; loop counter
-	lda temp00 ; n
+	; kills x
+	; a = value 00..99
+	; RETURNS
+	; temp00 = tens
+	; temp01 = ones
+	ldx #$00
+	stx temp00 ; tens
+	ldx #$50
+	stx temp01 ; subtrahend
+	ldx #$04
 .loop
-	cmp temp02 ; subtrahend
-	rol temp01 ; tens
-	cmp temp02 ; subtrahend
+	cmp temp01 
+	rol temp00 
+	cmp temp01 
 	bcc .sub_10s_done
-	sbc temp02 ; subtrahend
+	sbc temp01 
 .sub_10s_done
-	lsr temp02 ; subtrahend
-	dec temp03
+	lsr temp01 
+	dex
 	bne .loop
-	sta temp02 ; store n
-	lda temp01 ; tens
-	bne .blank_10s_done
-	lda #$00 ; blank chr pattern
-.blank_10s_done
-	sta temp04 ; tens storage
-	lda temp02 ; n result
-	sta temp05 ; ones storage
+	sta temp01 ; store ones
 	rts
