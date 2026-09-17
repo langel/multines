@@ -108,6 +108,7 @@ state_game_init: subroutine
 	lda #$00
 	sta scroll_nm
 
+	jsr game_road_prerender
 	jsr ent_car_spawn
 	jsr render_enable
 
@@ -116,118 +117,7 @@ state_game_init: subroutine
 
 state_game_update: subroutine
 
-	; setup next nametable row
-	lda #$00
-	sta temp01
-	sec
-	lda scroll_y
-	sbc #$07
-	php ; push status
-	bcs .y_within_screen
-	sbc #$10
-.y_within_screen
-	and #$f8
-	sta temp00 
-	cmp state01
-	beq .sine_advance_done
-	inc state00
-	dec state02
-	lda state02
-	and #$1f
-	sta state02
-.sine_advance_done
-	lda temp00
-	sta state01
-	asl
-	rol temp01
-	asl
-	rol temp01
-	sta temp00
-	; addr hi
-	lda scroll_y_hi
-	and #$01
-	asl
-	plp ; pull status
-	bcs .nm_off_screen
-	eor #$02
-.nm_off_screen
-	sta temp02 ; target nametable parity
-	shift_l 2
-	clc
-	adc #$20
-	adc temp01
-	sta PPU_ADDR
-	lda temp00
-	sta PPU_ADDR
-	; pre dirt
-	ldx state00
-	lda sine_table,x
-	shift_r 1
-	sta temp03 ; store offset
-	; fine x
-	and #$07
-	sta temp05
-	shift_l 4
-	sta temp04
-	; coarse x
-	lda temp03
-	shift_r 3
-	clc
-	adc #$04
-	tax
-	stx temp00
-	; store x offset of tile row
-	ldy state02
-	shift_l 3
-	clc
-	adc temp05
-	sta $700,y
-	lda #$00
-.dirt_pre_loop
-	sta PPU_DATA
-	dex
-	bpl .dirt_pre_loop
-	; road render with target parity
-	lda state01
-	shift_r 3
-	clc
-	adc temp02
-	and #$03
-	beq .plot_stripes
-.plot_asphalt
-	ldy #$00
-.plot_asphalt_loop
-	lda road_row_asphalt,y
-	clc
-	adc temp04
-	sta PPU_DATA
-	iny
-	cpy #$06
-	bne .plot_asphalt_loop
-	jmp .plot_row_done
-.plot_stripes
-	ldy #$00
-.plot_stripes_loop
-	lda road_row_stripes,y
-	clc
-	adc temp04
-	sta PPU_DATA
-	iny
-	cpy #$06
-	bne .plot_stripes_loop
-.plot_row_done
-	; post dirt
-	sec
-	lda #$1f
-	sbc #$05
-	sbc temp00
-	tax
-	lda #$00
-.dirt_loop
-	sta PPU_DATA
-	dex
-	bpl .dirt_loop
-
+	jsr game_road_render
 
 	; set scroll position
 	lda #$00
@@ -268,6 +158,7 @@ state_game_update: subroutine
 	sta speed_hi
 .done_decel
 */
+	
 
 	; update scroll position
 	clc
@@ -304,6 +195,7 @@ state_game_update: subroutine
 
 
 
+	jsr game_road_prerender
 
 	jsr ents_update
 	jsr game_hud_update

@@ -247,3 +247,34 @@ decimal_tennis_0to99: subroutine
 	bne .loop
 	sta temp01 ; store ones
 	rts
+
+
+riyan_to_decimal: subroutine
+	; a = value 0..255
+	ldx #$00
+.hundreds_loop
+	cmp #100
+	bcc .hundreds_done
+	sec
+	sbc #100
+	inx
+	jmp .hundreds_loop
+.hundreds_done
+	stx temp00
+	ldx #$00
+.tens_loop
+	cmp #10
+	bcc .tens_done
+	sec
+	sbc #10
+	inx
+	jmp .tens_loop
+.tens_done
+	stx temp01
+	sta temp02
+	rts
+	
+
+double_dabble_0to255: subroutine
+	
+	rts
