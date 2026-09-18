@@ -123,7 +123,37 @@ game_road_prerender: subroutine
 	dey
 	bpl .dirt_loop
 
+	; TREES!!
+	lda state00
+	and #$03
+	cmp #$02
+	beq .3rd_row
+	cmp #$01
+	beq .2nd_row
+	cmp #$00
+	beq .1st_row
+	jmp .tree_done
+.1st_row
+	lda #$70
+	sta $7e2
+	lda #$71
+	sta $7e3
+	jmp .tree_done
+.2nd_row
+	lda #$60
+	sta $7e2
+	lda #$61
+	sta $7e3
+	jmp .tree_done
+.3rd_row
+	lda #$50
+	sta $7e2
+	lda #$51
+	sta $7e3
+.tree_done
+
 	rts
+
 
 
 

@@ -108,6 +108,47 @@ state_game_init: subroutine
 	lda #$00
 	sta scroll_nm
 
+	; setup tree attributes
+	lda #$23
+	sta temp00
+	lda #$c0
+	sta temp01
+	lda #$8c
+	sta temp02
+.nm1_loop
+	lda temp00
+	sta PPU_ADDR
+	lda temp01
+	sta PPU_ADDR
+	lda temp02
+	sta PPU_DATA
+	clc
+	lda temp01
+	adc #$08
+	sta temp01
+	cmp #$00
+	bne .nm1_loop
+	; nametable 2
+	lda #$2b
+	sta temp00
+	lda #$c0
+	sta temp01
+	lda #$c8
+	sta temp02
+.nm2_loop
+	lda temp00
+	sta PPU_ADDR
+	lda temp01
+	sta PPU_ADDR
+	lda temp02
+	sta PPU_DATA
+	clc
+	lda temp01
+	adc #$08
+	sta temp01
+	cmp #$00
+	bne .nm2_loop
+
 	jsr game_road_prerender
 	jsr ent_car_spawn
 	jsr render_enable
