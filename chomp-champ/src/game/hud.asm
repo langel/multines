@@ -43,7 +43,7 @@ hud_init: subroutine
 	; make room for sprite 0
 	lda #$08
 	sta ent_ptr_start
-
+/*
 	; overwrite bg palette 0
 	lda #$04
 	sta $f1
@@ -51,7 +51,9 @@ hud_init: subroutine
 	sta $f2
 	lda #$32
 	sta $f3
-
+*/
+	nops 12
+	org $8cef
 	; write level indicator
 	jsr hud_write_week
 
@@ -85,7 +87,8 @@ hud_init: subroutine
 	sta PPU_ADDR
 	lda #$c5
 	sta PPU_ADDR
-	lda #%11111111
+	;lda #%11111111
+	lda #%0000000
 	sta PPU_DATA
 	sta PPU_DATA
 	sta PPU_DATA
@@ -131,7 +134,7 @@ hud_sprite0: subroutine
 .wait1	
 	bit PPU_STATUS
 	beq .wait1
-
+/*
 	; load up palette values
 	ldx temp01
 	ldy temp02
@@ -149,9 +152,9 @@ hud_sprite0: subroutine
 	sta PPU_DATA
 	stx PPU_DATA
 	sty PPU_DATA
-
+*/
 	; wait for next scanline
-	ldx #$0a
+	ldx #$17
 .scan_wait
 	dex
 	bne .scan_wait
@@ -173,9 +176,11 @@ hud_sprite0: subroutine
 	sta PPU_CTRL
 	lda #%00011110
 	sta PPU_MASK
+
 	rts
 
 
+	org $8dc8
 
 hud_bottom_teeth_tiles:
 	hex 05 15 25 35
