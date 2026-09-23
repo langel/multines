@@ -44,69 +44,25 @@ state_game_init: subroutine
 	cpx #$19
 	bne .pal_loop
 
-	; draw some road
-	lda #$20
-	sta temp00 ; hi ppu addr
-	lda #road_x_pos
-	sta temp01 ; lo ppu addr
-	lda #$00
-	sta temp02
-	ldx #$00
-.road_row_loop
-	lda temp00
-	sta PPU_ADDR
-	lda temp01
-	sta PPU_ADDR
-	lda temp02
-	beq .plot_stripes
-.plot_asphalt
-	ldy #$00
-.plot_asphalt_loop
-	lda road_row_asphalt,y
-	sta PPU_DATA
-	iny
-	cpy #$05
-	bne .plot_asphalt_loop
-	jmp .plot_row_done
-.plot_stripes
-	ldy #$00
-.plot_stripes_loop
-	lda road_row_stripes,y
-	sta PPU_DATA
-	iny
-	cpy #$05
-	bne .plot_stripes_loop
-.plot_row_done
-	lda temp02
-	clc
-	adc #$01
-	cmp #$04
-	bcc .phase_ok
-	lda #$00
-.phase_ok
-	sta temp02
-	lda temp01
-	clc
-	adc #$20
-	sta temp01
-	lda temp00
-	adc #$00
-	sta temp00
-	; store x offset of tile row
-	dec state02
-	lda state02
-	and #$1f
-	sta state02
-	tay
-	lda #$04
-	shift_l 3
-	sta $700,y
-	inx
-	cpx #$1e
-	bne .road_row_loop
-
 	lda #$00
 	sta scroll_nm
+
+	; render road to screen
+	lda #$ef
+	sta scroll_y
+	lda #$1d
+	sta temp07
+.road_row_loop
+	jsr game_road_prerender
+	jsr game_road_render
+	inc state01
+	lda scroll_y
+	sec
+	sbc #$08
+	sta scroll_y
+	dec temp07
+	bne .road_row_loop
+	
 
 	; setup tree attributes
 	lda #$23

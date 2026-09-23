@@ -48,8 +48,7 @@ game_road_prerender: subroutine
 	lda temp00
 	sta ppu_ptr_lo
 
-	; PREPLOT TILES
-	; pre dirt
+	; CALC ROAD POS
 	ldx state00
 	lda sine_table,x
 	shift_r 1
@@ -71,15 +70,20 @@ game_road_prerender: subroutine
 	clc
 	adc temp05
 	sta $700,y
+
+
+	; PREPLOT TILES
+
+	; fill row with dirt
 	lda #$00
-	ldx #$00
+	ldx #$20
 .dirt_pre_loop
 	sta $7e0,x
-	inx
-	dec temp00
+	dex
 	bpl .dirt_pre_loop
-	stx temp00
+
 	; road render with target parity
+	ldx temp00
 	lda state01
 	shift_r 3
 	clc
@@ -110,19 +114,7 @@ game_road_prerender: subroutine
 	cpy #$06
 	bne .plot_stripes_loop
 .plot_row_done
-	; post dirt
-	sec
-	lda #$1f
-	sbc #$05
-	sbc temp00
-	tay
-	lda #$00
-.dirt_loop
-	sta $7e0,x
-	inx
-	dey
-	bpl .dirt_loop
-
+	
 	; TREES!!
 	lda state00
 	and #$03
@@ -158,6 +150,8 @@ game_road_prerender: subroutine
 
 
 game_road_render: subroutine
+
+	; transfer tiles
 	lda ppu_ptr_hi
 	sta PPU_ADDR
 	lda ppu_ptr_lo
@@ -169,4 +163,8 @@ game_road_render: subroutine
 	inx
 	cpx #$20
 	bne .plot_loop
+
+	; XXX
+	; transfer attributes
+
 	rts

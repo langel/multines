@@ -25,3 +25,20 @@ using fixed point each mph = $00.05
 
 
 REMOVE state dir from new game template:w
+
+
+
+
+
+
+deterministically plot
+	- player's road position
+	- opposing traffic road position
+	- tree noise
+		- 3 different tree types
+		- 1 type clusters
+have to track nametable attributes
+	- 4 rows high
+	attribute caching:
+		23c0-23ff 64 bytes
+		2bc0-2bff 64 bytes
