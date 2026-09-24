@@ -51,7 +51,7 @@ state_game_init: subroutine
 	lda #$ef
 	sta scroll_y
 	lda #$1d
-	sta temp07
+	sta state07 ; temp
 .road_row_loop
 	jsr game_road_prerender
 	jsr game_road_render
@@ -60,7 +60,7 @@ state_game_init: subroutine
 	sec
 	sbc #$08
 	sta scroll_y
-	dec temp07
+	dec state07
 	bne .road_row_loop
 	
 

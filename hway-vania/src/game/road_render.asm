@@ -23,7 +23,19 @@ game_road_prerender: subroutine
 	lda state02
 	and #$1f
 	sta state02
+	; reset attr row?
+	clc
+	adc #$01
+	and #$03
+	bne .sine_advance_done
+	ldx #$00
+.attr_clear_loop
+	sta attr_row_cache,x
+	inx
+	cpx #$08
+	bne .attr_clear_loop
 .sine_advance_done
+	; calculate ppu_tile_ptr
 	lda temp00
 	sta state01
 	asl
@@ -44,9 +56,33 @@ game_road_prerender: subroutine
 	clc
 	adc #$20
 	adc temp01
-	sta ppu_ptr_hi
+	sta ppu_tile_ptr_hi
 	lda temp00
-	sta ppu_ptr_lo
+	sta ppu_tile_ptr_lo
+
+	; calculate ppu_attr_ptr
+	; tile_ptr $%
+	lda ppu_tile_ptr_hi
+	and #$28
+	clc
+	adc #$03
+	sta ppu_attr_ptr_hi
+	lda ppu_tile_ptr_hi
+	and #$03
+	sta temp06
+	lda ppu_tile_ptr_lo
+	sta temp07
+	ldx #$04
+.attr_ptr_loop
+	lsr temp06
+	ror temp07
+	dex
+	bne .attr_ptr_loop
+	lda temp07
+	and #$f8
+	clc
+	adc #$c0
+	sta ppu_attr_ptr_lo
 
 	; CALC ROAD POS
 	ldx state00
@@ -69,16 +105,17 @@ game_road_prerender: subroutine
 	shift_l 3
 	clc
 	adc temp05
-	sta $700,y
+	sta road_x
+	sta road_row_x_offset,y
 
 
 	; PREPLOT TILES
 
 	; fill row with dirt
 	lda #$00
-	ldx #$20
+	ldx #$1f
 .dirt_pre_loop
-	sta $7e0,x
+	sta tile_row_cache,x
 	dex
 	bpl .dirt_pre_loop
 
@@ -96,7 +133,7 @@ game_road_prerender: subroutine
 	lda road_row_asphalt,y
 	clc
 	adc temp04
-	sta $7e0,x
+	sta tile_row_cache,x
 	inx
 	iny
 	cpy #$06
@@ -108,13 +145,75 @@ game_road_prerender: subroutine
 	lda road_row_stripes,y
 	clc
 	adc temp04
-	sta $7e0,x
+	sta tile_row_cache,x
 	inx
 	iny
 	cpy #$06
 	bne .plot_stripes_loop
 .plot_row_done
+
+
+; trees ?
+	lda road_x
+	shift_r 3
+	sec
+	sbc #$02
+	sta temp00
+	ldx #$00
+.tree_loop
+	; check trees not on road
+	cpx temp00
+	bcc .draw_tree_pattern
+	lda temp00
+	clc
+	adc #$09
+	sta temp01
+	cpx temp01
+	bcs .draw_tree_pattern
+	jmp .tree_pattern_done
+.draw_tree_pattern
+	lda state02
+	and #$01
+	bne .butt_pattern
+.top_pattern
+	; plot_top pattern
+	lda #$64
+	sta tile_row_cache+0,x
+	lda #$65
+	sta tile_row_cache+1,x
+	jmp .tree_pattern_attr
+.butt_pattern
+	; plot bottom pattern
+	lda #$74
+	sta tile_row_cache+0,x
+	lda #$75
+	sta tile_row_cache+1,x
+.tree_pattern_attr
+	txa
+	lsr
+	and #$01
+	bne .right_side
+.left_side
+	lda #$33
+	jmp .side_set
+.right_side
+	lda #$cc
+.side_set
+	sta temp02
+	txa
+	shift_r 2
+	tay
+	lda attr_row_cache,y
+	ora temp02
+	sta attr_row_cache,y
+.tree_pattern_done
+	inx
+	inx
+	cpx #$20
+	bne .tree_loop
+
 	
+/*
 	; TREES!!
 	lda state00
 	and #$03
@@ -143,6 +242,7 @@ game_road_prerender: subroutine
 	lda #$51
 	sta $7e3
 .tree_done
+*/
 
 	rts
 
@@ -152,19 +252,29 @@ game_road_prerender: subroutine
 game_road_render: subroutine
 
 	; transfer tiles
-	lda ppu_ptr_hi
+	lda ppu_tile_ptr_hi
 	sta PPU_ADDR
-	lda ppu_ptr_lo
+	lda ppu_tile_ptr_lo
 	sta PPU_ADDR
 	ldx #$00
 .plot_loop
-	lda #$7e0,x
+	lda tile_row_cache,x
 	sta PPU_DATA
 	inx
 	cpx #$20
 	bne .plot_loop
 
-	; XXX
 	; transfer attributes
+	lda ppu_attr_ptr_hi
+	sta PPU_ADDR
+	lda ppu_attr_ptr_lo
+	sta PPU_ADDR
+	ldx #$00
+.attr_loop
+	lda attr_row_cache,x
+	sta PPU_DATA
+	inx
+	cpx #$08
+	bne .attr_loop
 
 	rts

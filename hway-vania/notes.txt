@@ -27,6 +27,9 @@ using fixed point each mph = $00.05
 REMOVE state dir from new game template:w
 
 
+KNOWN UNKNOWNS
+- road over time
+- trees over time
 
 
 
