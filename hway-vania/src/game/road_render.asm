@@ -98,15 +98,15 @@ game_road_prerender: subroutine
 	lda temp03
 	shift_r 3
 	clc
-	adc #$04
+	adc #$06
 	sta temp00
 	; store x offset of tile row
 	ldy state02
 	shift_l 3
 	clc
 	adc temp05
-	sta road_x
-	sta road_row_x_offset,y
+	sta road_r_x
+	sta road_r_x_offset,y
 
 
 	; PREPLOT TILES
@@ -116,10 +116,11 @@ game_road_prerender: subroutine
 	ldx #$1f
 .dirt_pre_loop
 	sta tile_row_cache,x
+	sta tree_row_cache,x
 	dex
 	bpl .dirt_pre_loop
 
-	; road render with target parity
+	; main road tiles
 	ldx temp00
 	lda state01
 	shift_r 3
@@ -151,9 +152,106 @@ game_road_prerender: subroutine
 	cpy #$06
 	bne .plot_stripes_loop
 .plot_row_done
+	
+	; left road tiles
+	lda temp00
+	sec
+	sbc #$0a
+	tax
+	;ldx temp00
+	lda state01
+	shift_r 3
+	clc
+	adc temp02
+	and #$03
+	beq .plot_l_stripes
+.plot_l_asphalt
+	ldy #$00
+.plot_l_asphalt_loop
+	lda road_row_asphalt,y
+	clc
+	adc temp04
+	sta tile_row_cache,x
+	inx
+	iny
+	cpy #$06
+	bne .plot_l_asphalt_loop
+	jmp .plot_l_row_done
+.plot_l_stripes
+	ldy #$00
+.plot_l_stripes_loop
+	lda road_row_stripes,y
+	clc
+	adc temp04
+	sta tile_row_cache,x
+	inx
+	iny
+	cpy #$06
+	bne .plot_l_stripes_loop
+.plot_l_row_done
+	
+
+	/*
+	; tiny left road
+	lda #$02
+	sta tile_row_cache+3
+	sta tile_row_cache+4
+*/
 
 
 ; trees ?
+	ldx #$00
+.tree_loop
+	; check target
+	lda tile_row_cache,x
+	bne .tree_put_done
+	; check left of target
+	cpx #$00
+	beq .tree_left_check_done
+	lda tile_row_cache-1,x
+	bne .tree_put_done
+.tree_left_check_done
+	; check right of target
+	cpx #$1f
+	beq .tree_right_check_done
+	lda tile_row_cache+1,x
+	bne .tree_put_done
+.tree_right_check_done
+	lda #$64
+	sta temp00
+	lda state02
+	and #$01
+	shift_l 4
+	ora temp00
+	sta temp00
+	txa
+	and #$01
+	ora temp00
+	sta tree_row_cache,x
+	txa
+	lsr
+	and #$01
+	bne .right_side
+.left_side
+	lda #$33
+	jmp .side_set
+.right_side
+	lda #$cc
+.side_set
+	sta temp02
+	txa
+	shift_r 2
+	tay
+	lda attr_row_cache,y
+	ora temp02
+	sta attr_row_cache,y
+.tree_put_done
+	inx
+	cpx #$20
+	bne .tree_loop
+
+	
+/*
 	lda road_x
 	shift_r 3
 	sec
@@ -211,7 +309,7 @@ game_road_prerender: subroutine
 	inx
 	cpx #$20
 	bne .tree_loop
-
+*/
 	
 /*
 	; TREES!!
@@ -243,6 +341,15 @@ game_road_prerender: subroutine
 	sta $7e3
 .tree_done
 */
+	; combine road and tree tiles
+	lda #$00
+	ldx #$1f
+.row_amalgamate_loop
+	lda tile_row_cache,x
+	ora tree_row_cache,x
+	sta tile_row_cache,x
+	dex
+	bpl .row_amalgamate_loop
 
 	rts
 
