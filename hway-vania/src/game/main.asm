@@ -1,7 +1,7 @@
 
 ; state00 road sine pos
 ; state01 last frame nm row
-; state02 road x offset per nm row
+; state02 road x offset across nm rows
 
 game_palette:
 	; bg

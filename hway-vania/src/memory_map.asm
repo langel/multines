@@ -13,6 +13,9 @@ ppu_tile_ptr_hi     byte
 
 road_r_x         byte
 road_l_x         byte
+road_l_sine_hi   byte
+road_l_sine_lo   byte
+median_w         byte
 
 
 player_is_dead       byte

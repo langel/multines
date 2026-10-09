@@ -18,7 +18,17 @@ game_road_prerender: subroutine
 	sta temp00 
 	cmp state01
 	beq .sine_advance_done
+	; main road sine
 	inc state00
+	; left road sine
+	clc
+	lda road_l_sine_lo
+	adc #$a3
+	sta road_l_sine_lo
+	lda road_l_sine_hi
+	adc #$00
+	sta road_l_sine_hi
+	; bound y pos
 	dec state02
 	lda state02
 	and #$1f
@@ -92,13 +102,14 @@ game_road_prerender: subroutine
 	; fine x
 	and #$07
 	sta temp05
+	; pattern id offset
 	shift_l 4
 	sta temp04
 	; coarse x
-	lda temp03
+	lda temp03 ; x offset
 	shift_r 3
 	clc
-	adc #$06
+	adc #$06   ; lowest coarse x pos
 	sta temp00
 	; store x offset of tile row
 	ldy state02
@@ -152,21 +163,57 @@ game_road_prerender: subroutine
 	cpy #$06
 	bne .plot_stripes_loop
 .plot_row_done
+
+
+/*
+	; left road tiles
+	; left sine offset from right
+	ldx road_l_sine_hi
+	lda sine_table,x
+	shift_r 3
+	clc
+	adc #$30 ; 6 tiles wide
+	sta temp07 ; fine offset from main
+	ldy state02
+	lda road_r_x_offset,y
+	sec
+	sbc temp07
+	shift_r 3
+	tax
+	; adjust x and y to be onscreen
+	ldy #$00
+*/
 	
 	; left road tiles
+	; left sine offset from right
+	ldx road_l_sine_hi
+	lda sine_table,x
+	shift_r 5
+	clc
+	adc #$06
+	sta temp07 ; coarse offset from main
 	lda temp00
 	sec
-	sbc #$0a
+	sbc temp07
+	;sbc #$06
 	tax
+	; adjust x and y to be onscreen
+	ldy #$00
+.make_positive
+	txa
+	bpl .is_positive
+	inx
+	iny
+	cpy #$08
+	beq .plot_l_row_done
+.is_positive
 	;ldx temp00
 	lda state01
 	shift_r 3
 	clc
 	adc temp02
 	and #$03
-	beq .plot_l_stripes
-.plot_l_asphalt
-	ldy #$00
+	beq .plot_l_stripes_loop
 .plot_l_asphalt_loop
 	lda road_row_asphalt,y
 	clc
@@ -177,8 +224,6 @@ game_road_prerender: subroutine
 	cpy #$06
 	bne .plot_l_asphalt_loop
 	jmp .plot_l_row_done
-.plot_l_stripes
-	ldy #$00
 .plot_l_stripes_loop
 	lda road_row_stripes,y
 	clc
