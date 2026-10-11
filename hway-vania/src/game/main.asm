@@ -10,7 +10,7 @@ game_palette:
 	hex 0f 00 27
 	hex 0c 3c 37
 	hex 0b 1b 28
-	hex 0f 0a 1b
+	hex 0c 0a 1b
 	; sprites
 	hex 2d 00 20 ; greys
 	hex 03 13 24 ; purples
@@ -192,9 +192,14 @@ state_game_update: subroutine
 
 
 
+	;DEBUG_VIS_ON
+
 	jsr game_road_prerender
 
 	jsr ents_update
+
 	jsr game_hud_update
+
+	DEBUG_VIS_OFF
 
 	jmp nmi_update_done

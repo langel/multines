@@ -154,6 +154,19 @@ NES_MIRR_QUAD	EQM 8
 	ENDM
 
 
+	MAC DEBUG_VIS_ON
+	;lda #%00011111 ; b/w
+	;lda #%11111110 ; emph
+	lda #%00011000 ; diable left 8px
+	sta PPU_MASK
+	ENDM
+
+	MAC DEBUG_VIS_OFF
+	lda #%00011110
+	sta PPU_MASK
+	ENDM
+
+
 	MAC INC_X
 .COUNT SET {1}
 	REPEAT .COUNT

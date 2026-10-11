@@ -23,7 +23,7 @@ game_road_prerender: subroutine
 	; left road sine
 	clc
 	lda road_l_sine_lo
-	adc #$a3
+	adc #$63
 	sta road_l_sine_lo
 	lda road_l_sine_hi
 	adc #$00
@@ -185,18 +185,37 @@ game_road_prerender: subroutine
 */
 	
 	; left road tiles
-	; left sine offset from right
+	; derive left-road fine and coarse offsets from its own sine phase
 	ldx road_l_sine_hi
 	lda sine_table,x
-	shift_r 5
+	shift_r 3
 	clc
-	adc #$06
-	sta temp07 ; coarse offset from main
-	lda temp00
+	adc #$30
+	sta temp06 ; pixel offset from right road
+	and #$07
+	sta temp07 ; fine portion of left offset
+	lda temp06
+	shift_r 3
+	sta temp06 ; coarse portion of left offset
+	lda temp05
 	sec
 	sbc temp07
-	;sbc #$06
+	pha
+	lda temp00
+	sbc temp06
 	tax
+	pla
+	and #$07
+	sta temp03 ; left road fine x
+	shift_l 4
+	sta temp07 ; left road tile pattern offset
+	ldy state02
+	txa
+	shift_l 3
+	clc
+	adc temp03
+	sta road_l_x
+	sta road_l_x_offset,y
 	; adjust x and y to be onscreen
 	ldy #$00
 .make_positive
@@ -217,7 +236,7 @@ game_road_prerender: subroutine
 .plot_l_asphalt_loop
 	lda road_row_asphalt,y
 	clc
-	adc temp04
+	adc temp07
 	sta tile_row_cache,x
 	inx
 	iny
@@ -227,7 +246,7 @@ game_road_prerender: subroutine
 .plot_l_stripes_loop
 	lda road_row_stripes,y
 	clc
-	adc temp04
+	adc temp07
 	sta tile_row_cache,x
 	inx
 	iny
