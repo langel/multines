@@ -81,10 +81,10 @@ game_hud_update: subroutine
 	jsr decimal_by_divide_0to255
 	lda temp02
 	beq .divide_no_hundreds
-	sta $80
+	sta $d0
 	clc
 	adc #$f0
-	sta $90
+	sta $d3
 	sta spr_p,y
 	lda #$00
 	sta spr_a,y
@@ -99,10 +99,10 @@ game_hud_update: subroutine
 	lda temp02
 	beq .divide_no_tens
 .do_tens
-	sta $80
+	sta $d1
 	clc
 	adc #$f0
-	sta $90
+	sta $d4
 	sta spr_p,y
 	lda #$00
 	sta spr_a,y
@@ -113,10 +113,10 @@ game_hud_update: subroutine
 	inc_y 4
 .divide_no_tens
 	lda temp04
-	sta $81
+	sta $d2
 	clc
 	adc #$f0
-	sta $91
+	sta $d5
 	sta spr_p,y
 	lda #$00
 	sta spr_a,y
@@ -150,10 +150,10 @@ game_hud_update: subroutine
 	jsr decimal_tennis_0to99
 	lda temp00
 	beq .tennis_no_tens
-	sta $80
+	sta $d8
 	clc
 	adc #$f0
-	sta $90
+	sta $da
 	sta spr_p,y
 	lda #$00
 	sta spr_a,y
@@ -164,10 +164,10 @@ game_hud_update: subroutine
 	inc_y 4
 .tennis_no_tens
 	lda temp01
-	sta $81
+	sta $d9
 	clc
 	adc #$f0
-	sta $91
+	sta $db
 	sta spr_p,y
 	lda #$00
 	sta spr_a,y
