@@ -23,6 +23,7 @@ player_is_dead       byte
 
 road_r_x_offset   eqm $0700
 road_l_x_offset   eqm $0720
+road_attr_owner_cache eqm $07b0
 attr_row_cache    eqm $07b8
 tree_row_cache    eqm $07c0
 tile_row_cache    eqm $07e0

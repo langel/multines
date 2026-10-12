@@ -1,4 +1,25 @@
 
+road_3lanes_stripes:
+	hex 10 0d 02 0a 1f 00
+	hex 11 0e 02 0b 02 18
+	hex 12 0f 02 0c 02 19
+	hex 13 02 08 0d 02 1a
+	hex 14 02 09 0e 02 1b
+	hex 15 02 0a 0f 02 1c
+	hex 16 02 0b 02 08 1d
+	hex 17 02 0c 02 09 1e
+road_3lanes_asphalt:
+	hex 10 02 02 02 1f 00
+	hex 11 02 02 02 02 18
+	hex 12 02 02 02 02 19
+	hex 13 02 02 02 02 1a
+	hex 14 02 02 02 02 1b
+	hex 15 02 02 02 02 1c
+	hex 16 02 02 02 02 1d
+	hex 17 02 02 02 02 1e
+
+road_phase_offset_lut:
+	hex 00 06 0c 12 18 1e 24 2a
 
 game_road_prerender: subroutine
 
@@ -102,9 +123,6 @@ game_road_prerender: subroutine
 	; fine x
 	and #$07
 	sta temp05
-	; pattern id offset
-	shift_l 4
-	sta temp04
 	; coarse x
 	lda temp03 ; x offset
 	shift_r 3
@@ -140,24 +158,52 @@ game_road_prerender: subroutine
 	and #$03
 	beq .plot_stripes
 .plot_asphalt
+	; src_ptr = asphalt_lut[phase_offset]
+	ldx temp05
+	lda road_phase_offset_lut,x
+	clc
+	adc #<road_3lanes_asphalt
+	sta temp06
+	lda #>road_3lanes_asphalt
+	adc #$00
+	sta temp07
+	ldx temp00
 	ldy #$00
 .plot_asphalt_loop
-	lda road_row_asphalt,y
-	clc
-	adc temp04
+	; guard: cache_x 00..1f
+	txa
+	bmi .plot_asphalt_skip_write
+	cpx #$20
+	bcs .plot_asphalt_skip_write
+	lda (temp06),y
 	sta tile_row_cache,x
+.plot_asphalt_skip_write
 	inx
 	iny
 	cpy #$06
 	bne .plot_asphalt_loop
 	jmp .plot_row_done
 .plot_stripes
+	; src_ptr = stripes_lut[phase_offset]
+	ldx temp05
+	lda road_phase_offset_lut,x
+	clc
+	adc #<road_3lanes_stripes
+	sta temp06
+	lda #>road_3lanes_stripes
+	adc #$00
+	sta temp07
+	ldx temp00
 	ldy #$00
 .plot_stripes_loop
-	lda road_row_stripes,y
-	clc
-	adc temp04
+	; guard: cache_x 00..1f
+	txa
+	bmi .plot_stripes_skip_write
+	cpx #$20
+	bcs .plot_stripes_skip_write
+	lda (temp06),y
 	sta tile_row_cache,x
+.plot_stripes_skip_write
 	inx
 	iny
 	cpy #$06
@@ -185,7 +231,7 @@ game_road_prerender: subroutine
 */
 	
 	; left road tiles
-	; derive left-road fine and coarse offsets from its own sine phase
+	; left_road fine_x/coarse_x
 	ldx road_l_sine_hi
 	lda sine_table,x
 	shift_r 3
@@ -207,8 +253,6 @@ game_road_prerender: subroutine
 	pla
 	and #$07
 	sta temp03 ; left road fine x
-	shift_l 4
-	sta temp07 ; left road tile pattern offset
 	ldy state02
 	txa
 	shift_l 3
@@ -216,38 +260,63 @@ game_road_prerender: subroutine
 	adc temp03
 	sta road_l_x
 	sta road_l_x_offset,y
-	; adjust x and y to be onscreen
+	; seg_src starts at y=0
 	ldy #$00
-.make_positive
-	txa
-	bpl .is_positive
-	inx
-	iny
-	cpy #$08
-	beq .plot_l_row_done
-.is_positive
-	;ldx temp00
 	lda state01
 	shift_r 3
 	clc
 	adc temp02
 	and #$03
-	beq .plot_l_stripes_loop
-.plot_l_asphalt_loop
-	lda road_row_asphalt,y
+	beq .plot_l_stripes
+.plot_l_asphalt
+	; src_ptr = asphalt_lut[left_phase]
+	stx temp04
+	ldx temp03
+	lda road_phase_offset_lut,x
 	clc
-	adc temp07
+	adc #<road_3lanes_asphalt
+	sta temp06
+	lda #>road_3lanes_asphalt
+	adc #$00
+	sta temp07
+	ldx temp04
+	ldy #$00
+.plot_l_asphalt_loop
+	; guard: cache_x 00..1f
+	txa
+	bmi .plot_l_asphalt_skip_write
+	cpx #$20
+	bcs .plot_l_asphalt_skip_write
+	lda (temp06),y
 	sta tile_row_cache,x
+.plot_l_asphalt_skip_write
 	inx
 	iny
 	cpy #$06
 	bne .plot_l_asphalt_loop
 	jmp .plot_l_row_done
-.plot_l_stripes_loop
-	lda road_row_stripes,y
+.plot_l_stripes
+	; src_ptr = stripes_lut[left_phase]
+	stx temp04
+	ldx temp03
+	lda road_phase_offset_lut,x
 	clc
-	adc temp07
+	adc #<road_3lanes_stripes
+	sta temp06
+	lda #>road_3lanes_stripes
+	adc #$00
+	sta temp07
+	ldx temp04
+	ldy #$00
+.plot_l_stripes_loop
+	; guard: cache_x 00..1f
+	txa
+	bmi .plot_l_stripes_skip_write
+	cpx #$20
+	bcs .plot_l_stripes_skip_write
+	lda (temp06),y
 	sta tile_row_cache,x
+.plot_l_stripes_skip_write
 	inx
 	iny
 	cpy #$06
@@ -281,7 +350,7 @@ game_road_prerender: subroutine
 	lda tile_row_cache+1,x
 	bne .tree_put_done
 .tree_right_check_done
-	lda #$64
+	lda #$46
 	sta temp00
 	lda state02
 	and #$01
