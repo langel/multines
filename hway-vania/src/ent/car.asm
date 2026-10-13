@@ -25,10 +25,10 @@ ent_car_update: subroutine
 	; bound car to road
 	lda state02
 	sec
-	sbc #$0f
+	sbc #$0f-road_lead_rows
 	and #$1f
 	tay
-	lda $700,y
+	lda road_r_x_offset,y
 	clc
 	adc #$0e
 	cmp ent_x,x

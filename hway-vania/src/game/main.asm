@@ -1,7 +1,7 @@
 
-; state00 road sine pos
-; state01 last frame nm row
-; state02 road x offset across nm rows
+; state00 unused, road rows count in road_world_row
+; state01 last frame nm row, in pixels
+; state02 road x offset ring index
 
 game_palette:
 	; bg
@@ -10,19 +10,12 @@ game_palette:
 	hex 0f 00 27
 	hex 0c 3c 37
 	hex 0b 1b 28
-	hex 0c 0a 1b
+	hex 0f 0a 1b
 	; sprites
 	hex 2d 00 20 ; greys
 	hex 03 13 24 ; purples
 	hex 05 16 27 ; oranges
 	hex 09 19 29 ; greens
-
-road_x_pos     eqm #$05
-
-road_row_stripes:
-	hex 0a 0b 0c 0d 0e 0f
-road_row_asphalt:
-	hex 8a 8b 8c 8d 8e 8f
 
 state_game_init: subroutine
 
@@ -47,65 +40,61 @@ state_game_init: subroutine
 	lda #$00
 	sta scroll_nm
 
-	; render road to screen
-	lda #$ef
+	; clear road x offset rings, r then l
+	ldx #$00
+.ring_clear_loop
+	sta road_r_x_offset,x
+	inx
+	cpx #$40
+	bne .ring_clear_loop
+
+	; reset row pipeline, a is 0
+	sta road_slot_wr
+	sta road_slot_rd
+	sta road_pending
+	sta road_gen_stage
+	sta state01
+	sta road_world_row_lo
+	sta road_world_row_hi
+
+	; fill nametable 0 from the bottom row up, same path as gameplay
+	; start on the other nametable so the first target is nt 0 row 29
+	; 30 rows plus the lead rows spill into the other nametable
+	lda #$01
+	sta scroll_y_hi
+	lda #$02
+	sta scroll_nm
+	lda #road_lead_rows*8-1
 	sta scroll_y
-	lda #$1d
+	lda #30+road_lead_rows
 	sta state07 ; temp
 .road_row_loop
 	jsr game_road_prerender
+	jsr road_gen_flush
 	jsr game_road_render
-	inc state01
+	; up one row, wrap into the other nametable like gameplay
 	lda scroll_y
 	sec
 	sbc #$08
+	cmp #240
+	bcc .scroll_ok
+	sbc #$10
+	dec scroll_y_hi
+.scroll_ok
 	sta scroll_y
+	lda scroll_y_hi
+	and #$01
+	asl
+	sta scroll_nm
 	dec state07
 	bne .road_row_loop
-	
 
-	; setup tree attributes
-	lda #$23
-	sta temp00
-	lda #$c0
-	sta temp01
-	lda #$8c
-	sta temp02
-.nm1_loop
-	lda temp00
-	sta PPU_ADDR
-	lda temp01
-	sta PPU_ADDR
-	lda temp02
-	sta PPU_DATA
-	clc
-	lda temp01
-	adc #$08
-	sta temp01
-	cmp #$00
-	bne .nm1_loop
-	; nametable 2
-	lda #$2b
-	sta temp00
-	lda #$c0
-	sta temp01
-	lda #$c8
-	sta temp02
-.nm2_loop
-	lda temp00
-	sta PPU_ADDR
-	lda temp01
-	sta PPU_ADDR
-	lda temp02
-	sta PPU_DATA
-	clc
-	lda temp01
-	adc #$08
-	sta temp01
-	cmp #$00
-	bne .nm2_loop
+	; start on nametable 0 line 0
+	lda #$00
+	sta scroll_y
+	sta scroll_y_hi
+	sta scroll_nm
 
-	jsr game_road_prerender
 	jsr ent_car_spawn
 	jsr render_enable
 
@@ -191,8 +180,7 @@ state_game_update: subroutine
 	sta scroll_nm
 
 
-
-	;DEBUG_VIS_ON
+	DEBUG_VIS_ON
 
 	jsr game_road_prerender
 
