@@ -53,6 +53,7 @@ state_game_init: subroutine
 	sta road_slot_rd
 	sta road_pending
 	sta road_gen_stage
+	sta road_class_ring
 	sta state01
 	sta road_world_row_lo
 	sta road_world_row_hi
@@ -96,6 +97,7 @@ state_game_init: subroutine
 	sta scroll_nm
 
 	jsr ent_car_spawn
+	jsr ent_tester_spawn
 	jsr render_enable
 
 	rts
@@ -184,6 +186,7 @@ state_game_update: subroutine
 
 	jsr game_road_prerender
 
+	jsr controller_read
 	jsr ents_update
 
 	jsr game_hud_update

@@ -24,6 +24,12 @@ road_pending       byte ; rows waiting for ppu upload
 pg_row             byte ; odd row of the pair
 pg_nm              byte ; nametable parity, 0 or 2
 pg_ring            byte ; ring index of the odd row
+pg_cring           byte ; class ring row of the odd row
+
+; class map ring row of the newest row, 0..35
+road_class_ring    byte
+cm_ptr_lo          byte ; pointer to a class map row, lo then hi
+cm_ptr_hi          byte
 road_gen_stage     byte ; 0 idle, 1 rows, 2 trees, 3 class map
 
 ; row being generated
@@ -73,7 +79,11 @@ road_slot_tile_hi eqm $06ac
 road_slot_attr_lo eqm $06b0 ; 4 ppu attribute addresses
 road_slot_attr_hi eqm $06b4
 
-; class map, 32 rows x 8 bytes, same ring index as the x offsets
+; class map ring, 36 rows x 8 bytes, to the end of ram
+; own ring index, road_class_ring, because it must cover the
+; visible rows plus the lead rows: 31 + lead + 1 <= 36
 ; 2 bits per tile, first tile in the low bits
 ; 0 road, 1 dirt, 2 wall, 3 trip
-road_class_map    eqm $0700
+; $06b8-$06df is free
+road_class_rows   eqm 36
+road_class_map    eqm $06e0

@@ -39,6 +39,7 @@ quad_pal3_lut:
 ; tree tiles tl tr bl br, by neighbors
 ; index 0 none, 4 left, 8 below, 12 both, all the same until art exists
 ; the old tree_row_cache is gone, trees go straight into the tile rows
+; new tree tile ids must be set to 2 in tile_class_lut
 tree_tiles_lut:
 	hex 26 27 36 37
 	hex 46 47 56 57
@@ -56,6 +57,14 @@ game_road_prerender: subroutine
 	sbc #$01
 	and #$1f
 	sta state02
+	; class ring row, 36 rows
+	lda road_class_ring
+	sec
+	sbc #$01
+	bcs .cring_store
+	lda #road_class_rows-1
+.cring_store
+	sta road_class_ring
 	; odd row starts a pair, even row is already made
 	lda road_row_idx
 	lsr
@@ -68,6 +77,8 @@ game_road_prerender: subroutine
 	sta pg_nm
 	lda state02
 	sta pg_ring
+	lda road_class_ring
+	sta pg_cring
 	lda #$01
 	sta road_gen_stage
 .step
@@ -452,28 +463,55 @@ road_gen_quads: subroutine
 	rts
 
 
-; class map rows, ring index * 8
+; class map rows of the pair
 road_gen_class_pair: subroutine
+	; temp05 = tile row offset, road_class_ptr clobbers x
 	lda road_slot_wr
 	shift_l 5
-	tax
-	lda pg_ring
-	shift_l 3
-	sta temp03
+	sta temp05
+	lda pg_cring
+	jsr road_class_ptr
+	ldx temp05
 	jsr road_gen_class
-	; x carries on into row b
-	lda pg_ring
+	; x carries on into row b, which is one row newer
+	stx temp05
+	lda pg_cring
 	sec
 	sbc #$01
-	and #$1f
-	shift_l 3
-	sta temp03
+	bcs .b_ring
+	lda #road_class_rows-1
+.b_ring
+	jsr road_class_ptr
+	ldx temp05
 	jmp road_gen_class
 
 
-; packs one tile row into 8 class bytes
-; in: x = tile row offset, temp03 = class map offset
+; cm_ptr = address of class map row a, 0..35
+; clobbers x
+road_class_ptr: subroutine
+	ldx #>road_class_map
+	cmp #$20
+	bcc .first_page
+	; rows 32..35 are on the next page
+	sbc #$20
+	inx
+.first_page
+	shift_l 3
+	clc
+	adc #<road_class_map
+	sta cm_ptr_lo
+	bcc .no_carry
+	inx
+.no_carry
+	stx cm_ptr_hi
+	rts
+
+
+; packs one tile row into 8 class bytes at cm_ptr
+; in: x = tile row offset
 road_gen_class: subroutine
+	lda #$00
+	sta temp03
 	lda #$08
 	sta temp06
 .byte_loop
@@ -481,16 +519,9 @@ road_gen_class: subroutine
 	sta temp02
 .tile_loop
 	lda road_tile_rows,x
-	beq .dirt
-	cmp #$46
-	bcs .wall
-	ldy #$00
-	beq .have_class
-.dirt
-	ldy #$01
-	bne .have_class
-.wall
-	ldy #$02
+	tay
+	lda tile_class_lut,y
+	tay
 .have_class
 	lda temp04
 	lsr
@@ -502,7 +533,7 @@ road_gen_class: subroutine
 	bne .tile_loop
 	ldy temp03
 	lda temp04
-	sta road_class_map,y
+	sta (cm_ptr_lo),y
 	inc temp03
 	dec temp06
 	bne .byte_loop
@@ -511,23 +542,40 @@ road_gen_class: subroutine
 class_hi_lut:
 	hex 00 40 80 c0
 
+; class by tile id: 0 road, 1 dirt, 2 wall, 3 trip
+; every tree tile id in tree_tiles_lut must be 2 here
+tile_class_lut:
+	hex 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ; $00
+	hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ; $10
+	hex 01 01 02 02 02 02 02 02 00 00 00 00 00 00 00 00 ; $20
+	hex 01 01 02 02 02 02 02 02 00 00 00 00 00 00 00 00 ; $30
+	hex 02 01 02 02 02 02 02 02 00 00 00 00 00 00 00 00 ; $40
+	hex 02 01 00 00 00 00 02 02 00 00 00 00 00 00 00 00 ; $50
+	hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ; $60
+	hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ; $70
+	hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ; $80
+	hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ; $90
+	hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ; $a0
+	hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ; $b0
+	hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ; $c0
+	hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ; $d0
+	hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ; $e0
+	hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ; $f0
 
-; in: a = ring row 0..31 (like state02), x = tile column 0..31
+
+; in: a = class ring row 0..35 (like road_class_ring), x = tile column 0..31
 ; out: a = class 0..3, clobbers x y temp00
 road_class_lookup: subroutine
-	asl
-	asl
-	asl
-	sta temp00
-	txa
+	stx temp00
+	jsr road_class_ptr
+	lda temp00
 	lsr
 	lsr
-	ora temp00
 	tay
-	txa
+	lda temp00
 	and #$03
 	tax
-	lda road_class_map,y
+	lda (cm_ptr_lo),y
 	cpx #$00
 	beq .done
 .shift_loop
@@ -538,6 +586,39 @@ road_class_lookup: subroutine
 .done
 	and #$03
 	rts
+
+
+; in: a = screen x, y = screen y
+; out: a = class 0..3, clobbers x y temp00..temp02
+road_class_lookup_screen: subroutine
+	; tile column
+	shift_r 3
+	sta temp01
+	; rows below the generated edge
+	lda scroll_y
+	and #$07
+	sta temp02
+	tya
+	clc
+	adc temp02
+	shift_r 3
+	clc
+	adc #road_lead_rows
+	ldx temp02
+	cpx #$07
+	beq .phase_done
+	clc
+	adc #$01
+.phase_done
+	clc
+	adc road_class_ring
+	; wrap into 36 rows, the sum is under 72
+	cmp #road_class_rows
+	bcc .ring_ok
+	sbc #road_class_rows
+.ring_ok
+	ldx temp01
+	jmp road_class_lookup
 
 
 ; 2x2 tree in quadrant temp01 when all 4 of its tiles are dirt
@@ -570,16 +651,20 @@ road_place_tree: subroutine
 	eor #$40
 	tay
 	lda road_tile_rows+32,y
-	cmp #$46
-	bcc .below_ok
+	tay
+	lda tile_class_lut,y
+	cmp #$02
+	bne .below_ok
 	lda #$08
 	sta temp07
 .below_ok
 	lda temp01
 	beq .variant_done
 	lda road_tile_rows-1,x
-	cmp #$46
-	bcc .variant_done
+	tay
+	lda tile_class_lut,y
+	cmp #$02
+	bne .variant_done
 	lda temp07
 	ora #$04
 	sta temp07

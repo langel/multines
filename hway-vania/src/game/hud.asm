@@ -23,7 +23,6 @@ game_hud_update: subroutine
 	jsr shift_divide_7_into_16
 
 	lda temp00
-	sta $0361
 	sta mph
 
 	; tens
