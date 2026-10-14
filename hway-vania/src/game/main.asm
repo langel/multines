@@ -58,6 +58,15 @@ state_game_init: subroutine
 	sta road_world_row_lo
 	sta road_world_row_hi
 
+	; no pairs yet, tree masks empty
+	sta pg_has_prev
+	sta tm_new_lo
+	sta tm_new_hi
+	sta tm_prev_lo
+	sta tm_prev_hi
+	sta tm_old_lo
+	sta tm_old_hi
+
 	; lane schedule starts at step 0, holding
 	sta lane_step
 	sta lane_phase

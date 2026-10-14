@@ -1,7 +1,7 @@
 
 ; class by tile id, 16 tiles per line, 256 entries
 ; 0 road, 1 dirt, 2 wall, 3 trip
-; every tree tile id in tree_tiles_lut must be 2 here
+; every tree tile id in tree_tiles and forest_tiles must be 2 here
 tile_class_lut:
 	hex 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ; $00
 	hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ; $10

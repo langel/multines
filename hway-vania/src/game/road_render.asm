@@ -32,15 +32,16 @@ lane_schedule:
 quad_pal3_lut:
 	hex 03 0c 30 c0
 
-; tree tiles tl tr bl br, by neighbors
-; index 0 none, 4 left, 8 below, 12 both, all the same until art exists
-; the old tree_row_cache is gone, trees go straight into the tile rows
-; new tree tile ids must be set to 2 in tile_class_lut
-tree_tiles_lut:
+; tile order tl tr bl br
+; trees go straight into the tile rows, forest replaces the interior
+; every id here must be 2 in tile_class_lut
+tree_tiles:
 	hex 26 27 36 37
+forest_tiles:
 	hex 46 47 56 57
-	hex 46 47 56 57
-	hex 46 47 56 57
+
+bit_lut:
+	hex 01 02 04 08 10 20 40 80
 
 
 ; called every frame after scroll
@@ -53,7 +54,7 @@ game_road_prerender: subroutine
 	sbc #$01
 	and #$1f
 	sta state02
-	; class ring row, 36 rows
+	; class ring row
 	lda road_class_ring
 	sec
 	sbc #$01
@@ -132,7 +133,9 @@ road_row_detect: subroutine
 
 
 ; a pair takes 3 frames, one stage per frame
-; stage 1 rows, stage 2 trees and attributes, stage 3 class map and queue
+; stage 1 rows, stage 2 trees, attributes, finalize and queue the pair below,
+; stage 3 class map
+; a pair is only queued once the pair above it has its trees
 road_gen_step: subroutine
 	lda road_gen_stage
 	beq .done
@@ -141,12 +144,10 @@ road_gen_step: subroutine
 	cmp #$02
 	beq .quads
 	jsr road_gen_class_pair
-	; queue both rows and flip the pair slot
+	; flip the pair slot
 	lda road_slot_wr
 	eor #$02
 	sta road_slot_wr
-	inc road_pending
-	inc road_pending
 	lda #$00
 	sta road_gen_stage
 	rts
@@ -157,6 +158,7 @@ road_gen_step: subroutine
 	rts
 .quads
 	jsr road_gen_quads
+	jsr road_gen_finalize
 	lda #$03
 	sta road_gen_stage
 .done
@@ -597,6 +599,18 @@ road_gen_quads: subroutine
 	dex
 	bpl .band_clear_loop
 .band_keep
+	; masks move down one pair, old <- prev <- new
+	lda tm_prev_lo
+	sta tm_old_lo
+	lda tm_prev_hi
+	sta tm_old_hi
+	lda tm_new_lo
+	sta tm_prev_lo
+	lda tm_new_hi
+	sta tm_prev_hi
+	lda #$00
+	sta tm_new_lo
+	sta tm_new_hi
 	; temp05 = quadrant row half, 0 top or 2 bottom
 	lda pg_row
 	and #$02
@@ -652,24 +666,25 @@ road_gen_class_pair: subroutine
 	jmp road_gen_class
 
 
-; cm_ptr = address of class map row a, 0..35
-; clobbers x
+; cm_ptr = address of class map row a, 0..37
+; the ring crosses a page, so this is a 16 bit a * 8 + base
 road_class_ptr: subroutine
-	ldx #>road_class_map
-	cmp #$20
-	bcc .first_page
-	; rows 32..35 are on the next page
-	sbc #$20
-	inx
-.first_page
-	shift_l 3
+	sta cm_ptr_lo
+	lda #$00
+	sta cm_ptr_hi
+	asl cm_ptr_lo
+	rol cm_ptr_hi
+	asl cm_ptr_lo
+	rol cm_ptr_hi
+	asl cm_ptr_lo
+	rol cm_ptr_hi
 	clc
+	lda cm_ptr_lo
 	adc #<road_class_map
 	sta cm_ptr_lo
-	bcc .no_carry
-	inx
-.no_carry
-	stx cm_ptr_hi
+	lda cm_ptr_hi
+	adc #>road_class_map
+	sta cm_ptr_hi
 	rts
 
 
@@ -711,7 +726,7 @@ class_hi_lut:
 ; tile_class_lut is in tile_class.asm
 
 
-; in: a = class ring row 0..35 (like road_class_ring), x = tile column 0..31
+; in: a = class ring row 0..37 (like road_class_ring), x = tile column 0..31
 ; out: a = class 0..3, clobbers x y temp00
 road_class_lookup: subroutine
 	stx temp00
@@ -760,7 +775,7 @@ road_class_lookup_screen: subroutine
 .phase_done
 	clc
 	adc road_class_ring
-	; wrap into 36 rows, the sum is under 72
+	; wrap into the ring, the sum is under 2 rings
 	cmp #road_class_rows
 	bcc .ring_ok
 	sbc #road_class_rows
@@ -792,40 +807,30 @@ road_try_tree: subroutine
 
 ; in: x = tile offset of the quadrant in row a, temp01 = quadrant column
 road_place_tree: subroutine
-	; variant: +8 tree below, +4 tree to the left
-	lda #$00
-	sta temp07
-	txa
-	eor #$40
-	tay
-	lda road_tile_rows+32,y
-	tay
-	lda tile_class_lut,y
-	cmp #$02
-	bne .below_ok
-	lda #$08
-	sta temp07
-.below_ok
-	lda temp01
-	beq .variant_done
-	lda road_tile_rows-1,x
-	tay
-	lda tile_class_lut,y
-	cmp #$02
-	bne .variant_done
-	lda temp07
-	ora #$04
-	sta temp07
-.variant_done
-	ldy temp07
-	lda tree_tiles_lut,y
+	; plain tree, the finalize pass turns the interior into forest
+	lda tree_tiles
 	sta road_tile_rows+32,x
-	lda tree_tiles_lut+1,y
+	lda tree_tiles+1
 	sta road_tile_rows+33,x
-	lda tree_tiles_lut+2,y
+	lda tree_tiles+2
 	sta road_tile_rows,x
-	lda tree_tiles_lut+3,y
+	lda tree_tiles+3
 	sta road_tile_rows+1,x
+	; mask bit of the newest pair
+	lda temp01
+	and #$07
+	tay
+	lda bit_lut,y
+	ldy temp01
+	cpy #$08
+	bcs .mask_hi
+	ora tm_new_lo
+	sta tm_new_lo
+	jmp .mask_done
+.mask_hi
+	ora tm_new_hi
+	sta tm_new_hi
+.mask_done
 	; palette 3 for this quadrant only
 	lda temp01
 	and #$01
@@ -839,6 +844,267 @@ road_place_tree: subroutine
 	lda road_attr_band,y
 	ora temp02
 	sta road_attr_band,y
+	rts
+
+
+; finishes the pair below the one just built, then queues it
+; X = the pair in the other slot, its masks are prev, with old below and new above
+; it only writes X's own two tile rows, so nothing is edited after it is queued
+road_gen_finalize: subroutine
+	lda pg_has_prev
+	beq .first
+	lda road_slot_wr
+	eor #$02
+	shift_l 5
+	sta fin_off
+	jsr road_fin_forest
+	; junction below X, top half of the offset metatile in X's lower row
+	lda tm_old_lo
+	sta temp00
+	lda tm_old_hi
+	sta temp01
+	lda tm_prev_lo
+	sta temp02
+	lda tm_prev_hi
+	sta temp03
+	lda #$00
+	sta temp04
+	lda forest_tiles
+	sta temp05
+	lda forest_tiles+1
+	sta temp06
+	jsr road_fin_junction
+	; junction above X, bottom half in X's upper row
+	lda tm_prev_lo
+	sta temp00
+	lda tm_prev_hi
+	sta temp01
+	lda tm_new_lo
+	sta temp02
+	lda tm_new_hi
+	sta temp03
+	lda #$20
+	sta temp04
+	lda forest_tiles+2
+	sta temp05
+	lda forest_tiles+3
+	sta temp06
+	jsr road_fin_junction
+	; X is final, queue both rows
+	inc road_pending
+	inc road_pending
+.first
+	lda #$01
+	sta pg_has_prev
+	rts
+
+
+; trees with a tree on all 4 sides become forest
+; interior = X & left & right & old & new, off screen counts as a tree
+road_fin_forest: subroutine
+	; left neighbors, bit c = X bit c-1
+	lda tm_prev_lo
+	asl
+	ora #$01
+	sta fin_lo
+	lda tm_prev_hi
+	rol
+	sta fin_hi
+	lda fin_lo
+	and tm_prev_lo
+	sta fin_lo
+	lda fin_hi
+	and tm_prev_hi
+	sta fin_hi
+	; right neighbors, bit c = X bit c+1
+	sec
+	lda tm_prev_hi
+	ror
+	tax
+	lda tm_prev_lo
+	ror
+	and fin_lo
+	and tm_old_lo
+	and tm_new_lo
+	sta fin_lo
+	txa
+	and fin_hi
+	and tm_old_hi
+	and tm_new_hi
+	sta fin_hi
+	; keep the mask for the corner pass
+	sta fin_in_hi
+	lda fin_lo
+	sta fin_in_lo
+	lda #$00
+	sta fin_col
+.col_loop
+	lsr fin_hi
+	ror fin_lo
+	bcc .col_next
+	lda fin_col
+	asl
+	clc
+	adc fin_off
+	tax
+	lda forest_tiles
+	sta road_tile_rows+32,x
+	lda forest_tiles+1
+	sta road_tile_rows+33,x
+	lda forest_tiles+2
+	sta road_tile_rows,x
+	lda forest_tiles+3
+	sta road_tile_rows+1,x
+.col_next
+	inc fin_col
+	lda fin_col
+	cmp #$10
+	bne .col_loop
+	jmp road_fin_corners
+
+
+; a forest corner with no tree on its diagonal goes back to the tree tile
+; ul and ur look at the pair above (new), dl and dr at the pair below (old)
+; off screen counts as a tree
+road_fin_corners: subroutine
+	; ul, tl tile in the upper row
+	lda tm_new_lo
+	sta temp06
+	lda tm_new_hi
+	sta temp07
+	jsr road_fin_shl
+	lda #$20
+	sta temp04
+	lda tree_tiles
+	sta temp05
+	jsr road_fin_corner
+	; ur, tr tile in the upper row
+	jsr road_fin_shr
+	lda #$21
+	sta temp04
+	lda tree_tiles+1
+	sta temp05
+	jsr road_fin_corner
+	; dl, bl tile in the lower row
+	lda tm_old_lo
+	sta temp06
+	lda tm_old_hi
+	sta temp07
+	jsr road_fin_shl
+	lda #$00
+	sta temp04
+	lda tree_tiles+2
+	sta temp05
+	jsr road_fin_corner
+	; dr, br tile in the lower row
+	jsr road_fin_shr
+	lda #$01
+	sta temp04
+	lda tree_tiles+3
+	sta temp05
+	jmp road_fin_corner
+
+
+; temp00/01 = (temp06/07 << 1) | 1, the neighbor to the left
+road_fin_shl: subroutine
+	lda temp06
+	asl
+	ora #$01
+	sta temp00
+	lda temp07
+	rol
+	sta temp01
+	rts
+
+
+; temp00/01 = (temp06/07 >> 1) | $8000, the neighbor to the right
+road_fin_shr: subroutine
+	sec
+	lda temp07
+	ror
+	sta temp01
+	lda temp06
+	ror
+	sta temp00
+	rts
+
+
+; in: temp00/01 = diagonal neighbor mask, temp04 = tile offset in the pair,
+;     temp05 = tile to write
+; writes it in the interior quadrants whose diagonal has no tree
+road_fin_corner: subroutine
+	lda temp00
+	eor #$ff
+	and fin_in_lo
+	sta fin_lo
+	lda temp01
+	eor #$ff
+	and fin_in_hi
+	sta fin_hi
+	lda #$00
+	sta fin_col
+.col_loop
+	lsr fin_hi
+	ror fin_lo
+	bcc .col_next
+	lda fin_col
+	asl
+	clc
+	adc fin_off
+	adc temp04
+	tax
+	lda temp05
+	sta road_tile_rows,x
+.col_next
+	inc fin_col
+	lda fin_col
+	cmp #$10
+	bne .col_loop
+	rts
+
+
+; offset forest metatile where 4 trees meet, one tile in x and y
+; in: temp00/01 = mask of the lower pair, temp02/03 = mask of the upper pair
+;     temp04 = row offset in the pair at fin_off, temp05/06 = tiles for columns 2c+1, 2c+2
+; junction c needs both pairs at columns c and c+1
+road_fin_junction: subroutine
+	; both = L & U, then both & (both >> 1)
+	lda temp00
+	and temp02
+	sta fin_lo
+	lda temp01
+	and temp03
+	sta fin_hi
+	lsr
+	sta temp07
+	lda fin_lo
+	ror
+	and fin_lo
+	sta fin_lo
+	lda temp07
+	and fin_hi
+	sta fin_hi
+	lda #$00
+	sta fin_col
+.col_loop
+	lsr fin_hi
+	ror fin_lo
+	bcc .col_next
+	lda fin_col
+	asl
+	clc
+	adc fin_off
+	adc temp04
+	tax
+	lda temp05
+	sta road_tile_rows+1,x
+	lda temp06
+	sta road_tile_rows+2,x
+.col_next
+	inc fin_col
+	lda fin_col
+	cmp #$10
+	bne .col_loop
 	rts
 
 

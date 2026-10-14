@@ -26,7 +26,7 @@ pg_nm              byte ; nametable parity, 0 or 2
 pg_ring            byte ; ring index of the odd row
 pg_cring           byte ; class ring row of the odd row
 
-; class map ring row of the newest row, 0..35
+; class map ring row of the newest row, 0..37
 road_class_ring    byte
 cm_ptr_lo          byte ; pointer to a class map row, lo then hi
 cm_ptr_hi          byte
@@ -66,9 +66,24 @@ lane_t             byte ; transition row, 1..13
 
 player_is_dead       byte
 
+; tree masks, 16 bits per pair, bit c = quadrant column c has a tree
+; new = newest pair, prev = the pair being finalized, old = the one below
+tm_new_lo          byte
+tm_new_hi          byte
+tm_prev_lo         byte
+tm_prev_hi         byte
+tm_old_lo          byte
+tm_old_hi          byte
+pg_has_prev        byte ; 1 when a finished pair waits to be finalized
+fin_lo             byte ; working mask, lo then hi
+fin_hi             byte
+fin_in_lo          byte ; interior forest mask, kept for the corner pass
+fin_in_hi          byte
+fin_off            byte ; tile offset of the pair being finalized
+fin_col            byte ; quadrant column
 
 ; rows generated above the visible top, must be even
-road_lead_rows    eqm $04
+road_lead_rows    eqm $06
 
 ; road x offset rings, 32 rows each, index 0..31 only
 ; stack page, not cleared at boot, cleared in state_game_init
@@ -76,9 +91,14 @@ road_lead_rows    eqm $04
 road_r_x_offset   eqm $0120
 road_l_x_offset   eqm $0140
 
+; road width per row, 32, same index as the x offsets
+; $0500-$051f is ent_r500, the first tier 2 entity register
+; claimed here, ent_despawn_2 clears ent_r500,x so do not despawn tier 2 ents
+road_w_ring       eqm $0500
+
 ; road row slots, 4 rows = current pair and previous pair
 ; $0600 is wiped by ents_clear, this game never calls it
-; $0500 is ent framework ram, leave alone
+; $0500 is ent framework ram, only $0500-$051f is claimed, see road_w_ring
 road_tile_rows    eqm $0600 ; 4 x 32 tiles
 road_attr_rows    eqm $0680 ; 4 x 8 attribute bytes
 road_attr_band    eqm $06a0 ; 8 bytes, running attributes of the band
@@ -87,13 +107,12 @@ road_slot_tile_hi eqm $06ac
 road_slot_attr_lo eqm $06b0 ; 4 ppu attribute addresses
 road_slot_attr_hi eqm $06b4
 
-; class map ring, 36 rows x 8 bytes, to the end of ram
+; class map ring, 38 rows x 8 bytes, to the end of ram
 ; own ring index, road_class_ring, because it must cover the
-; visible rows plus the lead rows: 31 + lead + 1 <= 36
+; visible rows plus the lead rows: 31 + lead + 1 <= 38
 ; 2 bits per tile, first tile in the low bits
 ; 0 road, 1 dirt, 2 wall, 3 trip
-; $06b8-$06df road row scratch
+; $06b8-$06cf road row scratch, $06c0-$06cf free
 road_seg_buf      eqm $06b8 ; 8 tiles of one road row
-road_w_ring       eqm $06c0 ; road width per row, 32, same index as the x offsets
-road_class_rows   eqm 36
-road_class_map    eqm $06e0
+road_class_rows   eqm 38
+road_class_map    eqm $06d0
