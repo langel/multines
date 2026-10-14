@@ -3,22 +3,27 @@
 
 game_hud_update: subroutine
 
-	lda speed_hi
-	bpl .speed_ready
-	eor #$ff
+	; speed is negative going forward, negate to px per frame in 8.8
+	sec
+	lda #$00
+	sbc speed_lo
 	sta temp00
-	lda speed_lo
-	eor #$ff
+	lda #$00
+	sbc speed_hi
 	sta temp01
-.speed_ready
-
-	lda speed_lo
-	eor #$ff
+	; mph = (speed * 2 + 7) / 15, rounded
+	; px per frame * 60 fps * 10 ft / 12 px * 3600 / 5280 = 34.09 per px
+	; 34.09 / 256 = 2 / 15
+	asl temp00
+	rol temp01
+	clc
+	lda temp00
+	adc #$07
 	sta temp00
-	lda speed_hi
-	eor #$ff
-	sta temp01
-	lda #$05
+	bcc .round_done
+	inc temp01
+.round_done
+	lda #15
 	sta temp02
 	jsr shift_divide_7_into_16
 
