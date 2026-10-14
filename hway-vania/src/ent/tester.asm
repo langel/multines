@@ -4,9 +4,9 @@ ent_tester_spawn: subroutine
 	bmi .done
 	lda #ent_tester_id
 	sta ent_type,x
-	lda #$7c
+	lda #$40
 	sta ent_x,x
-	lda #$74
+	lda #$c0
 	sta ent_y,x
 .done
 	rts

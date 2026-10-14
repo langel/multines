@@ -30,9 +30,11 @@ cart_start: subroutine
 	include "src/ents.asm"
 	include "src/ent/_template.asm"
 	include "src/ent/car.asm"
+	include "src/ent/gorilla.asm"
 	include "src/ent/tester.asm"
+	include "src/game/init.asm"
+	include "src/game/update.asm"
 	include "src/game/hud.asm"
-	include "src/game/main.asm"
 	include "src/game/road_render.asm"
 	include "src/game/tile_class.asm"
 

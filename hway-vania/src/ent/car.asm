@@ -94,6 +94,16 @@ ent_car_update: subroutine
 	sta ent_r0,x
 .caboose_really_done
 
+	; setup collision
+	lda ent_x,x
+	sta collision_0_x
+	lda ent_y,x
+	sta collision_0_y
+	lda #$08
+	sta collision_0_w
+	lda #$10
+	sta collision_0_h
+
 	; render (reload y?)
 	ldy ent_spr_ptr
 
