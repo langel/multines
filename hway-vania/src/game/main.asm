@@ -58,6 +58,13 @@ state_game_init: subroutine
 	sta road_world_row_lo
 	sta road_world_row_hi
 
+	; lane schedule starts at step 0, holding
+	sta lane_step
+	sta lane_phase
+	sta lane_t
+	lda lane_schedule+1
+	sta lane_rows
+
 	; fill nametable 0 from the bottom row up, same path as gameplay
 	; start on the other nametable so the first target is nt 0 row 29
 	; 30 rows plus the lead rows spill into the other nametable

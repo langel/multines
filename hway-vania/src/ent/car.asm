@@ -10,7 +10,15 @@ ent_car_spawn: subroutine
 	lda #ent_car_id
 	sta ent_type,x
 .done
-	lda #$7e
+	; start in the left lane, where the update would push it
+	lda state02
+	sec
+	sbc #$0f-road_lead_rows
+	and #$1f
+	tay
+	lda road_r_x_offset,y
+	clc
+	adc #$03
 	sta ent_x,x
 	sta ent_r0,x
 	lda #$80
@@ -28,19 +36,33 @@ ent_car_update: subroutine
 	sbc #$0f-road_lead_rows
 	and #$1f
 	tay
+	; temp00 lower = left + 7, the car snaps 4 below it, 3 from the edge
 	lda road_r_x_offset,y
 	clc
-	adc #$0e
+	adc #$07
+	sta temp00
+	; temp01 upper = left + 38, or left + width - 2 on a narrow road
+	lda road_w_ring,y
+	sec
+	sbc #$02
+	cmp #$26
+	bcc .high_ok
+	lda #$26
+.high_ok
+	clc
+	adc road_r_x_offset,y
+	sta temp01
+	lda temp00
 	cmp ent_x,x
 	bcs .x_less
 .x_more
-	clc
-	adc #$18
+	lda temp01
 	cmp ent_x,x
 	bcs .x_done
 	sta ent_x,x
 	jmp .x_done
 .x_less
+	lda temp00
 	sec
 	sbc #$04
 	sta ent_x,x

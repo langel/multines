@@ -34,6 +34,7 @@ cart_start: subroutine
 	include "src/game/hud.asm"
 	include "src/game/main.asm"
 	include "src/game/road_render.asm"
+	include "src/game/tile_class.asm"
 
 	seg COMMON
 	org $c000

@@ -38,7 +38,7 @@ rg_dst_hi          byte
 rg_slot            byte ; tile slot
 rg_row             byte ; nametable row
 rg_ring            byte ; x offset ring index
-rg_asphalt         byte ; lut offset, 0 stripes or $30 asphalt
+rg_asphalt         byte ; 0 stripe row, non zero asphalt only row
 
 ; road x position of the row being generated
 rp_r_coarse        byte
@@ -55,6 +55,14 @@ rc_pos             byte ; right road left edge, pixels
 rc_gap             byte ; pixels from right road back to left road
 rc_flags           byte ; bit0 asphalt only, bit1 no trees, bit7 last script row
 rg_flags_acc       byte ; flags of both rows of a pair
+rc_width           byte ; road width in pixels, both roads
+rc_div             byte ; divider stripes to draw, full lanes only
+
+; lane schedule state, see road_render.asm
+lane_step          byte ; offset of the current step in lane_schedule
+lane_rows          byte ; rows left in the current hold or transition
+lane_phase         byte ; 0 hold, 1 transition to the next step
+lane_t             byte ; transition row, 1..13
 
 player_is_dead       byte
 
@@ -84,6 +92,8 @@ road_slot_attr_hi eqm $06b4
 ; visible rows plus the lead rows: 31 + lead + 1 <= 36
 ; 2 bits per tile, first tile in the low bits
 ; 0 road, 1 dirt, 2 wall, 3 trip
-; $06b8-$06df is free
+; $06b8-$06df road row scratch
+road_seg_buf      eqm $06b8 ; 8 tiles of one road row
+road_w_ring       eqm $06c0 ; road width per row, 32, same index as the x offsets
 road_class_rows   eqm 36
 road_class_map    eqm $06e0

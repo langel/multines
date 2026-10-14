@@ -9,28 +9,24 @@
 ; right road left edge in tiles when the sine is at 0
 road_right_base eqm $06
 
-road_3lanes_stripes:
-	hex 10 0d 02 0a 1f 00
-	hex 11 0e 02 0b 02 18
-	hex 12 0f 02 0c 02 19
-	hex 13 02 08 0d 02 1a
-	hex 14 02 09 0e 02 1b
-	hex 15 02 0a 0f 02 1c
-	hex 16 02 0b 02 08 1d
-	hex 17 02 0c 02 09 1e
-; asphalt must follow stripes, offset is 48
-road_3lanes_asphalt:
-	hex 10 02 02 02 1f 00
-	hex 11 02 02 02 02 18
-	hex 12 02 02 02 02 19
-	hex 13 02 02 02 02 1a
-	hex 14 02 02 02 02 1b
-	hex 15 02 02 02 02 1c
-	hex 16 02 02 02 02 1d
-	hex 17 02 02 02 02 1e
+; road = 1 px border, lanes of 12 px, 1 px dividers, 1 px border
+; width = 13 * lanes + 1
+lane_pitch      eqm 13 ; px added by one lane, also transition rows
+road_ref_width  eqm 40 ; 3 lanes, the left road gap is measured from this
+lane_sched_len  eqm 12 ; bytes in lane_schedule
 
-road_phase_offset_lut:
-	hex 00 06 0c 12 18 1e 24 2a
+; width by lane count, index 0..4
+lane_width_lut:
+	hex 01 0e 1b 28 35
+
+; steps: lanes, hold rows, transition rows to the next step
+; the last step goes back to the first
+; transition rows should stay 13, one px per row
+lane_schedule:
+	hex 02 40 0d
+	hex 03 40 0d
+	hex 04 40 0d
+	hex 03 40 0d
 
 ; palette 3 bits per quadrant: tl tr bl br
 quad_pal3_lut:
@@ -254,21 +250,19 @@ road_gen_row: subroutine
 	adc rp_l_fine
 	sta road_l_x
 	sta road_l_x_offset,y
+	lda rc_width
+	sta road_w_ring,y
 	; right road then left road
+	lda #$00
+	sta temp05
 	ldx rp_r_fine
-	lda road_phase_offset_lut,x
-	clc
-	adc rg_asphalt
-	tax
 	ldy rp_r_coarse
-	jsr road_plot_segment
+	jsr road_plot_road
+	lda #$01
+	sta temp05
 	ldx rp_l_fine
-	lda road_phase_offset_lut,x
-	clc
-	adc rg_asphalt
-	tax
 	ldy rp_l_coarse
-	jsr road_plot_segment
+	jsr road_plot_road
 	jmp road_set_slot_ptrs
 
 
@@ -318,12 +312,15 @@ road_row_advance: subroutine
 	rts
 
 
-; row command: rc_pos, rc_gap, rc_flags
-; script rows are 4 bytes: pos, gap, flags, spare
+; row command: rc_pos, rc_gap, rc_flags, rc_width, rc_div
+; script rows are 4 bytes: pos, gap, flags, lanes
+; lanes byte: bits 0-5 width in pixels, bits 6-7 dividers
 ; set road_script_lo/hi to start a script, hi 0 = procedural
 road_row_command: subroutine
 	lda road_script_hi
-	bne road_row_script
+	beq .procedural
+	jmp road_row_script
+.procedural
 	; procedural default, right road from the world row
 	ldx road_world_row_lo
 	lda sine_table,x
@@ -340,6 +337,92 @@ road_row_command: subroutine
 	sta rc_gap
 	lda #$00
 	sta rc_flags
+	jmp road_lane_row
+
+
+; width and dividers of the next row from lane_schedule
+; hold rows, then transition rows one px each
+road_lane_row: subroutine
+	ldx lane_step
+	lda lane_phase
+	bne .transition
+	; hold, full lanes
+	lda lane_schedule,x
+	tay
+	lda lane_width_lut,y
+	sta rc_width
+	dey
+	sty rc_div
+	dec lane_rows
+	bne .done
+	; hold over, next row starts the transition
+	lda #$01
+	sta lane_phase
+	lda #$00
+	sta lane_t
+	lda lane_schedule+2,x
+	sta lane_rows
+.done
+	rts
+.transition
+	; temp00 lanes now, temp04 next step offset
+	lda lane_schedule,x
+	sta temp00
+	txa
+	clc
+	adc #$03
+	cmp #lane_sched_len
+	bcc .have_next
+	lda #$00
+.have_next
+	sta temp04
+	; temp01 = t, clamped to one lane
+	inc lane_t
+	lda lane_t
+	cmp #lane_pitch
+	bcc .t_ok
+	lda #lane_pitch
+.t_ok
+	sta temp01
+	ldx temp04
+	lda lane_schedule,x
+	cmp temp00
+	bcc .collapse
+	; expanding, low = now, offset grows
+	ldy temp00
+	lda temp01
+	jmp .width
+.collapse
+	; low = next, offset shrinks
+	tay
+	lda #lane_pitch
+	sec
+	sbc temp01
+.width
+	; y = low lanes, a = offset into the next lane
+	sta temp02
+	lda lane_width_lut,y
+	clc
+	adc temp02
+	sta rc_width
+	; dividers of low lanes, the new one only when the lane is whole
+	dey
+	lda temp02
+	cmp #lane_pitch
+	bne .div_set
+	iny
+.div_set
+	sty rc_div
+	dec lane_rows
+	bne .done
+	; transition over, next step holds
+	lda temp04
+	sta lane_step
+	tax
+	lda lane_schedule+1,x
+	sta lane_rows
+	lda #$00
+	sta lane_phase
 	rts
 
 
@@ -353,6 +436,13 @@ road_row_script: subroutine
 	iny
 	lda (road_script_lo),y
 	sta rc_flags
+	iny
+	lda (road_script_lo),y
+	and #$3f
+	sta rc_width
+	lda (road_script_lo),y
+	shift_r 6
+	sta rc_div
 	clc
 	lda road_script_lo
 	adc #$04
@@ -378,10 +468,17 @@ road_row_params: subroutine
 	lda rc_pos
 	shift_r 3
 	sta rp_r_coarse
+	; left road right edge stays where it was at 3 lanes
+	; so its left edge moves by the width difference
 	lda rc_gap
+	clc
+	adc rc_width
+	sec
+	sbc #road_ref_width
+	sta temp05
 	and #$07
 	sta temp07
-	lda rc_gap
+	lda temp05
 	shift_r 3
 	sta temp06
 	; subtract gap, carry passes from fine to coarse
@@ -396,20 +493,89 @@ road_row_params: subroutine
 	rts
 
 
-; in: x = lut index, y = start column, may be offscreen
-road_plot_segment: subroutine
-	lda #$06
+; one road into the tile row at rg_dst
+; in: x = fine x 0..7, y = start column, may be offscreen
+;     temp05 = 0 right road, dividers counted from its left edge
+;              1 left road, dividers counted from its right edge
+;     rc_width, rc_div, rg_asphalt
+; tiles are built in road_seg_buf, then copied on screen only
+road_plot_road: subroutine
+	stx temp00 ; fine x
+	sty temp01 ; start column
+	; temp02 = last pixel, the right border
+	txa
+	clc
+	adc rc_width
+	sec
+	sbc #$01
+	sta temp02
+	shift_r 3
+	sta temp03 ; last tile
+	; asphalt across the road
+	tax
+	lda #$02
+.fill
+	sta road_seg_buf,x
+	dex
+	bpl .fill
+	; left border
+	lda temp00
+	clc
+	adc #$10
+	sta road_seg_buf
+	; right border
+	lda temp02
+	and #$07
+	clc
+	adc #$18
+	ldx temp03
+	sta road_seg_buf,x
+	; dividers only on stripe rows
+	lda rg_asphalt
+	bne .plot
+	ldy rc_div
+	beq .plot
+	lda temp05
+	bne .from_right
+	lda temp00
+	ldx #lane_pitch
+	bne .div_start
+.from_right
+	lda temp02
+	ldx #$100-lane_pitch
+.div_start
+	stx temp06 ; step
+.div_loop
+	clc
+	adc temp06
 	sta temp04
-.loop
+	shift_r 3
+	tax
+	lda temp04
+	and #$07
+	clc
+	adc #$08
+	sta road_seg_buf,x
+	lda temp04
+	dey
+	bne .div_loop
+.plot
+	; copy to the row, columns past the screen are skipped
+	ldx temp03
+	inx
+	stx temp04 ; tile count
+	ldy temp01
+	ldx #$00
+.copy
 	cpy #$20
 	bcs .skip
-	lda road_3lanes_stripes,x
+	lda road_seg_buf,x
 	sta (rg_dst_lo),y
 .skip
-	inx
 	iny
-	dec temp04
-	bne .loop
+	inx
+	cpx temp04
+	bne .copy
 	rts
 
 
@@ -542,25 +708,7 @@ road_gen_class: subroutine
 class_hi_lut:
 	hex 00 40 80 c0
 
-; class by tile id: 0 road, 1 dirt, 2 wall, 3 trip
-; every tree tile id in tree_tiles_lut must be 2 here
-tile_class_lut:
-	hex 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ; $00
-	hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ; $10
-	hex 01 01 02 02 02 02 02 02 00 00 00 00 00 00 00 00 ; $20
-	hex 01 01 02 02 02 02 02 02 00 00 00 00 00 00 00 00 ; $30
-	hex 02 01 02 02 02 02 02 02 00 00 00 00 00 00 00 00 ; $40
-	hex 02 01 00 00 00 00 02 02 00 00 00 00 00 00 00 00 ; $50
-	hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ; $60
-	hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ; $70
-	hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ; $80
-	hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ; $90
-	hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ; $a0
-	hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ; $b0
-	hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ; $c0
-	hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ; $d0
-	hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ; $e0
-	hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ; $f0
+; tile_class_lut is in tile_class.asm
 
 
 ; in: a = class ring row 0..35 (like road_class_ring), x = tile column 0..31
