@@ -201,7 +201,7 @@ ent_gorilla_update: subroutine
 
 	tya
 	clc
-	adc #$24
+	adc #$18
 	tay
 
 	; eyes

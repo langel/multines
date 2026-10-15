@@ -32,6 +32,7 @@ cart_start: subroutine
 	include "src/ent/car.asm"
 	include "src/ent/gorilla.asm"
 	include "src/ent/tester.asm"
+	include "src/ent/witch.asm"
 	include "src/game/init.asm"
 	include "src/game/update.asm"
 	include "src/game/hud.asm"

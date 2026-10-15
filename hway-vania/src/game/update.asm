@@ -77,12 +77,19 @@ state_game_update: subroutine
 	asl
 	sta scroll_nm
 
+	; spawn new witch
+	lda wtf
+	and #$1f
+	bne .witch_spawn_done
+	jsr ent_witch_spawn
+.witch_spawn_done
 
 	;DEBUG_VIS_ON
 
 	jsr game_road_prerender
 
 	jsr controller_read
+	jsr sprites_clear
 	jsr ents_update
 
 	jsr game_hud_update

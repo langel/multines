@@ -32,6 +32,21 @@ KNOWN UNKNOWNS
 - trees over time
 
 
+CAR CAN ONLY GO FORWARD FIXES PROBLEMS
+need a terrain script
+	- handles main road behavior
+		- road curve velocities/ x targets
+	- handles left road distance
+	- both road widths
+	- handles tree density/types
+	- rendering generates collision data
+each level has a unique terrain palette
+
+enemy scheduler
+opposing traffic
+traffic flocking
+
+
 
 
 deterministically plot
