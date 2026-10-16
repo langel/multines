@@ -79,7 +79,7 @@ state_game_update: subroutine
 
 	; spawn new witch
 	lda wtf
-	and #$1f
+	and #$7f
 	bne .witch_spawn_done
 	jsr ent_witch_spawn
 .witch_spawn_done

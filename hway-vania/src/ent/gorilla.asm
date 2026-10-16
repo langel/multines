@@ -27,7 +27,7 @@ ent_gorilla_update: subroutine
 	inc ent_r0,x
 	ldy ent_r0,x
 	lda sine_table,y
-	lsr
+	;lsr
 	clc
 	adc ent_x,x
 	sta temp00
@@ -36,7 +36,7 @@ ent_gorilla_update: subroutine
 	adc #$40
 	tay
 	lda sine_table,y
-	lsr
+	;lsr
 	clc
 	adc ent_y,x
 	sta temp01
@@ -124,6 +124,12 @@ ent_gorilla_update: subroutine
 
 	; RENDER
 	ldy ent_spr_ptr
+	; top left
+	; top right
+	; mid left
+	; mid right
+	; butt left
+	; butt right
 	; x
 	clc
 	lda temp00
@@ -238,78 +244,96 @@ ent_gorilla_update: subroutine
 	; mouf
 	lda temp00
 	sta spr_x,y
-	clc
-	adc #$08
-	sta spr_x+4,y
 	lda temp01
 	clc
 	adc #$10
 	sta spr_y,y
-	sta spr_y+4,y
 	lda #$02
 	sta spr_a,y
-	lda #$42
-	sta spr_a+4,y
 	lda #$4f
 	sta spr_p,y
-	sta spr_p+4,y
-
-	tya
+	inc_y 4
+	lda temp00
 	clc
 	adc #$08
-	tay
+	sta spr_x,y
+	lda temp01
+	clc
+	adc #$10
+	sta spr_y,y
+	lda #$42
+	sta spr_a,y
+	lda #$4f
+	sta spr_p,y
+	inc_y 4
 
 	; wings
-	; x pos
+	; leftmost
 	lda temp00
 	sec
 	sbc #$0e
+	sta temp00
 	sta spr_x,y
-	clc
-	adc #$08
-	sta spr_x+4,y
-	adc #$14
-	sta spr_x+8,y
-	adc #$08
-	sta spr_x+12,y
-	; y pos
 	lda temp01
 	clc
 	adc #$06
+	sta temp01
 	sta spr_y,y
-	sta spr_y+4,y
-	sta spr_y+8,y
-	sta spr_y+12,y
-	; a
 	lda temp07
-	sta spr_a+8,y
-	sta spr_a+12,y
 	ora #$40
 	sta spr_a,y
-	sta spr_a+4,y
-	; p
 	lda ent_r2,x
-	bne .wframe1
-.wframe0
-	lda #$0d
+	shift_l 4
+	ora #$0d
 	sta spr_p,y
-	sta spr_p+12,y
-	lda #$0c
-	sta spr_p+4,y
-	sta spr_p+8,y
-	jmp .wings_done
-.wframe1
-	lda #$1d
-	sta spr_p,y
-	sta spr_p+12,y
-	lda #$1c
-	sta spr_p+4,y
-	sta spr_p+8,y
-.wings_done
-
-	tya
+	; left
+	inc_y 4
+	lda temp00
 	clc
-	adc #$10
-	tay
+	adc #$08
+	sta temp00
+	sta spr_x,y
+	lda temp01
+	sta spr_y,y
+	lda temp07
+	ora #$40
+	sta spr_a,y
+	lda ent_r2,x
+	shift_l 4
+	ora #$0c
+	sta spr_p,y
+	inc_y 4
+	; right
+	inc_y 4
+	lda temp00
+	clc
+	adc #$14
+	sta temp00
+	sta spr_x,y
+	lda temp01
+	sta spr_y,y
+	lda temp07
+	sta spr_a,y
+	lda ent_r2,x
+	shift_l 4
+	ora #$0c
+	sta spr_p,y
+	inc_y 4
+	; rightmost
+	inc_y 4
+	lda temp00
+	clc
+	adc #$08
+	sta temp00
+	sta spr_x,y
+	lda temp01
+	sta spr_y,y
+	lda temp07
+	sta spr_a,y
+	lda ent_r2,x
+	shift_l 4
+	ora #$0d
+	sta spr_p,y
+	inc_y 4
 
 	rts

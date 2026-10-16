@@ -72,18 +72,21 @@ ent_witch_update: subroutine
 	shift_r 5
 	and #$01
 	sta temp00
+	lda #$00
+	sta temp00
+	lda ent_r0,x
+	bmi .check_headx
+	inc temp00
+.check_headx
 	clc
 	lda ent_r1,x
-	bpl .head_right
-.head_left
+	bpl .headx_done
+.headx_left
 	lda temp00
+	eor #$01
 	adc #$07
 	sta temp00
 	jmp .headx_done
-.head_right
-	lda temp00
-	adc #$02
-	sta temp00
 .headx_done
 
 	; y pos
@@ -165,7 +168,9 @@ witch_facing_left: subroutine
 	; broom left
 	lda ent_x_hi,x
 	bne .broom_left_done
+	clc
 	lda ent_x,x
+	adc #$01
 	sta spr_x,y
 	lda temp01
 	clc
@@ -180,7 +185,7 @@ witch_facing_left: subroutine
 	; broom right
 	clc
 	lda ent_x,x
-	adc #$08
+	adc #$09
 	sta spr_x,y
 	lda ent_x_hi,x
 	adc #$00
@@ -252,7 +257,9 @@ witch_facing_right: subroutine
 	; broom left
 	lda ent_x_hi,x
 	bne .broom_left_done
+	sec
 	lda ent_x,x
+	sbc #$01
 	sta spr_x,y
 	lda temp01
 	clc
@@ -267,7 +274,7 @@ witch_facing_right: subroutine
 	; broom right
 	clc
 	lda ent_x,x
-	adc #$08
+	adc #$07
 	sta spr_x,y
 	lda ent_x_hi,x
 	adc #$00
