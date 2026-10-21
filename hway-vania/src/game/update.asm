@@ -77,6 +77,13 @@ state_game_update: subroutine
 	asl
 	sta scroll_nm
 
+	; spawn new ghost
+	lda wtf
+	and #$3f
+	bne .ghost_spawn_done
+	jsr ent_ghost_spawn
+.ghost_spawn_done
+	
 	; spawn new witch
 	lda wtf
 	and #$7f

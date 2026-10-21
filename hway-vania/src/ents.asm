@@ -4,6 +4,7 @@ ent_car_id            eqm #$02
 ent_tester_id         eqm #$03
 ent_gorilla_id        eqm #$04
 ent_witch_id          eqm #$05
+ent_ghost_id          eqm #$06
 
 ents_max  eqm #$1f
 
@@ -14,6 +15,7 @@ ent_update_lo:
 	byte <#ent_tester_update
 	byte <#ent_gorilla_update
 	byte <#ent_witch_update
+	byte <#ent_ghost_update
 ent_update_hi:
 	byte >#do_nothing
 	byte >#ent_template_update
@@ -21,6 +23,7 @@ ent_update_hi:
 	byte >#ent_tester_update
 	byte >#ent_gorilla_update
 	byte >#ent_witch_update
+	byte >#ent_ghost_update
 
 ent_r0   eqm ent_r400
 ent_r1   eqm ent_r420

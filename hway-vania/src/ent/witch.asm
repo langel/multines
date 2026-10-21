@@ -65,6 +65,7 @@ ent_witch_update: subroutine
 	bne .move_done
 .despawn
 	ent_despawn
+	rts
 .move_done
 
 	; head x pos
