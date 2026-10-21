@@ -79,7 +79,7 @@ state_game_update: subroutine
 
 	; spawn new ghost
 	lda wtf
-	and #$3f
+	and #$7f
 	bne .ghost_spawn_done
 	jsr ent_ghost_spawn
 .ghost_spawn_done

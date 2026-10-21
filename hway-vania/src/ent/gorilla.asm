@@ -2,7 +2,17 @@
 ; ent_r0 sine counter
 ; ent_r1 wing counter
 ; ent_r2 wing frame
+; ent_r3 mouth counter
+; ent_r4 hair counter
 
+; temp00 x origin
+; temp01 y origin
+; temp02 hair frame
+; temp03 hair mirror flag
+; temp04 eyeline x
+; temp05 eyeline y
+; temp06 collision attribute
+; temp07 wings attribute
 
 ent_gorilla_spawn: subroutine
 	jsr ent_find_slot
@@ -19,6 +29,9 @@ ent_gorilla_spawn: subroutine
 	rts
 
 
+ent_gorilla_mouf:
+	hex 2f 3f 4f 5f 5f 4f 3f 2f
+
 
 ent_gorilla_update: subroutine
 	; update 
@@ -27,7 +40,7 @@ ent_gorilla_update: subroutine
 	inc ent_r0,x
 	ldy ent_r0,x
 	lda sine_table,y
-	;lsr
+	lsr
 	clc
 	adc ent_x,x
 	sta temp00
@@ -36,12 +49,24 @@ ent_gorilla_update: subroutine
 	adc #$40
 	tay
 	lda sine_table,y
-	;lsr
+	lsr
 	clc
 	adc ent_y,x
 	sta temp01
 
 	; animate hair
+	; animation frame
+	lda ent_r4,x
+	clc
+	adc #42
+	sta ent_r4,x
+	shift_r 7
+	and #$01
+	shift_l 4
+	clc
+	adc #$0e
+	sta temp02
+	; attr mirror
 	lda #$00
 	sta temp03
 	lda ent_r0,x
@@ -50,13 +75,6 @@ ent_gorilla_update: subroutine
 	sta temp03
 .hair_flip_done
 
-
-	; set metasprite id
-	; XXX mouf open or closed
-	lda wtf
-	shift_r 4
-	and #$01
-	sta temp02
 
 	; adjust eyeline
 	lda #$00
@@ -86,6 +104,14 @@ ent_gorilla_update: subroutine
 .look_down
 	inc temp05
 .y_done
+	
+	; mouf animation
+	lda wtf
+	shift_r 3
+	and #$07
+	tay
+	lda ent_gorilla_mouf,y
+	sta ent_r3,x
 
 	; wing animation
 	dec ent_r1,x
@@ -124,117 +150,150 @@ ent_gorilla_update: subroutine
 
 	; RENDER
 	ldy ent_spr_ptr
+
 	; top left
-	; top right
-	; mid left
-	; mid right
-	; butt left
-	; butt right
-	; x
-	clc
 	lda temp00
 	sta spr_x,y
-	sta spr_x+8,y
-	sta spr_x+16,y	
-	clc
-	adc #$08
-	sta spr_x+4,y
-	sta spr_x+12,y
-	sta spr_x+20,y
-	lda temp03
-	beq .hair_fix_done
-	lda temp00
-	sta spr_x+4,y
-	clc
-	adc #$08
-	sta spr_x,y
-.hair_fix_done
-	; y
-	clc
 	lda temp01
 	sta spr_y,y
-	sta spr_y+4,y
-	clc
-	adc #$08
-	sta spr_y+8,y
-	sta spr_y+12,y
-	clc
-	adc #$08
-	sta spr_y+16,y	
-	sta spr_y+20,y
-	; a
-	lda temp06
+	lda temp06 
 	ora temp03
 	sta spr_a,y
-	sta spr_a+4,y
-	lda temp06
-	sta spr_a+8,y
-	sta spr_a+12,y
-	sta spr_a+16,y
-	sta spr_a+20,y
-	; p
+	lda temp03
+	beq .tl_p_normal
+.tl_p_abnormal
 	lda temp02
-	bne .frame1
-.frame0
-	lda #$0e
 	clc
+	adc #$01
+	jmp .tl_set_p
+.tl_p_normal
+	lda temp02
+.tl_set_p
 	sta spr_p,y
-	adc #$01
-	sta spr_p+4,y
-	adc #$0f
-	sta spr_p+8,y
-	adc #$01
-	sta spr_p+12,y
-	adc #$0f
-	sta spr_p+16,y
-	adc #$01
-	sta spr_p+20,y
-	jmp .frame_done
-.frame1
-	lda #$0e
-	sta spr_p,y
-	lda #$0f
-	sta spr_p+4,y
-	lda #$1e
-	sta spr_p+8,y
-	lda #$1f
-	sta spr_p+12,y
-	lda #$3e
-	sta spr_p+16,y
-	lda #$3f
-	sta spr_p+20,y
-.frame_done
+	inc_y 4
 
-	tya
+	; top right
+	lda temp00
 	clc
-	adc #$18
-	tay
+	adc #$08
+	sta spr_x,y
+	lda temp01
+	sta spr_y,y
+	lda temp06 
+	ora temp03
+	sta spr_a,y
+	lda temp03
+	bne .tr_p_normal
+.tr_p_abnormal
+	lda temp02
+	clc
+	adc #$01
+	jmp .tr_set_p
+.tr_p_normal
+	lda temp02
+.tr_set_p
+	sta spr_p,y
+	inc_y 4
 
-	; eyes
+	; mid left
+	lda temp00
+	sta spr_x,y
+	lda temp01
+	clc
+	adc #$08
+	sta spr_y,y
+	lda temp06
+	sta spr_a,y
+	lda #$2e
+	sta spr_p,y
+	inc_y 4
+
+	; mid right
+	lda temp00
+	clc
+	adc #$08
+	sta spr_x,y
+	lda temp01
+	clc
+	adc #$08
+	sta spr_y,y
+	lda temp06
+	ora #$40
+	sta spr_a,y
+	lda #$2e
+	sta spr_p,y
+	inc_y 4
+
+	; butt left
+	lda temp00
+	sta spr_x,y
+	lda temp01
+	clc
+	adc #$10
+	sta spr_y,y
+	lda temp06
+	sta spr_a,y
+	lda ent_r3,x
+	sta spr_p,y
+	inc_y 4
+	; butt right
+	lda temp00
+	clc
+	adc #$08
+	sta spr_x,y
+	lda temp01
+	clc
+	adc #$10
+	sta spr_y,y
+	lda temp06
+	ora #$40
+	sta spr_a,y
+	lda ent_r3,x
+	sta spr_p,y
+	inc_y 4
+
+
+	; eyes left
 	; x
 	clc
 	lda temp00
 	adc temp04
 	sta spr_x,y
-	clc
-	adc #$08
-	sta spr_x+4,y
 	; y
 	clc
 	lda temp01
 	adc temp05
 	adc #$07
 	sta spr_y,y
-	sta spr_y+4,y
 	; a
 	lda #$00
 	sta spr_a,y
-	lda #$40
-	sta spr_a+4,y
 	; p
-	lda #$4e
+	lda #$3e
 	sta spr_p,y
-	sta spr_p+4,y
+	inc_y 4
+	
+	; eyes right
+	; x
+	clc
+	lda temp00
+	adc temp04
+	clc
+	adc #$08
+	sta spr_x,y
+	; y
+	clc
+	lda temp01
+	adc temp05
+	adc #$07
+	sta spr_y,y
+	; a
+	lda #$40
+	sta spr_a,y
+	; p
+	lda #$3e
+	sta spr_p,y
+	inc_y 4
 
 	tya
 	clc
@@ -246,11 +305,11 @@ ent_gorilla_update: subroutine
 	sta spr_x,y
 	lda temp01
 	clc
-	adc #$10
+	adc #$11
 	sta spr_y,y
 	lda #$02
 	sta spr_a,y
-	lda #$4f
+	lda #$4e
 	sta spr_p,y
 	inc_y 4
 	lda temp00
@@ -259,11 +318,11 @@ ent_gorilla_update: subroutine
 	sta spr_x,y
 	lda temp01
 	clc
-	adc #$10
+	adc #$11
 	sta spr_y,y
 	lda #$42
 	sta spr_a,y
-	lda #$4f
+	lda #$4e
 	sta spr_p,y
 	inc_y 4
 

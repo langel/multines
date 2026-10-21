@@ -109,22 +109,26 @@ ent_car_update: subroutine
 
 	lda #$00
 	sta spr_p,y
-	lda #$10
-	sta spr_p+4,y
 	lda #$01
 	sta spr_a,y
-	sta spr_a+4,y
 	lda ent_x,x
 	sta spr_x,y
-	clc
-	adc ent_r2,x
-	sta spr_x+4,y
 	lda ent_y,x
 	sta spr_y,y
+	inc_y 4
+
+	lda #$10
+	sta spr_p,y
+	lda #$01
+	sta spr_a,y
+	lda ent_x,x
+	clc
+	adc ent_r2,x
+	sta spr_x,y
+	lda ent_y,x
 	clc
 	adc #$08
-	sta spr_y+4,y
-
-	inc_y 8
+	sta spr_y,y
+	inc_y 4
 
 	rts
