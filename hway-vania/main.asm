@@ -36,7 +36,10 @@ cart_start: subroutine
 	include "src/ent/witch.asm"
 	include "src/game/init.asm"
 	include "src/game/update.asm"
+	include "src/game/baddies.asm"
+	include "src/game/traffic.asm"
 	include "src/game/hud.asm"
+	include "src/game/player.asm"
 	include "src/game/road_render.asm"
 	include "src/game/tile_class.asm"
 

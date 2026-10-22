@@ -12,7 +12,7 @@ game_palette:
 	hex 0b 1b 28
 	hex 0f 0a 1b
 	; sprites
-	hex 2d 00 20 ; greys
+	hex 0c 1c 20 ; greys
 	hex 03 13 24 ; purples
 	hex 05 16 27 ; oranges
 	hex 09 19 29 ; greens
@@ -111,6 +111,8 @@ state_game_init: subroutine
 	sta scroll_y
 	sta scroll_y_hi
 	sta scroll_nm
+
+	jsr player_init
 
 	jsr ent_car_spawn
 	jsr ent_tester_spawn

@@ -4,7 +4,7 @@
 
 
 ent_witch_spawn: subroutine
-	jsr ent_find_slot
+	jsr baddies_find_slot
 	bmi .done
 	lda #ent_witch_id
 	sta ent_type,x

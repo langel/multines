@@ -95,9 +95,14 @@ state_game_update: subroutine
 
 	jsr game_road_prerender
 
-	jsr controller_read
 	jsr sprites_clear
-	jsr ents_update
+	ldy #$00
+	sty ent_spr_ptr
+	
+	jsr controller_read
+	jsr player_update
+	jsr traffic_update
+	jsr baddies_update
 
 	jsr game_hud_update
 

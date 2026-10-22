@@ -5,7 +5,7 @@
 
 
 ent_car_spawn: subroutine
-	jsr ent_find_slot
+	jsr traffic_find_slot
 	bmi .done
 	lda #ent_car_id
 	sta ent_type,x
@@ -96,13 +96,13 @@ ent_car_update: subroutine
 
 	; setup collision
 	lda ent_x,x
-	sta collision_0_x
+	sta collision_1_x
 	lda ent_y,x
-	sta collision_0_y
+	sta collision_1_y
 	lda #$08
-	sta collision_0_w
+	sta collision_1_w
 	lda #$10
-	sta collision_0_h
+	sta collision_1_h
 
 	; render (reload y?)
 	ldy ent_spr_ptr

@@ -15,7 +15,7 @@
 ; temp07 wings attribute
 
 ent_gorilla_spawn: subroutine
-	jsr ent_find_slot
+	jsr baddies_find_slot
 	bmi .done
 	lda #ent_gorilla_id
 	sta ent_type,x

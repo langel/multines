@@ -4,7 +4,7 @@
 
 
 ent_ghost_spawn: subroutine
-	jsr ent_find_slot
+	jsr baddies_find_slot
 	bmi .done
 	lda #ent_ghost_id
 	sta ent_type,x
