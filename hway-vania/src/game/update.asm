@@ -91,7 +91,7 @@ state_game_update: subroutine
 	jsr ent_witch_spawn
 .witch_spawn_done
 
-	;DEBUG_VIS_ON
+	DEBUG_VIS_ON
 
 	jsr game_road_prerender
 
@@ -100,9 +100,9 @@ state_game_update: subroutine
 	sty ent_spr_ptr
 	
 	jsr controller_read
-	jsr player_update
-	jsr traffic_update
 	jsr baddies_update
+	jsr traffic_update
+	jsr player_update
 
 	jsr game_hud_update
 

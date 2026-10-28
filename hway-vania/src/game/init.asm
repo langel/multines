@@ -12,7 +12,7 @@ game_palette:
 	hex 0b 1b 28
 	hex 0f 0a 1b
 	; sprites
-	hex 0c 1c 20 ; greys
+	hex 0c 22 20 ; greys
 	hex 03 13 24 ; purples
 	hex 05 16 27 ; oranges
 	hex 09 19 29 ; greens

@@ -7,6 +7,8 @@ mph            byte
 scroll_y_lo    byte ; sub pixels
 player_x       byte
 player_y       byte
+whip_counter   byte
+whip_frame     byte
 
 road_r_x         byte
 road_l_x         byte
