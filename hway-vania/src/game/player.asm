@@ -15,8 +15,14 @@ player_init: subroutine
 	lda #$00
 	sta whip_counter
 	sta whip_frame
+	lda #$02
+	sta helmet_type
 	rts
 
+helmet_pattern:
+	hex 13 14 15 22 23 24 25 14
+helmet_palette:
+	hex 00 02 03 01 00 02 03 01
 
 player_update: subroutine
 	; bound motorcycle to road
@@ -92,7 +98,8 @@ player_update: subroutine
 	bne .whip_animation_done
 	inc whip_frame
 	lda whip_frame
-	cmp #$06
+	; frame count
+	cmp #$08
 	beq .whip_animation_stop
 	ldx whip_frame
 	dex
@@ -107,34 +114,37 @@ player_update: subroutine
 	; render main
 	ldy ent_spr_ptr
 
-	ldx whip_frame
-	lda player_torso_frame,x
-	sta spr_p,y
-	lda #$00
-	sta spr_a,y
-	lda player_x
-	sta spr_x,y
-	lda player_y
-	sta spr_y,y
-	inc_y 4
-
-	lda #$12
-	sta spr_p,y
-	lda #$00
-	sta spr_a,y
-	lda player_x
-	;clc
-	;adc ent_r2,x
-	sta spr_x,y
-	lda player_y
-	clc
-	adc #$08
-	sta spr_y,y
-	inc_y 4
-
 	; render whip
 	ldx whip_frame
 	bne .render_whip_and_skull
+.render_whip_coiled
+	; skull sprite
+.render_body_skull
+	lda #$13
+	sta spr_p,y
+	lda #$00
+	sta spr_a,y
+	lda player_x
+	sta spr_x,y
+	lda player_y
+	clc
+	adc #$fe
+	sta spr_y,y
+	inc_y 4
+	; whip coil sprite
+	clc
+	lda player_x
+	adc #$04
+	sta spr_x,y
+	clc
+	lda player_y
+	adc #$07
+	sta spr_y,y
+	lda #$72
+	sta spr_p,y
+	lda #$02
+	sta spr_a,y
+	inc_y 4
 	jmp .whip_done
 .render_whip_and_skull
 	dex
@@ -202,29 +212,57 @@ player_update: subroutine
 .whip_done
 	sty ent_spr_ptr
 
+.render_body_cycle
+	; top sprite
+	ldx whip_frame
+	lda player_torso_frame,x
+	sta spr_p,y
+	lda #$00
+	sta spr_a,y
+	lda player_x
+	sta spr_x,y
+	lda player_y
+	sta spr_y,y
+	inc_y 4
+	; bottom sprite
+	lda #$12
+	sta spr_p,y
+	lda #$00
+	sta spr_a,y
+	lda player_x
+	;clc
+	;adc ent_r2,x
+	sta spr_x,y
+	lda player_y
+	clc
+	adc #$08
+	sta spr_y,y
+	inc_y 4
+
 	rts
 
 skull_x_offset:
-	hex 05 09 08 06 00
+	hex 05 09 08 06 00 00 00
 skull_y_offset:
-	hex 09 16 17 0c ea
+	hex 09 16 17 0c ea f2 f9
 skull_attribute:
-	hex 00 80 80 80 00
+	hex 00 80 80 80 00 00 00
 
 
 player_torso_frame:
-	hex 02 03 03 04 05 05
+	hex 02 03 03 04 05 05 04 03
 
 whip_frame_duration:
-	hex 06 05 04 03 0f
+	;hex 06 05 04 03 05 04 03
+	hex 04 05 04 03 04 03 02
 whip_spr_0:
-	hex 00 35 34 00 32
+	hex 00 35 34 00 32 00 00
 whip_spr_1:
-	hex 52 45 44 33 42
+	hex 52 45 44 33 42 64 63 
 whip_spr_2:
-	hex 53 55 54 43 42
+	hex 62 55 54 43 42 74 73
 whip_x_offset:
-	hex 04 05 05 03 00
+	hex 04 05 05 03 00 04 04
 whip_y_offset:
-	hex 04 01 00 fd ec
+	hex 04 01 00 fd ec f9 00
 

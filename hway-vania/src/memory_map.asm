@@ -9,6 +9,7 @@ player_x       byte
 player_y       byte
 whip_counter   byte
 whip_frame     byte
+helmet_type    byte
 
 road_r_x         byte
 road_l_x         byte
