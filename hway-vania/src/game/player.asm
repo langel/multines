@@ -15,7 +15,6 @@ player_init: subroutine
 	lda #$00
 	sta whip_counter
 	sta whip_frame
-	lda #$02
 	sta helmet_type
 	rts
 
@@ -76,6 +75,21 @@ player_update: subroutine
 	sta collision_0_w
 	lda #$0a
 	sta collision_0_h
+	
+	; next helmet
+	lda wtf
+	bne .next_helmet_done
+	inc helmet_type
+	lda helmet_type
+	and #$07
+	sta helmet_type
+.next_helmet_done
+	; precalc helmet spr
+	ldx helmet_type
+	lda helmet_pattern,x
+	sta temp02
+	lda helmet_palette,x
+	sta temp03
 
 	; whip timer
 	lda whip_frame
@@ -120,9 +134,9 @@ player_update: subroutine
 .render_whip_coiled
 	; skull sprite
 .render_body_skull
-	lda #$13
+	lda temp02
 	sta spr_p,y
-	lda #$00
+	lda temp03
 	sta spr_a,y
 	lda player_x
 	sta spr_x,y
@@ -196,9 +210,10 @@ player_update: subroutine
 	inc_y 4
 	; render skull
 .render_skull
-	lda #$13
+	lda temp02
 	sta spr_p,y
 	lda skull_attribute,x
+	ora temp03
 	sta spr_a,y
 	lda player_x
 	clc
@@ -254,7 +269,7 @@ player_torso_frame:
 
 whip_frame_duration:
 	;hex 06 05 04 03 05 04 03
-	hex 04 05 04 03 04 03 02
+	hex 04 05 04 03 08 03 02
 whip_spr_0:
 	hex 00 35 34 00 32 00 00
 whip_spr_1:

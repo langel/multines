@@ -86,7 +86,8 @@ camera_x_hi      byte
 camera_y_hi      byte
 camera_x         byte
 camera_y         byte
-
+arctang_vel_lo   byte
+arctang_vel_hi   byte
 
 controller1      byte
 controller1_d    byte

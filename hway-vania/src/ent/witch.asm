@@ -1,6 +1,10 @@
 
 ; ent_r0 sine counter
 ; ent_r1 directional offset
+; ent_r2 state
+;  0 = flying
+;  1 = spinning
+;  2 = on road
 
 
 ent_witch_spawn: subroutine
@@ -112,6 +116,11 @@ ent_witch_update: subroutine
 	; render
 	ldy ent_spr_ptr
 
+witch_spinning:
+
+witch_on_road:
+
+witch_flying_by:
 	lda ent_r1,x
 	bmi witch_facing_left
 	jmp witch_facing_right
@@ -292,3 +301,16 @@ witch_facing_right: subroutine
 .broom_right_done
 
 	rts
+
+
+
+witch_spin_patterns:
+	hex 66 68 6a 6c 6e
+	hex 6c 6a 68 66
+	hex 68 6a 6c 6e
+	hex 6c 6a 68 
+witch_spin_attributes:
+	hex 02 02 02 02 02
+	hex 82 82 82 82
+	hex c2 c2 c2 c2
+	hex 42 42 42

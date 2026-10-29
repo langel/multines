@@ -119,6 +119,8 @@ state_game_init: subroutine
 	jsr ent_gorilla_spawn
 	jsr ent_witch_spawn
 
+	jsr ent_broom_spawn
+
 	jsr render_enable
 
 	rts

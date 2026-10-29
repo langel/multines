@@ -29,6 +29,7 @@ cart_start: subroutine
 	include "src/states.asm"
 	include "src/ents.asm"
 	include "src/ent/_template.asm"
+	include "src/ent/broom.asm"
 	include "src/ent/car.asm"
 	include "src/ent/ghost.asm"
 	include "src/ent/gorilla.asm"

@@ -171,9 +171,65 @@ arctang24_bound_dir: subroutine
 
 
 
-		  ; XXX
+		  ; XXXa ???
 		  ; data needs refactoring to work
 		  ; with signed velocity values
+
+; arctang movement is 16-bit
+; oam ram x,y = high byte
+; enemy ram x,y = low byte
+
+arctang_update_x: subroutine
+	; temp00 = hi
+	; temp01 = lo
+	; temp02 = region
+	ldx temp02
+	lda ARCTANG_REGION_TO_X_VELOCITY_TABLE,x
+	asl
+	tay
+	lda ARCTANG_REGION_X_PLUS_OR_MINUS_TABLE,x
+	bpl arctang_16bit_maths
+
+arctang_update_y: subroutine
+	; temp00 = hi
+	; temp01 = lo
+	; temp02 = region
+	ldx temp02
+	lda ARCTANG_REGION_TO_Y_VELOCITY_TABLE,x
+	asl
+	tay
+	lda ARCTANG_REGION_Y_PLUS_OR_MINUS_TABLE,x
+	bpl arctang_16bit_maths
+
+arctang_16bit_maths: subroutine
+	; a = plus or minus
+	; y = velocity table offset
+	bne .velocity_add
+.velocity_sub
+	; lo byte
+	lda temp01
+	sec 
+	sbc (arctang_vel_lo),y
+	sta temp01
+	; hi byte
+	lda temp00
+	iny
+	sbc (arctang_vel_lo),y
+	sta temp00
+	jmp .done_x
+.velocity_add
+	; lo byte
+	lda temp01
+	clc
+	adc (arctang_vel_lo),y
+	sta temp01
+	; hi byte
+	lda temp00
+	iny
+	adc (arctang_vel_lo),y
+	sta temp00
+.done_x
+	rts
         
 ;     reduce cycle counts by keeping these
 ;     tables on the same page

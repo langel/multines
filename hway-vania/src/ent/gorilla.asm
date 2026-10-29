@@ -83,10 +83,10 @@ ent_gorilla_update: subroutine
 	; calc x offset
 	lda temp00
 	adc #$08
-	cmp $0360
+	cmp player_x
 	bcc .look_right
 	sbc #$10
-	cmp $0360
+	cmp player_x
 	bcc .x_done
 .look_left
 	dec temp04
@@ -96,7 +96,7 @@ ent_gorilla_update: subroutine
 .x_done
 	; clac y offset
 	lda temp01
-	cmp $03c0
+	cmp player_y
 	bcc .look_down
 .look_up
 	dec temp05
