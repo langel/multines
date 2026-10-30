@@ -88,7 +88,7 @@ state_game_update: subroutine
 	lda wtf
 	and #$7f
 	bne .witch_spawn_done
-	jsr ent_witch_spawn
+	;jsr ent_witch_spawn
 .witch_spawn_done
 
 	DEBUG_VIS_ON

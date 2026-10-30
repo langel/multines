@@ -1,10 +1,22 @@
-
-; ent_r0 sine counter
-; ent_r1 directional offset
-; ent_r2 state
+; ent_r0 state
 ;  0 = flying
 ;  1 = spinning
 ;  2 = on road
+
+; flaying state:
+; ent_r1 sine counter
+; ent_r2 directional offset
+
+; spinning state:
+; ent_r1 spin frame
+; ent_r2 spin counter
+; ent_r3 y vel lo
+; ent r4 x vel hi
+
+; on road state:
+
+; ent_r6 y vel lo
+; ent r7 x vel hi
 
 
 ent_witch_spawn: subroutine
@@ -13,6 +25,21 @@ ent_witch_spawn: subroutine
 	lda #ent_witch_id
 	sta ent_type,x
 .done
+	
+	; xxx temp witch death spawn
+witch_init_spinning_state: subroutine
+	lda #$78
+	sta ent_x,x
+	lda #$78
+	sta ent_y,x
+	lda #$01
+	sta ent_r0,x
+	lda #$00
+	sta ent_r1,x
+	sta ent_r2,x
+	; xxx set initial velocity
+	rts
+
 	jsr rng_update
 	; set x
 	;jmp .fly_right
@@ -22,7 +49,7 @@ ent_witch_spawn: subroutine
 .fly_left
 	lda #$ff
 	sta ent_x,x
-	sta ent_r1,x
+	sta ent_r2,x
 	jmp .fly_done
 .fly_right
 	lda #$ff
@@ -30,7 +57,7 @@ ent_witch_spawn: subroutine
 	lda #$f0
 	sta ent_x,x
 	lda #$01
-	sta ent_r1,x
+	sta ent_r2,x
 .fly_done
 	; set y
 	lda rng_val1
@@ -43,8 +70,65 @@ ent_witch_spawn: subroutine
 
 ent_witch_update: subroutine
 
-	; update logic
+	; check state
+	lda ent_r0,x
+	bne .not_flying
+	jmp witch_flying_by
+.not_flying
+	cmp #$01
+	bne .not_spinning
+	jmp witch_spinning
+.not_spinning
+	jmp witch_on_road
+
+
+witch_spinning:
+	; spin animation
+	inc ent_r2,x
+	lda ent_r2,x
+	cmp #$04
+	bne .next_frame_done
+	lda #$00
+	sta ent_r2,x
+	inc ent_r1,x
 	lda ent_r1,x
+	cmp #$10
+	bne .next_frame_done
+	and #$00
+	sta ent_r1,x
+.next_frame_done
+	; render
+	lda ent_r1,x
+	tay
+	lda witch_spin_patterns,y
+	sta temp00
+	lda witch_spin_attributes,y
+	sta temp01
+	lda ent_x,x
+	sta temp02
+	lda ent_y,x
+	sta temp03
+	ldy ent_spr_ptr
+	jsr sprite_4_render
+	rts
+witch_spin_patterns:
+	hex 66 68 6a 6c 6e
+	hex 6c 6a 68 66
+	hex 68 6a 6c 6e
+	hex 6c 6a 68 
+witch_spin_attributes:
+	hex 01 01 01 01 01
+	hex 81 81 81 81
+	hex c1 c1 c1 c1
+	hex 41 41 41
+
+witch_on_road:
+	rts
+
+witch_flying_by:
+
+	; update logic
+	lda ent_r2,x
 	bmi .move_left
 .move_right
 	inc ent_x,x
@@ -79,12 +163,12 @@ ent_witch_update: subroutine
 	sta temp00
 	lda #$00
 	sta temp00
-	lda ent_r0,x
+	lda ent_r1,x
 	bmi .check_headx
 	inc temp00
 .check_headx
 	clc
-	lda ent_r1,x
+	lda ent_r2,x
 	bpl .headx_done
 .headx_left
 	lda temp00
@@ -95,9 +179,9 @@ ent_witch_update: subroutine
 .headx_done
 
 	; y pos
-	inc ent_r0,x
-	inc ent_r0,x
-	ldy ent_r0,x
+	inc ent_r1,x
+	inc ent_r1,x
+	ldy ent_r1,x
 	lda sine_table,y
 	shift_r 4
 	clc
@@ -107,23 +191,19 @@ ent_witch_update: subroutine
 	; dir facing
 	lda #$00
 	sta temp03
-	lda ent_r1,x
+	lda ent_r2,x
 	bmi .facing_done
 	lda #$40
 	sta temp03
 .facing_done
 
-	; render
+	; render flying
 	ldy ent_spr_ptr
-
-witch_spinning:
-
-witch_on_road:
-
-witch_flying_by:
-	lda ent_r1,x
+	
+	lda ent_r2,x
 	bmi witch_facing_left
 	jmp witch_facing_right
+
 
 witch_facing_left: subroutine
 	; head
@@ -304,13 +384,3 @@ witch_facing_right: subroutine
 
 
 
-witch_spin_patterns:
-	hex 66 68 6a 6c 6e
-	hex 6c 6a 68 66
-	hex 68 6a 6c 6e
-	hex 6c 6a 68 
-witch_spin_attributes:
-	hex 02 02 02 02 02
-	hex 82 82 82 82
-	hex c2 c2 c2 c2
-	hex 42 42 42
