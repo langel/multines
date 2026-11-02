@@ -3,7 +3,7 @@
 traffic_min_slot     eqm $10
 traffic_max_slot     eqm $20
 traffic_slots        eqm traffic_max_slot-traffic_min_slot
-traffic_spawn_frames eqm 60
+traffic_spawn_frames eqm 20
 
 
 traffic_find_slot: subroutine

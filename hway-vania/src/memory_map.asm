@@ -115,6 +115,8 @@ player_last_x       eqm $05c6
 player_lean         eqm $05c7
 player_lean_timer   eqm $05c8
 player_units        eqm $05c9 ; player speed, 1/32 px per frame
+player_last_edge    eqm $05ca ; right road left edge under the bike last frame
+player_trail        eqm $05cb ; lower sprite x offset from the torso
 
 ; car scratch, only valid during one car update
 car_sy_lo           eqm $05d0 ; screen y of the car top
@@ -126,7 +128,7 @@ car_lanes           eqm $05d5 ; full lanes at the car's front row
 car_gap             eqm $05d6 ; gap to the car ahead, $ff = none
 car_gap_speed       eqm $05d7
 car_cand            eqm $05d8
-car_ring            eqm $05d9 ; ring index of the front row
+car_ring            eqm $05d9 ; ring index of the front row, $ff when not looked up this frame
 car_chk_y_lo        eqm $05da ; box test input, see traffic_box_clear
 car_chk_y_hi        eqm $05db
 car_chk_len         eqm $05dc
@@ -137,6 +139,19 @@ car_new_slot        eqm $05e0 ; spawn candidate
 car_new_info        eqm $05e1
 car_new_speed       eqm $05e2
 car_new_lane        eqm $05e3
+car_slope           eqm $05e4 ; road edge change over car_slope_rows rows
+car_ideal           eqm $05e5 ; road offset of the sprite, 1/8 px
+car_off_base        eqm $05ee ; (slot & 15) * 4, the car's entry in car_off_cache
+
+; sprite x offsets kept between frames, 4 per traffic slot, top sprite first
+; refreshed every 4th frame by car_offsets
+car_off_cache       eqm $0120 ; to $015f
+car_k               eqm $05e8 ; ring row of the top sprite, from the top of the ring
+car_ref             eqm $05e9 ; road edge x at the leader's row
+car_prev            eqm $05ea ; offset of the sprite just placed
+car_want            eqm $05eb
+car_j               eqm $05ec ; sprite index from the leader
+car_seg             eqm $05ed ; sprite index from the top
 
 ; road row slots, 4 rows = current pair and previous pair
 ; $0600 is wiped by ents_clear, this game never calls it

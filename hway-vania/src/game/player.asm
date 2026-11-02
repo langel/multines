@@ -14,10 +14,13 @@ player_init: subroutine
 	jsr player_ring_index
 	tay
 	lda road_r_x_offset,y
+	sta player_last_edge
 	clc
 	adc #$0e
 	sta player_x
 	sta player_last_x
+	lda #$00
+	sta player_trail
 	lda #$00
 	sta whip_counter
 	sta whip_frame
@@ -174,21 +177,112 @@ player_update: subroutine
 	lda bit_lut,x
 	sta player_lane_mask
 
-	; lean from this frame's x step, the lower sprite trails
+	; lean from steering, the x step less what the road edge moved
+	lda player_x
+	sec
+	sbc player_last_x
+	sta temp04
+	lda road_r_x_offset,y
+	sec
+	sbc player_last_edge
+	sta temp05
+	lda road_r_x_offset,y
+	sta player_last_edge
+	lda player_x
+	sta player_last_x
 	lda player_lean
 	sta temp02
 	lda player_lean_timer
 	sta temp03
-	lda player_x
+	lda temp04
 	sec
-	sbc player_last_x
+	sbc temp05
 	jsr lean_step
 	lda temp02
 	sta player_lean
 	lda temp03
 	sta player_lean_timer
-	lda player_x
-	sta player_last_x
+
+	; lower sprite follows the road slope, plus the lean, within 1 px
+	; temp04 = where it should be, 1/8 px, see car_offsets
+	lda player_y
+	clc
+	adc #$04
+	sta temp00
+	lda #$00
+	sta temp01
+	jsr road_ring_index_screen
+	tay
+	lda road_r_x_offset,y
+	sta temp04
+	tya
+	clc
+	adc #car_slope_rows
+	cmp #road_ring_rows
+	bcc .slope_row
+	sbc #road_ring_rows
+.slope_row
+	tay
+	lda road_r_x_offset,y
+	sec
+	sbc temp04
+	sta temp04
+	lda player_lean
+	bpl .lean_abs
+	eor #$ff
+	clc
+	adc #$01
+.lean_abs
+	asl
+	asl
+	tax
+	lda car_lean_lut+1,x
+	bit player_lean
+	bmi .lean_ok
+	eor #$ff
+	clc
+	adc #$01
+.lean_ok
+	asl
+	asl
+	asl
+	clc
+	adc temp04
+	sta temp04
+	; stays put unless 6/8 px or more away
+	lda player_trail
+	asl
+	asl
+	asl
+	sta temp05
+	lda temp04
+	sec
+	sbc temp05
+	clc
+	adc #$05
+	cmp #$0b
+	bcc .trail_done
+	; nearest pixel, at most 1
+	lda temp04
+	clc
+	adc #$04
+	cmp #$80
+	ror
+	cmp #$80
+	ror
+	cmp #$80
+	ror
+	bmi .trail_left
+	beq .trail_set
+	lda #$01
+	bne .trail_set
+.trail_left
+	cmp #$ff
+	bcs .trail_set
+	lda #$ff
+.trail_set
+	sta player_trail
+.trail_done
 	
 	; upate collision
 	lda player_x
@@ -367,27 +461,12 @@ player_update: subroutine
 	lda player_y
 	sta spr_y,y
 	inc_y 4
-	; bottom sprite, trails the torso by the sedan lean offsets
+	; bottom sprite, trails the torso
 	lda #$12
 	sta spr_p,y
 	lda #$00
 	sta spr_a,y
-	lda player_lean
-	bpl .lean_abs
-	eor #$ff
-	clc
-	adc #$01
-.lean_abs
-	asl
-	asl
-	tax
-	lda car_lean_lut+1,x
-	bit player_lean
-	bmi .offset_ready
-	eor #$ff
-	clc
-	adc #$01
-.offset_ready
+	lda player_trail
 	clc
 	adc player_x
 	sta spr_x,y
