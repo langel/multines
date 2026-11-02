@@ -1,17 +1,23 @@
 
 
 player_init: subroutine
-	lda state02
-	sec
-	sbc #$0f-road_lead_rows
-	and #$1f
+	lda #$90
+	sta player_y
+	; world y starts mid range, camera at $8000
+	sta player_wy
+	lda #$80
+	sta player_wy_hi
+	sta camera_y_hi
+	lda #$00
+	sta player_wy_lo
+	sta camera_y
+	jsr player_ring_index
 	tay
 	lda road_r_x_offset,y
 	clc
 	adc #$0e
 	sta player_x
-	lda #$90
-	sta player_y
+	sta player_last_x
 	lda #$00
 	sta whip_counter
 	sta whip_frame
@@ -23,12 +29,98 @@ helmet_pattern:
 helmet_palette:
 	hex 00 02 03 01 00 02 03 01
 
+; world y += speed, camera follows, scroll moves by the camera delta
+player_move: subroutine
+	; sign of speed for the high byte
+	lda speed_hi
+	and #$80
+	beq .sign_done
+	lda #$ff
+.sign_done
+	sta temp00
+	clc
+	lda player_wy_lo
+	adc speed_lo
+	sta player_wy_lo
+	lda player_wy
+	adc speed_hi
+	sta player_wy
+	lda player_wy_hi
+	adc temp00
+	sta player_wy_hi
+	; camera = world - screen anchor, temp01 = camera delta
+	lda camera_y
+	sta temp01
+	sec
+	lda player_wy
+	sbc player_y
+	sta camera_y
+	lda player_wy_hi
+	sbc #$00
+	sta camera_y_hi
+	lda camera_y
+	sec
+	sbc temp01
+	sta temp01
+	; scroll_y is 0..239 per nametable
+	clc
+	adc scroll_y
+	sta scroll_y
+	cmp #240
+	bcc .units
+	lda temp01
+	bpl .reverse
+.forward
+	lda scroll_y
+	sec
+	sbc #16
+	sta scroll_y
+	dec scroll_y_hi
+	jmp .units
+.reverse
+	lda scroll_y
+	sec
+	sbc #240
+	sta scroll_y
+	inc scroll_y_hi
+.units
+	; player_units = forward speed in 1/32 px per frame, 0 when reversing
+	sec
+	lda #$00
+	sbc speed_lo
+	sta temp00
+	lda #$00
+	sbc speed_hi
+	bpl .forward_speed
+	lda #$00
+	sta player_units
+	rts
+.forward_speed
+	lsr
+	ror temp00
+	lsr
+	ror temp00
+	lsr
+	ror temp00
+	lda temp00
+	sta player_units
+	rts
+
+
+; ring index of the row under the middle of the bike
+player_ring_index: subroutine
+	lda player_y
+	clc
+	adc #$08
+	sta temp00
+	lda #$00
+	sta temp01
+	jmp road_ring_index_screen
+
+
 player_update: subroutine
 	; bound motorcycle to road
-	lda state02
-	sec
-	sbc #$0f-road_lead_rows
-	and #$1f
+	jsr player_ring_index
 	tay
 	; temp00 lower = left + 7, the car snaps 4 below it, 3 from the edge
 	lda road_r_x_offset,y
@@ -61,6 +153,42 @@ player_update: subroutine
 	sbc #$04
 	sta player_x
 .x_done
+
+	; right road lane under the bike, traffic moves over for it
+	lda player_x
+	clc
+	adc #$03
+	sec
+	sbc road_r_x_offset,y
+	bcs .rel_ok
+	lda #$00
+.rel_ok
+	ldx #$00
+.lane_loop
+	cmp lane_off_lut+1,x
+	bcc .lane_found
+	inx
+	cpx #$03
+	bne .lane_loop
+.lane_found
+	lda bit_lut,x
+	sta player_lane_mask
+
+	; lean from this frame's x step, the lower sprite trails
+	lda player_lean
+	sta temp02
+	lda player_lean_timer
+	sta temp03
+	lda player_x
+	sec
+	sbc player_last_x
+	jsr lean_step
+	lda temp02
+	sta player_lean
+	lda temp03
+	sta player_lean_timer
+	lda player_x
+	sta player_last_x
 	
 	; upate collision
 	lda player_x
@@ -239,14 +367,29 @@ player_update: subroutine
 	lda player_y
 	sta spr_y,y
 	inc_y 4
-	; bottom sprite
+	; bottom sprite, trails the torso by the sedan lean offsets
 	lda #$12
 	sta spr_p,y
 	lda #$00
 	sta spr_a,y
-	lda player_x
-	;clc
-	;adc ent_r2,x
+	lda player_lean
+	bpl .lean_abs
+	eor #$ff
+	clc
+	adc #$01
+.lean_abs
+	asl
+	asl
+	tax
+	lda car_lean_lut+1,x
+	bit player_lean
+	bmi .offset_ready
+	eor #$ff
+	clc
+	adc #$01
+.offset_ready
+	clc
+	adc player_x
 	sta spr_x,y
 	lda player_y
 	clc

@@ -1,134 +1,953 @@
 
-; ent_r0 last x pos
-; ent_r1 caboose dejitter
-; ent_r2 caboose x offset
+; traffic vehicle, one ent type, the subtype picks the sprites
+; ent_r0 last x, for the lean
+; ent_r1 lean hold timer
+; ent_r2 lean, -2..2, positive = moving right, trailing sprites lag left
+; ent_r3 bits 0-1 subtype, bit 7 opposing traffic on the left road
+; ent_r4 target lane, counted from the median
+; ent_r5 speed, 1/32 px per frame, mph is about speed * 16 / 15
+; ent_r6 cruise speed
+; ent_r7 lane mask, bits 0-3 right road lanes, bits 4-7 left road lanes
+;        both lanes are set while changing lanes
+; ent_x_hi:ent_x x of the leading sprite, x_hi $ff when off the left edge
+; ent_x_lo:ent_hp target x of the target lane, hi:lo, refreshed every other frame
+; ent_y_hi:ent_y:ent_y_lo world y of the top sprite
+
+car_look_dist    eqm 40 ; gap ahead that starts a lane change or braking
+car_snap_dist    eqm 12 ; gap that takes the speed of the car ahead at once
+car_yield_dist   eqm 64 ; player this close behind, move over
+car_lane_margin  eqm 24 ; clear space ahead and behind for a lane change
+car_spawn_margin eqm 16
+car_lean_hold    eqm 6  ; frames between lean steps
+car_lean_peak    eqm 8  ; frames a full lean holds once sideways motion stops
+car_min_speed    eqm 16 ; braking floor while stuck in a closing lane
+
+; by subtype: sedan, van, semi
+car_seg_count:
+	hex 02 03 04
+car_len:
+	hex 10 18 20
+car_pat_base:
+	hex 00 02 05
+car_pal:
+	hex 01 02 03
+car_lean_base:
+	hex 00 0c 18
+
+; patterns from the front of the vehicle
+car_pats:
+	hex 00 10
+	hex 31 41 51
+	hex 20 30 40 50
+
+; trailing x offsets by |lean| 0, 1, 2, leader first, 4 per row
+; neighbors differ by at most 1 and only grow, so no zigzag
+car_lean_lut:
+	; sedan, also the player bike
+	hex 00 00 00 00
+	hex 00 01 00 00
+	hex 00 01 00 00
+	; van
+	hex 00 00 00 00
+	hex 00 01 01 00
+	hex 00 01 02 00
+	; semi
+	hex 00 00 00 00
+	hex 00 00 01 01
+	hex 00 01 02 03
+
+; lane offset from the first lane, lane_pitch apart
+lane_off_lut:
+	hex 00 0d 1a 27
 
 
+; tries one spawn, carry set when a car was placed
 ent_car_spawn: subroutine
 	jsr traffic_find_slot
-	bmi .done
+	bpl .slot_ok
+	clc
+	rts
+.slot_ok
+	stx car_new_slot
+	jsr rng_update
+	; subtype from bits 1-2, 3 is another sedan
+	lda rng_val0
+	lsr
+	and #$03
+	cmp #$03
+	bne .subtype_ok
+	lda #$00
+.subtype_ok
+	sta car_new_info
+	; base speed 61..80, 65..85 mph
+	lda rng_val0
+	shift_r 3
+	cmp #20
+	bcc .speed_ok
+	sbc #12
+.speed_ok
+	clc
+	adc #61
+	sta car_new_speed
+	; top at 28 above the screen, out of view, and a car moving up
+	; on its spawn frame stays inside the 32 px despawn line
+	lda #$e4
+	sta car_sy_lo
+	lda #$ff
+	sta car_sy_hi
+	; bit 0 picks the road, the left road is opposing traffic
+	lda rng_val0
+	lsr
+	bcc .right_road
+	lda car_new_info
+	ora #$80
+	sta car_new_info
+	jmp .place
+.right_road
+	; slower than the player starts ahead
+	lda player_units
+	cmp car_new_speed
+	beq .behind
+	bcs .place
+.behind
+	; behind the player and 5..23 faster, about 5..25 mph
+	lda rng_val1
+	shift_r 3
+	cmp #19
+	bcc .delta_ok
+	sbc #13
+.delta_ok
+	clc
+	adc #5
+	adc player_units
+	bcc .behind_fast
+	lda #$ff
+.behind_fast
+	; never under the base speed
+	cmp car_new_speed
+	bcc .behind_slow
+	sta car_new_speed
+.behind_slow
+	lda #$f0
+	sta car_sy_lo
+	lda #$00
+	sta car_sy_hi
+.place
+	lda car_new_info
+	and #$03
+	tax
+	lda car_len,x
+	sta car_len_a
+	lda car_new_info
+	jsr car_front_row
+	sta car_ring
+	tay
+	jsr road_lane_count
+	sta car_lanes
+	; lane from bits 0-1, missing outer lanes fold to 0 or 1
+	lda rng_val1
+	and #$03
+	cmp car_lanes
+	bcc .lane_ok
+	and #$01
+	cmp car_lanes
+	bcc .lane_ok
+	clc
+	rts
+.lane_ok
+	sta car_new_lane
+	lda car_new_info
+	sta temp07
+	ldy car_ring
+	lda car_new_lane
+	jsr car_lane_x
+	; no spawning into lanes off the left edge
+	lda car_tx_hi
+	bne .fail
+	lda car_new_lane
+	jsr car_lane_bit
+	sta car_chk_mask
+	; world y = camera + screen y
+	clc
+	lda camera_y
+	adc car_sy_lo
+	sta car_chk_y_lo
+	lda camera_y_hi
+	adc car_sy_hi
+	sta car_chk_y_hi
+	lda car_len_a
+	sta car_chk_len
+	lda #car_spawn_margin
+	sta car_chk_margin
+	lda #$ff
+	sta car_chk_self
+	jsr traffic_box_clear
+	bcc .fail
+	ldx car_new_slot
 	lda #ent_car_id
 	sta ent_type,x
-.done
-	; start in the left lane, where the update would push it
-	lda state02
-	sec
-	sbc #$0f-road_lead_rows
-	and #$1f
-	tay
-	lda road_r_x_offset,y
-	clc
-	adc #$03
+	lda car_new_info
+	sta ent_r3,x
+	lda car_new_lane
+	sta ent_r4,x
+	lda car_new_speed
+	sta ent_r5,x
+	sta ent_r6,x
+	lda car_chk_mask
+	sta ent_r7,x
+	lda car_tx_lo
 	sta ent_x,x
 	sta ent_r0,x
-	lda #$80
+	sta ent_hp,x
+	lda #$00
+	sta ent_x_lo,x
+	sta ent_x_hi,x
+	sta ent_r1,x
+	sta ent_r2,x
+	sta ent_y_lo,x
+	lda car_chk_y_lo
 	sta ent_y,x
+	lda car_chk_y_hi
+	sta ent_y_hi,x
+	sec
+	rts
+.fail
+	clc
 	rts
 
 
-
-ent_car_update: subroutine
-	; update logic
-
-	; bound car to road
-	lda state02
-	sec
-	sbc #$0f-road_lead_rows
-	and #$1f
-	tay
-	; temp00 lower = left + 7, the car snaps 4 below it, 3 from the edge
-	lda road_r_x_offset,y
-	clc
-	adc #$07
-	sta temp00
-	; temp01 upper = left + 38, or left + width - 2 on a narrow road
-	lda road_w_ring,y
-	sec
-	sbc #$02
-	cmp #$26
-	bcc .high_ok
-	lda #$26
-.high_ok
-	clc
-	adc road_r_x_offset,y
-	sta temp01
-	lda temp00
-	cmp ent_x,x
-	bcs .x_less
-.x_more
-	lda temp01
-	cmp ent_x,x
-	bcs .x_done
-	sta ent_x,x
-	jmp .x_done
-.x_less
-	lda temp00
+; in: a = car info (ent_r3), car_sy_lo/hi = screen y of the top, car_len_a
+; out: a = ring index of the front row, top + 4 or bottom - 4 for opposing
+; clobbers x temp00..temp03
+car_front_row: subroutine
+	asl
+	bcs .bottom
+	lda #$04
+	bne .front_set
+.bottom
+	lda car_len_a
 	sec
 	sbc #$04
-	sta ent_x,x
-.x_done
+.front_set
+	clc
+	adc car_sy_lo
+	sta temp00
+	lda car_sy_hi
+	adc #$00
+	sta temp01
+	jmp road_ring_index_screen
 
-	; setup caboose x offset
-	lda ent_r1,x
-	beq .caboose_update
-	dec ent_r1,x
-	bne .caboose_really_done
-.caboose_update
+
+; in: a = lane, temp07 = car info, bit 7 opposing
+; out: a = lane mask bit, clobbers y
+car_lane_bit: subroutine
+	bit temp07
+	bpl .right
+	ora #$04
+.right
+	tay
+	lda bit_lut,y
+	rts
+
+
+; in: a = lane, y = ring index, temp07 = car info, bit 7 opposing
+; out: car_tx_lo/hi = x of a car centered in the lane
+; clobbers x temp04 temp05
+car_lane_x: subroutine
+	tax
+	bit temp07
+	bmi .left
+	; right road, lanes from its left edge
+	lda road_r_x_offset,y
+	clc
+	adc #$03
+	adc lane_off_lut,x
+	sta car_tx_lo
 	lda #$00
-	sta ent_r2,x
-	lda ent_x,x
-	cmp ent_r0,x
-	beq .caboose_done
+	sta car_tx_hi
+	rts
+.left
+	; left road, lanes from its right edge, left + width - 11 - lane offset
+	; the offset goes negative for a lane that is closing
+	lda road_w_ring,y
+	sec
+	sbc #11
+	sec
+	sbc lane_off_lut,x
+	sta temp04
+	lda #$00
+	bit temp04
+	bpl .off_sign
+	lda #$ff
+.off_sign
+	sta temp05
+	ldx #$00
+	lda road_l_x_offset,y
+	cmp #$c0
+	bcc .edge_sign
+	dex
+.edge_sign
+	clc
+	adc temp04
+	sta car_tx_lo
+	txa
+	adc temp05
+	sta car_tx_hi
+	rts
+
+
+; in: car_chk_y_lo/hi world y of a box top, car_chk_len, car_chk_mask,
+;     car_chk_margin space kept above and below, car_chk_self slot to skip
+; out: carry set when no car in the mask's lanes is inside the box
+; clobbers x y temp00
+traffic_box_clear: subroutine
+	ldy #traffic_min_slot
+.loop
+	cpy car_chk_self
+	beq .next
+	lda ent_type,y
+	cmp #ent_car_id
+	bne .next
+	lda ent_r7,y
+	and car_chk_mask
+	beq .next
+	; d = other top - box top
+	sec
+	lda ent_y,y
+	sbc car_chk_y_lo
+	sta temp00
+	lda ent_y_hi,y
+	sbc car_chk_y_hi
+	beq .other_below
+	cmp #$ff
+	bne .next
+	; other above, blocked when -d < other len + margin
+	lda ent_r3,y
+	and #$03
+	tax
+	lda car_len,x
+	clc
+	adc car_chk_margin
+	clc
+	adc temp00
+	bcs .blocked
+	bcc .next
+.other_below
+	; blocked when d <= box len + margin
+	lda car_chk_len
+	clc
+	adc car_chk_margin
+	cmp temp00
+	bcs .blocked
+.next
+	iny
+	cpy #traffic_max_slot
+	bne .loop
+	sec
+	rts
+.blocked
+	clc
+	rts
+
+
+ent_car_update: subroutine
+	lda ent_r3,x
+	and #$03
+	tay
+	lda car_len,y
+	sta car_len_a
+
+	; move, speed * 8 in 8.8 px per frame
+	lda ent_r5,x
+	sta temp00
+	lda #$00
+	sta temp01
+	asl temp00
+	rol temp01
+	asl temp00
+	rol temp01
+	asl temp00
+	rol temp01
+	lda ent_r3,x
+	bmi .move_down
+	sec
+	lda ent_y_lo,x
+	sbc temp00
+	sta ent_y_lo,x
+	lda ent_y,x
+	sbc temp01
+	sta ent_y,x
+	lda ent_y_hi,x
+	sbc #$00
+	sta ent_y_hi,x
+	jmp .moved
+.move_down
+	clc
+	lda ent_y_lo,x
+	adc temp00
+	sta ent_y_lo,x
+	lda ent_y,x
+	adc temp01
+	sta ent_y,x
+	lda ent_y_hi,x
+	adc #$00
+	sta ent_y_hi,x
+.moved
+
+	; screen y, despawn 32 above or 16 below the screen
+	sec
+	lda ent_y,x
+	sbc camera_y
+	sta car_sy_lo
+	lda ent_y_hi,x
+	sbc camera_y_hi
+	sta car_sy_hi
+	beq .alive
+	cmp #$ff
+	beq .above
+	cmp #$01
+	bne .despawn
+	lda car_sy_lo
+	beq .alive
+	bne .despawn
+.above
+	lda car_sy_lo
+	cmp #$e0
+	bcs .alive
+.despawn
+	ent_despawn
+	ldy ent_spr_ptr
+	rts
+.alive
+
+	; road lookups on alternate frames, slots take turns to spread the cost
+	txa
+	eor wtf
+	sta car_cand
+	lsr
+	bcs .target_done
+	lda ent_r3,x
+	jsr car_front_row
+	sta car_ring
+	ldx ent_slot
+	; ai every 8th frame
+	lda car_cand
+	and #$07
+	bne .ai_done
+	ldy car_ring
+	jsr road_lane_count
+	sta car_lanes
+	ldx ent_slot
+	jsr car_ai
+.ai_done
+	; target lane x
+	lda ent_r3,x
+	sta temp07
+	ldy car_ring
+	lda ent_r4,x
+	jsr car_lane_x
+	ldx ent_slot
+	lda car_tx_lo
+	sta ent_hp,x
+	lda car_tx_hi
+	sta ent_x_lo,x
+.target_done
+
+	; steer 1 px per frame toward it, within 1 px counts as arrived
+	lda ent_r3,x
+	sta temp07
+	sec
+	lda ent_hp,x
+	sbc ent_x,x
+	sta temp00
+	lda ent_x_lo,x
+	sbc ent_x_hi,x
+	bmi .steer_left
+	bne .steer_right
+	lda temp00
+	beq .arrived
+	cmp #$01
+	bne .steer_right
+	inc ent_x,x
+	bne .arrived
+	inc ent_x_hi,x
+	jmp .arrived
+.steer_right
+	inc ent_x,x
+	bne .steered
+	inc ent_x_hi,x
+	jmp .steered
+.steer_left
+	lda temp00
+	cmp #$ff
 	php
-	lda #$07
-	sta ent_r1,x
+	lda ent_x,x
+	bne .dec_lo
+	dec ent_x_hi,x
+.dec_lo
+	dec ent_x,x
 	plp
-	bcs .caboose_left
-.caboose_right
-	inc ent_r2,x
-	jmp .caboose_done
-.caboose_left
-	dec ent_r2,x
-.caboose_done
+	bne .steered
+.arrived
+	; settled, only the target lane is occupied
+	; nothing to do unless more than one lane bit is set
+	lda ent_r7,x
+	sec
+	sbc #$01
+	and ent_r7,x
+	beq .steered
+	lda ent_r4,x
+	jsr car_lane_bit
+	ldx ent_slot
+	sta ent_r7,x
+.steered
+
+	; lean from this frame's x step, temp06 = step
+	lda ent_x,x
+	sec
+	sbc ent_r0,x
+	sta temp06
 	lda ent_x,x
 	sta ent_r0,x
-.caboose_really_done
+	lda ent_r1,x
+	beq .lean_ready
+	ldy temp06
+	bne .lean_call
+	dec ent_r1,x
+	jmp car_render
+.lean_ready
+	; straight and not moving sideways, nothing changes
+	lda ent_r2,x
+	ora temp06
+	beq .lean_done
+.lean_call
+	lda ent_r2,x
+	sta temp02
+	lda ent_r1,x
+	sta temp03
+	lda temp06
+	jsr lean_step
+	ldx ent_slot
+	lda temp02
+	sta ent_r2,x
+	lda temp03
+	sta ent_r1,x
+.lean_done
 
-	; setup collision
+	jmp car_render
+
+
+; lane collapse, lookahead, lane changes, braking, player yield
+; runs every 8th frame per car
+; in: x = slot, car_lanes, car_len_a
+car_ai: subroutine
+	; the lane is closing under the car, merge in
+	lda ent_r4,x
+	cmp car_lanes
+	bcc .lane_valid
+	lda car_lanes
+	bne .merge
+	rts
+.merge
+	sec
+	sbc #$01
+	jsr car_try_lane
+	bcs .lane_valid
+	; blocked, slow down until a gap opens
+	lda ent_r5,x
+	cmp #car_min_speed
+	bcc .lane_valid
+	sbc #$04
+	sta ent_r5,x
+.lane_valid
+	jsr car_lookahead
+	lda car_gap
+	cmp #car_look_dist
+	bcs .clear_ahead
+	; very close, take the speed of the car ahead
+	cmp #car_snap_dist
+	bcs .not_close
+	lda car_gap_speed
+	cmp ent_r5,x
+	bcs .not_close
+	sta ent_r5,x
+.not_close
+	; pass toward the median first, only when settled in a lane
+	jsr car_is_changing
+	bne .brake
+	lda ent_r4,x
+	sec
+	sbc #$01
+	jsr car_try_lane
+	bcc .pass_out
+	rts
+.pass_out
+	lda ent_r4,x
+	clc
+	adc #$01
+	jsr car_try_lane
+	bcc .brake
+	rts
+.brake
+	; 4 per ai frame, never under the car ahead
+	lda ent_r5,x
+	sec
+	sbc #$04
+	bcc .brake_match
+	cmp car_gap_speed
+	bcs .brake_store
+.brake_match
+	lda ent_r5,x
+	cmp car_gap_speed
+	bcc .done
+	lda car_gap_speed
+.brake_store
+	sta ent_r5,x
+	rts
+.clear_ahead
+	; back up to cruise speed, 2 per ai frame
+	lda ent_r5,x
+	cmp ent_r6,x
+	bcs .yield
+	adc #$02
+	cmp ent_r6,x
+	bcc .accel_store
+	lda ent_r6,x
+.accel_store
+	sta ent_r5,x
+.yield
+	; right road only, move over for the player closing from behind
+	lda ent_r3,x
+	bmi .done
+	lda player_lane_mask
+	and ent_r7,x
+	beq .done
+	lda player_units
+	cmp ent_r5,x
+	beq .done
+	bcc .done
+	jsr car_is_changing
+	bne .done
+	; distance from the car's back to the player's top
+	sec
+	lda player_wy
+	sbc ent_y,x
+	sta temp00
+	lda player_wy_hi
+	sbc ent_y_hi,x
+	bne .done
+	lda temp00
+	sec
+	sbc car_len_a
+	bcc .done
+	cmp #car_yield_dist
+	bcs .done
+	; outer lane first, then toward the median
+	lda ent_r4,x
+	clc
+	adc #$01
+	jsr car_try_lane
+	bcs .done
+	lda ent_r4,x
+	sec
+	sbc #$01
+	jsr car_try_lane
+.done
+	rts
+
+
+; z clear when the car is between lanes, x = slot
+car_is_changing: subroutine
+	lda ent_r3,x
+	sta temp07
+	lda ent_r4,x
+	jsr car_lane_bit
+	cmp ent_r7,x
+	rts
+
+
+; in: a = lane, $ff for none, x = slot
+; out: carry set when the change started
+car_try_lane: subroutine
+	cmp car_lanes
+	bcs .fail
+	sta car_cand
+	lda ent_r3,x
+	sta temp07
+	lda car_cand
+	jsr car_lane_bit
+	sta car_chk_mask
+	lda ent_y,x
+	sta car_chk_y_lo
+	lda ent_y_hi,x
+	sta car_chk_y_hi
+	lda car_len_a
+	sta car_chk_len
+	lda #car_lane_margin
+	sta car_chk_margin
+	stx car_chk_self
+	jsr traffic_box_clear
+	ldx ent_slot
+	bcc .fail
+	lda car_cand
+	sta ent_r4,x
+	lda ent_r7,x
+	ora car_chk_mask
+	sta ent_r7,x
+	sec
+	rts
+.fail
+	clc
+	rts
+
+
+; nearest car ahead sharing a lane
+; out: car_gap px from this car's front to its back, $ff none, car_gap_speed
+car_lookahead: subroutine
+	lda #$ff
+	sta car_gap
+	ldy #traffic_min_slot
+.loop
+	cpy ent_slot
+	beq .next
+	lda ent_type,y
+	cmp #ent_car_id
+	bne .next
+	lda ent_r7,y
+	and ent_r7,x
+	beq .next
+	lda ent_r3,x
+	bmi .down
+	; up the road, ahead is smaller y, gap = top - other top - other len
+	sec
+	lda ent_y,x
+	sbc ent_y,y
+	sta temp00
+	lda ent_y_hi,x
+	sbc ent_y_hi,y
+	bne .next
+	lda ent_r3,y
+	and #$03
+	tax
+	lda car_len,x
+	ldx ent_slot
+	jmp .gap
+.down
+	; down the road, gap = other top - top - len
+	sec
+	lda ent_y,y
+	sbc ent_y,x
+	sta temp00
+	lda ent_y_hi,y
+	sbc ent_y_hi,x
+	bne .next
+	lda car_len_a
+.gap
+	sta temp01
+	lda temp00
+	sec
+	sbc temp01
+	bcs .gap_pos
+	lda #$00
+.gap_pos
+	cmp car_gap
+	bcs .next
+	sta car_gap
+	lda ent_r5,y
+	sta car_gap_speed
+.next
+	iny
+	cpy #traffic_max_slot
+	bne .loop
+	rts
+
+
+; in: a = x step this frame, temp02 = lean, temp03 = hold timer
+; out: temp02 temp03, the lean moves one step toward 2, -2 or 0
+; a full lean holds car_lean_peak frames after the last step toward it
+; clobbers temp04
+lean_step: subroutine
+	sta temp04
+	beq .no_push
+	eor temp02
+	bmi .no_push
+	lda temp02
+	cmp #$02
+	beq .peak
+	cmp #$fe
+	bne .no_push
+.peak
+	lda #car_lean_peak
+	sta temp03
+	rts
+.no_push
+	lda temp03
+	beq .ready
+	dec temp03
+	rts
+.ready
+	lda temp04
+	beq .target
+	bmi .target_left
+	lda #$02
+	bne .target
+.target_left
+	lda #$fe
+.target
+	; both are -2..2, compare with a +2 bias
+	clc
+	adc #$02
+	sta temp04
+	lda temp02
+	clc
+	adc #$02
+	cmp temp04
+	beq .done
+	bcs .step_left
+	inc temp02
+	jmp .hold
+.step_left
+	dec temp02
+.hold
+	lda temp02
+	cmp #$02
+	beq .peak
+	cmp #$fe
+	beq .peak
+	lda #car_lean_hold
+	sta temp03
+.done
+	rts
+
+
+; x = slot, returns y = sprite pointer
+car_render: subroutine
+	; nothing when the sprite page is full or the car is off the left edge
+	lda traffic_oam_full
+	ora ent_x_hi,x
+	beq .visible
+	ldy ent_spr_ptr
+	rts
+.visible
+	; collision box when the top is on screen
+	lda car_sy_hi
+	bne .collision_done
 	lda ent_x,x
 	sta collision_1_x
-	lda ent_y,x
+	lda car_sy_lo
 	sta collision_1_y
 	lda #$08
 	sta collision_1_w
-	lda #$10
+	lda car_len_a
 	sta collision_1_h
-
-	; render (reload y?)
-	ldy ent_spr_ptr
-
+.collision_done
+	; temp00 pattern base, temp01 attribute, temp02 sprite count
+	lda ent_r3,x
+	and #$03
+	tay
+	lda car_pat_base,y
+	sta temp00
+	lda car_seg_count,y
+	sta temp02
+	lda car_pal,y
+	sta temp01
+	lda ent_r3,x
+	bpl .attr_done
+	; opposing, front at the bottom, flipped
+	lda temp01
+	ora #$80
+	sta temp01
+.attr_done
+	; temp03 lean row, temp04 lean sign
+	lda ent_r2,x
+	sta temp04
+	bpl .lean_abs
+	eor #$ff
+	clc
+	adc #$01
+.lean_abs
+	asl
+	asl
+	clc
+	adc car_lean_base,y
+	sta temp03
+	; temp05/06 sprite screen y, temp07 sprite index from the top
+	lda car_sy_lo
+	sta temp05
+	lda car_sy_hi
+	sta temp06
 	lda #$00
-	sta spr_p,y
-	lda #$01
-	sta spr_a,y
-	lda ent_x,x
-	sta spr_x,y
-	lda ent_y,x
+	sta temp07
+	ldy ent_spr_ptr
+.seg_loop
+	lda temp06
+	bne .seg_next
+	lda temp05
+	cmp #$ef
+	bcs .seg_next
 	sta spr_y,y
-	inc_y 4
-
-	lda #$10
+	; leader first index, the bottom leads when flipped
+	lda temp07
+	bit temp01
+	bpl .lead_done
+	eor #$ff
+	clc
+	adc temp02
+.lead_done
+	pha
+	clc
+	adc temp00
+	tax
+	lda car_pats,x
 	sta spr_p,y
-	lda #$01
+	lda temp01
 	sta spr_a,y
-	lda ent_x,x
+	pla
 	clc
-	adc ent_r2,x
+	adc temp03
+	tax
+	lda car_lean_lut,x
+	; trailing sprites lag opposite the lean
+	bit temp04
+	bmi .offset_ready
+	eor #$ff
+	clc
+	adc #$01
+.offset_ready
+	sta car_cand
+	ldx ent_slot
+	clc
+	adc ent_x,x
 	sta spr_x,y
-	lda ent_y,x
+	; carry with a positive offset or none with a negative one wrapped
+	lda car_cand
+	bmi .offset_neg
+	bcs .wrapped
+	bcc .written
+.offset_neg
+	bcc .wrapped
+.written
+	inc_y 4
+	bne .seg_next
+	; sprite page full, the rest of traffic skips rendering this frame
+	inc traffic_oam_full
+	jmp .finish
+.wrapped
+	lda #$ff
+	sta spr_y,y
+.seg_next
 	clc
+	lda temp05
 	adc #$08
-	sta spr_y,y
-	inc_y 4
-
+	sta temp05
+	lda temp06
+	adc #$00
+	sta temp06
+	inc temp07
+	lda temp07
+	cmp temp02
+	bne .seg_loop
+.finish
+	sty ent_spr_ptr
+	ldx ent_slot
 	rts

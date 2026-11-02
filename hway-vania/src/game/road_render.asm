@@ -52,7 +52,9 @@ game_road_prerender: subroutine
 	lda state02
 	sec
 	sbc #$01
-	and #$1f
+	bcs .ring_store
+	lda #road_ring_rows-1
+.ring_store
 	sta state02
 	; class ring row
 	lda road_class_ring
@@ -194,7 +196,9 @@ road_gen_rows: subroutine
 	lda pg_ring
 	sec
 	sbc #$01
-	and #$1f
+	bcs .ring_store
+	lda #road_ring_rows-1
+.ring_store
 	sta rg_ring
 	jmp road_gen_row
 
@@ -782,6 +786,83 @@ road_class_lookup_screen: subroutine
 .ring_ok
 	ldx temp01
 	jmp road_class_lookup
+
+
+; in: temp00/temp01 = screen y lo/hi, signed, rows above or below the screen ok
+; out: a = road ring index of that row, clamped to the generated rows
+; clobbers x temp02 temp03
+; state02 is the row road_lead_rows above the detected row, see road_row_detect
+; the newest row may be one above state02, so the oldest usable is 2 short of a full ring
+road_ring_index_screen: subroutine
+	lda scroll_y
+	and #$07
+	sta temp02
+	; y + phase + 64, the bias keeps rows above the screen positive
+	clc
+	lda temp00
+	adc temp02
+	sta temp03
+	lda temp01
+	adc #$00
+	tax
+	clc
+	lda temp03
+	adc #$40
+	sta temp03
+	txa
+	adc #$00
+	cmp #$02
+	bcs .clamp
+	; 9 bit value >> 3
+	lsr
+	lda temp03
+	ror
+	shift_r 2
+	; row offset from state02 = rows - 8 + lead, + 1 when the phase is not 7
+	ldx temp02
+	cpx #$07
+	beq .phase_done
+	clc
+	adc #$01
+.phase_done
+	sec
+	sbc #8-road_lead_rows
+	bcs .k_clamp
+	lda #$00
+.k_clamp
+	cmp #road_ring_rows-1
+	bcc .k_ok
+.k_max
+	lda #road_ring_rows-2
+.k_ok
+	clc
+	adc state02
+	cmp #road_ring_rows
+	bcc .done
+	sbc #road_ring_rows
+.done
+	rts
+.clamp
+	; far above wraps negative, far below is large
+	bpl .k_max
+	lda #$00
+	beq .k_ok
+
+
+; full lanes on a road of the width at ring row y, 0..4
+; clobbers x
+road_lane_count: subroutine
+	lda road_w_ring,y
+	ldx #$00
+.loop
+	cmp lane_width_lut+1,x
+	bcc .done
+	inx
+	cpx #$04
+	bne .loop
+.done
+	txa
+	rts
 
 
 ; 2x2 tree in quadrant temp01 when all 4 of its tiles are dirt

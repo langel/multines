@@ -4,9 +4,12 @@
 speed_hi       byte
 speed_lo       byte
 mph            byte
-scroll_y_lo    byte ; sub pixels
 player_x       byte
-player_y       byte
+player_y       byte ; screen y, the camera keeps the player here
+; player world y, up the road is negative, camera_y = world - player_y
+player_wy_lo   byte ; sub pixels
+player_wy      byte
+player_wy_hi   byte
 whip_counter   byte
 whip_frame     byte
 helmet_type    byte
@@ -90,20 +93,53 @@ fin_col            byte ; quadrant column
 ; rows generated above the visible top, must be even
 road_lead_rows    eqm $06
 
-; road x offset rings, 32 rows each, index 0..31 only
-; stack page, not cleared at boot, cleared in state_game_init
-; $0160 and up is shared audio state
-road_r_x_offset   eqm $0120
-road_l_x_offset   eqm $0140
+; road rings, one entry per generated row, index 0..road_ring_rows-1
+; the newest row is road_lead_rows above the visible top, so 40 rows cover
+; the lead rows, 30 visible rows and 4 rows below the screen
+; the whole $0500 page is tier 2 ent registers in the framework, unused here
+; never call ent_despawn_2 or ent_z_despawn, they clear $0500-$05ff
+; cleared in state_game_init
+road_ring_rows    eqm 40
+road_r_x_offset   eqm $0500 ; right road left edge, pixels
+road_l_x_offset   eqm $0540 ; left road left edge, pixels, >= $c0 is off the left edge
+road_w_ring       eqm $0580 ; road width, both roads
 
-; road width per row, 32, same index as the x offsets
-; $0500-$051f is ent_r500, the first tier 2 entity register
-; claimed here, ent_despawn_2 clears ent_r500,x so do not despawn tier 2 ents
-road_w_ring       eqm $0500
+; traffic and player state, $05c0-$05ff
+traffic_spawn_timer eqm $05c0 ; frames to the next spawn, 0 = try every frame
+traffic_rot         eqm $05c1 ; update start index, rotates for sprite flicker
+traffic_idx         eqm $05c2
+traffic_count       eqm $05c3
+traffic_oam_full    eqm $05c4 ; non zero once the sprite page wrapped this frame
+player_lane_mask    eqm $05c5 ; right road lane bit under the player
+player_last_x       eqm $05c6
+player_lean         eqm $05c7
+player_lean_timer   eqm $05c8
+player_units        eqm $05c9 ; player speed, 1/32 px per frame
+
+; car scratch, only valid during one car update
+car_sy_lo           eqm $05d0 ; screen y of the car top
+car_sy_hi           eqm $05d1
+car_tx_lo           eqm $05d2 ; target x of the target lane
+car_tx_hi           eqm $05d3
+car_len_a           eqm $05d4 ; length of the car being updated
+car_lanes           eqm $05d5 ; full lanes at the car's front row
+car_gap             eqm $05d6 ; gap to the car ahead, $ff = none
+car_gap_speed       eqm $05d7
+car_cand            eqm $05d8
+car_ring            eqm $05d9 ; ring index of the front row
+car_chk_y_lo        eqm $05da ; box test input, see traffic_box_clear
+car_chk_y_hi        eqm $05db
+car_chk_len         eqm $05dc
+car_chk_mask        eqm $05dd
+car_chk_margin      eqm $05de
+car_chk_self        eqm $05df
+car_new_slot        eqm $05e0 ; spawn candidate
+car_new_info        eqm $05e1
+car_new_speed       eqm $05e2
+car_new_lane        eqm $05e3
 
 ; road row slots, 4 rows = current pair and previous pair
 ; $0600 is wiped by ents_clear, this game never calls it
-; $0500 is ent framework ram, only $0500-$051f is claimed, see road_w_ring
 road_tile_rows    eqm $0600 ; 4 x 32 tiles
 road_attr_rows    eqm $0680 ; 4 x 8 attribute bytes
 road_attr_band    eqm $06a0 ; 8 bytes, running attributes of the band

@@ -44,32 +44,8 @@ state_game_update: subroutine
 */
 	
 
-	; update scroll position
-	clc
-	lda scroll_y_lo
-	adc speed_lo
-	sta scroll_y_lo
-	lda scroll_y
-	adc speed_hi
-	sta scroll_y
-	cmp #240
-	bcc .scroll_done
-	lda speed_hi
-	bpl .reverse
-.forward
-	lda scroll_y
-	sec
-	sbc #16
-	sta scroll_y
-	dec scroll_y_hi
-	jmp .scroll_done
-.reverse
-	lda scroll_y
-	sec
-	sbc #240
-	sta scroll_y
-	inc scroll_y_hi
-.scroll_done
+	; player world y, camera, scroll position
+	jsr player_move
 
 	; scroll_nm single source of truth
 	lda scroll_y_hi
@@ -100,11 +76,13 @@ state_game_update: subroutine
 	sty ent_spr_ptr
 	
 	jsr controller_read
+	; player first, its collision box is used by the ents
+	; traffic last, it drops sprites once the page is full
+	jsr player_update
+	jsr game_hud_update
+	sty ent_spr_ptr
 	jsr baddies_update
 	jsr traffic_update
-	jsr player_update
-
-	jsr game_hud_update
 
 	DEBUG_VIS_OFF
 

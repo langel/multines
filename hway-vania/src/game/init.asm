@@ -40,12 +40,11 @@ state_game_init: subroutine
 	lda #$00
 	sta scroll_nm
 
-	; clear road x offset rings, r then l
-	ldx #$00
+	; clear road rings, traffic and player state, the whole $0500 page
+	tax
 .ring_clear_loop
 	sta road_r_x_offset,x
 	inx
-	cpx #$40
 	bne .ring_clear_loop
 
 	; reset row pipeline, a is 0
@@ -114,7 +113,6 @@ state_game_init: subroutine
 
 	jsr player_init
 
-	jsr ent_car_spawn
 	jsr ent_tester_spawn
 	jsr ent_gorilla_spawn
 	jsr ent_witch_spawn
