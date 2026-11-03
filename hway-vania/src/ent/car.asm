@@ -1,6 +1,6 @@
 
 ; traffic vehicle, one ent type, the subtype picks the sprites
-; ent_r0 last x, for the lean
+; ent_r0 unused
 ; ent_r1 lean hold timer
 ; ent_r2 lean from lane changes, -2..2, positive = moving right, trailing sprites lag left
 ; ent_r3 bits 0-1 subtype, bit 7 opposing traffic on the left road
@@ -13,8 +13,9 @@
 ; ent_x_lo:ent_hp target x of the target lane, hi:lo, refreshed every other frame
 ; ent_y_hi:ent_y:ent_y_lo world y of the top sprite
 
-car_look_dist    eqm 44 ; gap ahead that starts a lane change or braking
-car_snap_dist    eqm 16 ; gap that takes the speed of the car ahead at once
+car_look_dist    eqm 40 ; gap ahead that starts a lane change or braking
+car_snap_dist    eqm 6  ; gap by the next ai frame that takes the speed of the car ahead
+car_min_gap      eqm 5  ; closer than this, drop back under the car ahead's speed
 car_yield_dist   eqm 64 ; player this close behind, move over
 car_lane_margin  eqm 24 ; clear space ahead and behind for a lane change
 car_spawn_margin eqm 16
@@ -209,7 +210,6 @@ ent_car_spawn: subroutine
 	sta ent_r7,x
 	lda car_tx_lo
 	sta ent_x,x
-	sta ent_r0,x
 	sta ent_hp,x
 	lda #$00
 	sta ent_x_lo,x
@@ -568,7 +568,19 @@ ent_car_update: subroutine
 	bne .steer
 	jmp .steered
 .steer
-	; steer 1 px per frame toward it, within 1 px counts as arrived
+	; lane changes move every other frame, keeping to a curving lane every frame
+	lda ent_r7,x
+	sec
+	sbc #$01
+	and ent_r7,x
+	beq .steer_now
+	txa
+	eor wtf
+	lsr
+	bcc .steer_now
+	jmp .steered
+.steer_now
+	; steer 1 px toward it, within 1 px counts as arrived
 	lda ent_r3,x
 	sta temp07
 	sec
@@ -617,21 +629,28 @@ ent_car_update: subroutine
 	sta ent_r7,x
 .steered
 
-	; lean from this frame's x step, temp06 = step
-	; only lane changes lean, the sprites follow road curves in car_render
-	lda ent_x,x
-	sec
-	sbc ent_r0,x
-	sta temp06
-	lda ent_x,x
-	sta ent_r0,x
+	; lean toward the target lane while changing lanes, temp06 = -1, 0 or 1
+	; the sprites follow road curves in car_render
 	lda ent_r7,x
 	sec
 	sbc #$01
 	and ent_r7,x
-	bne .changing
+	beq .dir_set
+	sec
+	lda ent_hp,x
+	sbc ent_x,x
 	sta temp06
-.changing
+	lda ent_x_lo,x
+	sbc ent_x_hi,x
+	bmi .dir_left
+	ora temp06
+	beq .dir_set
+	lda #$01
+	bne .dir_set
+.dir_left
+	lda #$ff
+.dir_set
+	sta temp06
 	lda ent_r1,x
 	beq .lean_ready
 	ldy temp06
@@ -688,8 +707,9 @@ car_ai: subroutine
 	sta ent_r5,x
 .lane_valid
 	jsr car_lookahead
-	; the gap by the next ai frame, 8 frames of closing speed is speed / 4 px
+	; temp01 = the gap by the next ai frame, 8 frames of closing speed is speed / 4 px
 	lda car_gap
+	sta temp01
 	cmp #$ff
 	beq .gap_ready
 	lda ent_r5,x
@@ -705,17 +725,28 @@ car_ai: subroutine
 	bcs .gap_store
 	lda #$00
 .gap_store
-	sta car_gap
+	sta temp01
 .gap_ready
-	lda car_gap
+	lda temp01
 	cmp #car_look_dist
 	bcs .clear_ahead
-	; very close, take the speed of the car ahead
 	cmp #car_snap_dist
 	bcs .not_close
+	; close behind, follow at the speed of the car ahead,
+	; a little under it while inside car_min_gap so the gap opens back up
 	lda car_gap_speed
-	cmp ent_r5,x
-	bcs .not_close
+	ldy car_gap
+	cpy #car_min_gap
+	bcs .follow
+	sec
+	sbc #$02
+	bcs .follow
+	lda #$00
+.follow
+	cmp ent_r6,x
+	bcc .follow_store
+	lda ent_r6,x
+.follow_store
 	sta ent_r5,x
 .not_close
 	; pass toward the median first, only when settled in a lane

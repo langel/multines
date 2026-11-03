@@ -15,17 +15,44 @@ state_game_update: subroutine
 
 	jsr render_enable
 
-
-	; acceleration
+	jsr controller_read
+	; the first input hands the bike to the player
+	lda controller1
+	ora player_manual
+	sta player_manual
+	beq .accelerate
+	lda controller1
+	and #BUTTON_UP
+	beq .up_done
+.accelerate
+	; up the road is negative, top speed once speed_hi reaches $fb
 	lda speed_hi
 	cmp #$fb
-	beq .done_accel
+	beq .up_done
 	sec
 	lda speed_lo
 	sbc #$03
 	sta speed_lo
 	lda speed_hi
 	sbc #$00
+	sta speed_hi
+.up_done
+	lda player_manual
+	beq .done_accel
+	lda controller1
+	and #BUTTON_DOWN
+	beq .done_accel
+	; slow down, never past 0
+	clc
+	lda speed_lo
+	adc #$03
+	sta speed_lo
+	lda speed_hi
+	adc #$00
+	sta speed_hi
+	bmi .done_accel
+	lda #$00
+	sta speed_lo
 	sta speed_hi
 .done_accel
 /*
@@ -75,7 +102,6 @@ state_game_update: subroutine
 	ldy #$00
 	sty ent_spr_ptr
 	
-	jsr controller_read
 	; player first, its collision box is used by the ents
 	; traffic last, it drops sprites once the page is full
 	jsr player_update

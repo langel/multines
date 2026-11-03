@@ -30,6 +30,7 @@ game_hud_update: subroutine
 	lda temp00
 	sta mph
 
+/*
 	; tens
 	ldx temp00
 	lda zero_pad_01s_table,x
@@ -79,7 +80,7 @@ game_hud_update: subroutine
 	lda #$20
 	sta spr_y,y
 	inc_y 4
-
+*/
 	; test decimal conversion
 	lda mph
 	jsr decimal_by_divide_0to255
@@ -92,9 +93,9 @@ game_hud_update: subroutine
 	sta spr_p,y
 	lda #$00
 	sta spr_a,y
-	lda #$b8
+	lda #$c4
 	sta spr_x,y
-	lda #$30
+	lda #$14
 	sta spr_y,y
 	inc_y 4
 .divide_no_hundreds
@@ -110,9 +111,9 @@ game_hud_update: subroutine
 	sta spr_p,y
 	lda #$00
 	sta spr_a,y
-	lda #$c0
+	lda #$cc
 	sta spr_x,y
-	lda #$30
+	lda #$14
 	sta spr_y,y
 	inc_y 4
 .divide_no_tens
@@ -124,9 +125,9 @@ game_hud_update: subroutine
 	sta spr_p,y
 	lda #$00
 	sta spr_a,y
-	lda #$c8
+	lda #$d4
 	sta spr_x,y
-	lda #$30
+	lda #$14
 	sta spr_y,y
 	inc_y 4
 	; MPH
@@ -134,21 +135,21 @@ game_hud_update: subroutine
 	sta spr_p,y
 	lda #$00
 	sta spr_a,y
-	lda #$d0
+	lda #$dc
 	sta spr_x,y
-	lda #$30
+	lda #$14
 	sta spr_y,y
 	inc_y 4
 	lda #$fb
 	sta spr_p,y
 	lda #$00
 	sta spr_a,y
-	lda #$d8
+	lda #$e4
 	sta spr_x,y
-	lda #$30
+	lda #$14
 	sta spr_y,y
 	inc_y 4
-
+/*
 	; test decimal conversion
 	lda mph
 	jsr decimal_tennis_0to99
@@ -199,7 +200,7 @@ game_hud_update: subroutine
 	lda #$40
 	sta spr_y,y
 	inc_y 4
-
+*/
 
 	rts
 

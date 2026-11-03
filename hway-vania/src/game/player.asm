@@ -21,6 +21,7 @@ player_init: subroutine
 	sta player_last_x
 	lda #$00
 	sta player_trail
+	sta player_manual
 	lda #$00
 	sta whip_counter
 	sta whip_frame
@@ -141,6 +142,40 @@ player_update: subroutine
 	clc
 	adc road_r_x_offset,y
 	sta temp01
+	lda player_manual
+	beq .auto_bound
+	; left/right 1 px per frame, temp06 = steering -1, 0 or 1
+	lda #$00
+	sta temp06
+	lda controller1
+	and #BUTTON_LEFT|BUTTON_RIGHT
+	cmp #BUTTON_LEFT
+	beq .steer_left
+	cmp #BUTTON_RIGHT
+	bne .manual_bound
+	inc player_x
+	inc temp06
+	bne .manual_bound
+.steer_left
+	dec player_x
+	dec temp06
+.manual_bound
+	; on the right road, 3 from its left edge up to temp01
+	lda road_r_x_offset,y
+	clc
+	adc #$03
+	cmp player_x
+	bcc .manual_upper
+	sta player_x
+	jmp .x_done
+.manual_upper
+	lda temp01
+	cmp player_x
+	bcs .x_done
+	sta player_x
+	jmp .x_done
+.auto_bound
+	; until the first input the bike holds left + 13
 	lda temp00
 	cmp player_x
 	bcs .x_less
@@ -177,7 +212,8 @@ player_update: subroutine
 	lda bit_lut,x
 	sta player_lane_mask
 
-	; lean from steering, the x step less what the road edge moved
+	; lean from steering, the input once the player drives,
+	; before that the x step less what the road edge moved
 	lda player_x
 	sec
 	sbc player_last_x
@@ -194,9 +230,15 @@ player_update: subroutine
 	sta temp02
 	lda player_lean_timer
 	sta temp03
+	lda player_manual
+	beq .auto_steer
+	lda temp06
+	jmp .lean_in
+.auto_steer
 	lda temp04
 	sec
 	sbc temp05
+.lean_in
 	jsr lean_step
 	lda temp02
 	sta player_lean
@@ -316,12 +358,19 @@ player_update: subroutine
 	; whip timer
 	lda whip_frame
 	bne .whip_timer_done
-	; trigger whip animation
-	; xxx should be controller eventually
+	; trigger whip animation, button a once the player drives
+	lda player_manual
+	beq .whip_auto
+	lda controller1_d
+	and #BUTTON_A
+	beq .whip_timer_done
+	bne .whip_start
+.whip_auto
 	lda wtf
 	shift_r 4
 	and #$07
 	bne .whip_timer_done
+.whip_start
 	; start whip animation
 	inc whip_frame
 	ldx whip_frame
@@ -329,7 +378,9 @@ player_update: subroutine
 	lda whip_frame_duration,x
 	sta whip_counter
 .whip_timer_done
-	; whip animation
+	; whip animation, idle while coiled
+	lda whip_frame
+	beq .whip_animation_done
 	dec whip_counter
 	bne .whip_animation_done
 	inc whip_frame

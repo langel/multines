@@ -117,6 +117,7 @@ player_lean_timer   eqm $05c8
 player_units        eqm $05c9 ; player speed, 1/32 px per frame
 player_last_edge    eqm $05ca ; right road left edge under the bike last frame
 player_trail        eqm $05cb ; lower sprite x offset from the torso
+player_manual       eqm $05cc ; 0 until the first controller input, then the player drives
 
 ; car scratch, only valid during one car update
 car_sy_lo           eqm $05d0 ; screen y of the car top
