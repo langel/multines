@@ -122,8 +122,6 @@ player_manual       eqm $05cc ; 0 until the first controller input, then the pla
 ; car scratch, only valid during one car update
 car_sy_lo           eqm $05d0 ; screen y of the car top
 car_sy_hi           eqm $05d1
-car_tx_lo           eqm $05d2 ; target x of the target lane
-car_tx_hi           eqm $05d3
 car_len_a           eqm $05d4 ; length of the car being updated
 car_lanes           eqm $05d5 ; full lanes at the car's front row
 car_gap             eqm $05d6 ; gap to the car ahead, $ff = none

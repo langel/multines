@@ -1,6 +1,7 @@
 
 ; traffic vehicle, one ent type, the subtype picks the sprites
-; ent_r0 unused
+; ent_r0 lane offset, px from the right road's left edge or the left road's right edge
+;        to the car, car_lane_inset + lane_off_lut in a lane, steps 1 px to change lanes
 ; ent_r1 lean hold timer
 ; ent_r2 lean from lane changes, -2..2, positive = moving right, trailing sprites lag left
 ; ent_r3 bits 0-1 subtype, bit 7 opposing traffic on the left road
@@ -9,8 +10,8 @@
 ; ent_r6 cruise speed, 0 once crashed into a tree, then the car stays put
 ; ent_r7 lane mask, bits 0-3 right road lanes, bits 4-7 left road lanes
 ;        both lanes are set while changing lanes
-; ent_x_hi:ent_x x of the leading sprite, x_hi $ff when off the left edge
-; ent_x_lo:ent_hp target x of the target lane, hi:lo, refreshed every other frame
+; ent_x_hi:ent_x x of the leading sprite, x_hi $ff when off the left edge,
+;        set from the lane offset every other frame, see car_place_x
 ; ent_y_hi:ent_y:ent_y_lo world y of the top sprite
 
 car_look_dist    eqm 40 ; gap ahead that starts a lane change or braking
@@ -23,6 +24,7 @@ car_lean_hold    eqm 6  ; frames between lean steps
 car_lean_peak    eqm 8  ; frames a full lean holds once sideways motion stops
 car_min_speed    eqm 16 ; braking floor while stuck in a closing lane
 car_slope_rows   eqm 8  ; rows the road slope is measured over, offsets are in 1/8 px
+car_lane_inset   eqm 3  ; px from a lane's edge to a car centered in it
 
 ; by subtype: sedan, van, semi
 car_seg_count:
@@ -161,13 +163,20 @@ ent_car_spawn: subroutine
 	rts
 .lane_ok
 	sta car_new_lane
+	; place it in the still empty slot
+	ldx car_new_slot
 	lda car_new_info
+	sta ent_r3,x
 	sta temp07
+	ldy car_new_lane
+	lda lane_off_lut,y
+	clc
+	adc #car_lane_inset
+	sta ent_r0,x
 	ldy car_ring
-	lda car_new_lane
-	jsr car_lane_x
+	jsr car_place_x
 	; no spawning into lanes off the left edge
-	lda car_tx_hi
+	lda ent_x_hi,x
 	beq .on_screen
 	clc
 	rts
@@ -208,12 +217,7 @@ ent_car_spawn: subroutine
 	sta ent_r6,x
 	lda car_chk_mask
 	sta ent_r7,x
-	lda car_tx_lo
-	sta ent_x,x
-	sta ent_hp,x
 	lda #$00
-	sta ent_x_lo,x
-	sta ent_x_hi,x
 	sta ent_r1,x
 	sta ent_r2,x
 	sta ent_y_lo,x
@@ -273,49 +277,47 @@ car_lane_bit: subroutine
 	rts
 
 
-; in: a = lane, y = ring index, temp07 = car info, bit 7 opposing
-; out: car_tx_lo/hi = x of a car centered in the lane
-; clobbers x temp04 temp05
-car_lane_x: subroutine
-	tax
-	bit temp07
+; ent_x_hi:ent_x from the car's lane offset, ent_r0, and the road at ring row y
+; right road: left edge + offset, left road: right edge - 8 - offset
+; in: x = slot, y = ring index, clobbers temp00
+car_place_x: subroutine
+	lda ent_r3,x
 	bmi .left
-	; right road, lanes from its left edge
 	lda road_r_x_offset,y
 	clc
-	adc #$03
-	adc lane_off_lut,x
-	sta car_tx_lo
+	adc ent_r0,x
+	sta ent_x,x
 	lda #$00
-	sta car_tx_hi
+	adc #$00
+	sta ent_x_hi,x
 	rts
 .left
-	; left road, lanes from its right edge, left + width - 11 - lane offset
-	; the offset goes negative for a lane that is closing
-	lda road_w_ring,y
-	sec
-	sbc #11
-	sec
-	sbc lane_off_lut,x
-	sta temp04
+	; the left edge is signed, $c0 and up is off the left of the screen
 	lda #$00
-	bit temp04
-	bpl .off_sign
-	lda #$ff
-.off_sign
-	sta temp05
-	ldx #$00
+	sta temp00
 	lda road_l_x_offset,y
 	cmp #$c0
-	bcc .edge_sign
-	dex
-.edge_sign
+	bcc .edge_pos
+	dec temp00
+.edge_pos
 	clc
-	adc temp04
-	sta car_tx_lo
-	txa
-	adc temp05
-	sta car_tx_hi
+	adc road_w_ring,y
+	bcc .right_edge
+	inc temp00
+.right_edge
+	sec
+	sbc #$08
+	bcs .less_8
+	dec temp00
+.less_8
+	sec
+	sbc ent_r0,x
+	bcs .less_offset
+	dec temp00
+.less_offset
+	sta ent_x,x
+	lda temp00
+	sta ent_x_hi,x
 	rts
 
 
@@ -528,13 +530,14 @@ ent_car_update: subroutine
 .alive
 
 	; road lookups on alternate frames, slots take turns to spread the cost
+	; x only changes here, so lane changes run 1 px every other frame against the road
 	lda #$ff
 	sta car_ring
 	txa
 	eor wtf
 	sta car_cand
 	lsr
-	bcs .target_done
+	bcs .lateral_done
 	lda ent_r3,x
 	jsr car_front_row
 	sta car_ring
@@ -549,106 +552,65 @@ ent_car_update: subroutine
 	ldx ent_slot
 	jsr car_ai
 .ai_done
-	; target lane x
-	lda ent_r3,x
-	sta temp07
-	ldy car_ring
-	lda ent_r4,x
-	jsr car_lane_x
-	ldx ent_slot
-	lda car_tx_lo
-	sta ent_hp,x
-	lda car_tx_hi
-	sta ent_x_lo,x
-	jsr car_tree_check
-.target_done
-
 	; crashed cars stay where they hit
 	lda ent_r6,x
-	bne .steer
-	jmp .steered
-.steer
-	; lane changes move every other frame, keeping to a curving lane every frame
+	beq .lateral_done
+	; 1 px toward the target lane
+	ldy ent_r4,x
+	lda lane_off_lut,y
+	clc
+	adc #car_lane_inset
+	cmp ent_r0,x
+	beq .lane_moved
+	bcc .lane_down
+	inc ent_r0,x
+	bne .lane_moved
+.lane_down
+	dec ent_r0,x
+.lane_moved
+	cmp ent_r0,x
+	bne .placed
+	; settled, only the target lane is occupied
 	lda ent_r7,x
 	sec
 	sbc #$01
 	and ent_r7,x
-	beq .steer_now
-	txa
-	eor wtf
-	lsr
-	bcc .steer_now
-	jmp .steered
-.steer_now
-	; steer 1 px toward it, within 1 px counts as arrived
+	beq .placed
 	lda ent_r3,x
 	sta temp07
-	sec
-	lda ent_hp,x
-	sbc ent_x,x
-	sta temp00
-	lda ent_x_lo,x
-	sbc ent_x_hi,x
-	bmi .steer_left
-	bne .steer_right
-	lda temp00
-	beq .arrived
-	cmp #$01
-	bne .steer_right
-	inc ent_x,x
-	bne .arrived
-	inc ent_x_hi,x
-	jmp .arrived
-.steer_right
-	inc ent_x,x
-	bne .steered
-	inc ent_x_hi,x
-	jmp .steered
-.steer_left
-	lda temp00
-	cmp #$ff
-	php
-	lda ent_x,x
-	bne .dec_lo
-	dec ent_x_hi,x
-.dec_lo
-	dec ent_x,x
-	plp
-	bne .steered
-.arrived
-	; settled, only the target lane is occupied
-	; nothing to do unless more than one lane bit is set
-	lda ent_r7,x
-	sec
-	sbc #$01
-	and ent_r7,x
-	beq .steered
 	lda ent_r4,x
 	jsr car_lane_bit
 	ldx ent_slot
 	sta ent_r7,x
-.steered
+.placed
+	ldy car_ring
+	jsr car_place_x
+	jsr car_tree_check
+.lateral_done
 
 	; lean toward the target lane while changing lanes, temp06 = -1, 0 or 1
 	; the sprites follow road curves in car_render
-	lda ent_r7,x
-	sec
-	sbc #$01
-	and ent_r7,x
-	beq .dir_set
-	sec
-	lda ent_hp,x
-	sbc ent_x,x
+	lda #$00
 	sta temp06
-	lda ent_x_lo,x
-	sbc ent_x_hi,x
-	bmi .dir_left
-	ora temp06
+	lda ent_r6,x
 	beq .dir_set
+	ldy ent_r4,x
+	lda lane_off_lut,y
+	clc
+	adc #car_lane_inset
+	sec
+	sbc ent_r0,x
+	beq .dir_set
+	; a growing lane offset moves right on the right road, left on the left road
 	lda #$01
-	bne .dir_set
-.dir_left
+	bcs .dir_sign
 	lda #$ff
+.dir_sign
+	ldy ent_r3,x
+	bpl .dir_set
+	eor #$ff
+	clc
+	adc #$01
 .dir_set
 	sta temp06
 	lda ent_r1,x

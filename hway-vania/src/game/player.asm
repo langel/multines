@@ -16,7 +16,7 @@ player_init: subroutine
 	lda road_r_x_offset,y
 	sta player_last_edge
 	clc
-	adc #$0e
+	adc #car_lane_inset+$0d
 	sta player_x
 	sta player_last_x
 	lda #$00
@@ -126,10 +126,10 @@ player_update: subroutine
 	; bound motorcycle to road
 	jsr player_ring_index
 	tay
-	; temp00 lower = left + 7, the car snaps 4 below it, 3 from the edge
+	; temp00 lower, the bike snaps 4 below it, centered in the second lane like a car
 	lda road_r_x_offset,y
 	clc
-	adc #$11
+	adc #car_lane_inset+$0d+$04
 	sta temp00
 	; temp01 upper = left + 38, or left + width - 2 on a narrow road
 	lda road_w_ring,y
@@ -175,7 +175,7 @@ player_update: subroutine
 	sta player_x
 	jmp .x_done
 .auto_bound
-	; until the first input the bike holds left + 13
+	; until the first input the bike holds left + 16
 	lda temp00
 	cmp player_x
 	bcs .x_less
