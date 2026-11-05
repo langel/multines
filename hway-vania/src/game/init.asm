@@ -114,10 +114,12 @@ state_game_init: subroutine
 	jsr player_init
 
 	jsr ent_tester_spawn
-	jsr ent_gorilla_spawn
-	jsr ent_witch_spawn
+	;jsr ent_gorilla_spawn
+	;jsr ent_witch_spawn
 
-	jsr ent_broom_spawn
+	;jsr ent_broom_spawn
+
+	jsr ent_werehere_spawn
 
 	jsr render_enable
 
