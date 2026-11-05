@@ -16,6 +16,9 @@ ent_werehere_spawn: subroutine
 	lda #$40
 	sta ent_y,x
 
+	lda #$01
+	sta ent_r0,x
+
 	rts
 
 	; letters defined top-down, left-right
@@ -60,6 +63,10 @@ ent_werehere_update: subroutine
 	inc ent_r0,x
 	lda ent_r0,x
 	and #$03
+	bne .pal_ready
+	clc
+	adc #$01
+.pal_ready
 	sta ent_r0,x
 .next_pal_done
 
