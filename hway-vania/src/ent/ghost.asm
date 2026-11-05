@@ -1,6 +1,10 @@
 
-;  ent_r0 = sine counter lo
-;  ent_r1 = sine counter hi
+; ent_r0 = sine counter lo
+; ent_r1 = sine counter hi
+; ent_r2 top row anim frame
+; ent_r3 top row anim counter
+; ent_r4 butt row anim frame
+; ent_r5 butt row anim counter
 
 
 ent_ghost_spawn: subroutine
@@ -32,15 +36,31 @@ ent_ghost_spawn: subroutine
 	rts
 
 
-ent_ghost_left:
+ent_ghost_left_0:
 	hex 08 09 18 19 28 29
+	hex 00 00
+ent_ghost_left_1:
+	hex 3a 09 18 19 38 39
+	hex 00 00
+ent_ghost_left_2:
+	hex 08 4a 18 19 48 49
+	hex 00 00
 ent_ghost_center:
 	hex 06 07 16 17 26 27
-ent_ghost_right:
+ent_ghost_right_0:
 	hex 09 08 19 18 29 28
+	hex 00 00
+ent_ghost_right_1:
+	hex 09 3a 19 18 39 38
+	hex 00 00
+ent_ghost_right_2:
+	hex 4a 08 19 18 49 48
+	hex 00 00
+
 
 
 ent_ghost_update: subroutine
+
 	; update logic
 	dec ent_y,x
 	lda ent_y,x
@@ -49,6 +69,24 @@ ent_ghost_update: subroutine
 	ent_despawn
 	rts
 .no_despawn
+
+	; update anim
+	inc ent_r3,x
+	lda ent_r3,x
+	cmp #$06
+	bne .next_frame_done
+.next_frame
+	lda #$00
+	sta ent_r3,x
+	inc ent_r2,x
+	lda ent_r2,x
+	cmp #$03
+	bne .next_frame_done
+	lda #$00
+	sta ent_r2,x
+.next_frame_done
+
+
 	; update sine counter
 	clc
 	lda ent_r0,x
@@ -64,10 +102,12 @@ ent_ghost_update: subroutine
 	shift_r 3
 	adc ent_x,x
 	sta temp00
+
 	; set pattern table ptr
 	lda #$00
 	sta temp04 ; lut offset
 	sta temp05 ; spr attr
+
 	; check if centered
 	lda temp01
 	cmp #$03
@@ -84,17 +124,25 @@ ent_ghost_update: subroutine
 	sta temp03
 	jmp .set_ghost_done
 .set_ghost_right
-	lda <#ent_ghost_right
+	lda ent_r2,x
+	shift_l 3
+	clc
+	adc <#ent_ghost_right_0
 	sta temp02
-	lda >#ent_ghost_right
+	lda >#ent_ghost_right_0
+	adc #$00
 	sta temp03
 	lda #$40
 	sta temp05
 	jmp .set_ghost_done
 .set_ghost_left
-	lda <#ent_ghost_left
+	lda ent_r2,x
+	shift_l 3
+	clc
+	adc <#ent_ghost_left_0
 	sta temp02
-	lda >#ent_ghost_left
+	lda >#ent_ghost_left_0
+	adc #$00
 	sta temp03
 .set_ghost_done
 	

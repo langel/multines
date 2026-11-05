@@ -18,6 +18,7 @@ car_look_dist    eqm 40 ; gap ahead that starts a lane change or braking
 car_snap_dist    eqm 6  ; gap by the next ai frame that takes the speed of the car ahead
 car_min_gap      eqm 5  ; closer than this, drop back under the car ahead's speed
 car_yield_dist   eqm 64 ; player this close behind, move over
+car_yield_dist_opp eqm 192 ; player this close ahead of opposing traffic, closing much faster
 car_lane_margin  eqm 24 ; clear space ahead and behind for a lane change
 car_spawn_margin eqm 16
 car_lean_hold    eqm 6  ; frames between lean steps
@@ -755,19 +756,24 @@ car_ai: subroutine
 .accel_store
 	sta ent_r5,x
 .yield
-	; right road only, move over for the player closing from behind
-	lda ent_r3,x
-	bmi .done
+	; move over for the player in its lane further down the screen,
+	; closing from behind on the right road, head on on the left road
 	lda player_lane_mask
 	and ent_r7,x
 	beq .done
+	ldy #car_yield_dist_opp
+	lda ent_r3,x
+	bmi .yield_dist
 	lda player_units
 	cmp ent_r5,x
 	beq .done
 	bcc .done
+	ldy #car_yield_dist
+.yield_dist
+	sty temp01
 	jsr car_is_changing
 	bne .done
-	; distance from the car's back to the player's top
+	; distance from the car's bottom to the player's top
 	sec
 	lda player_wy
 	sbc ent_y,x
@@ -779,7 +785,7 @@ car_ai: subroutine
 	sec
 	sbc car_len_a
 	bcc .done
-	cmp #car_yield_dist
+	cmp temp01
 	bcs .done
 	; outer lane first, then toward the median
 	lda ent_r4,x

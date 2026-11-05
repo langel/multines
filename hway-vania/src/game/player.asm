@@ -1,5 +1,12 @@
 
 
+; game mode steering, velocities in 1/16 px per frame
+player_vx_max   eqm 24 ; 1.5 px per frame
+player_vx_accel eqm 2  ; per frame while held
+player_vx_brake eqm 4  ; per frame when released or reversed
+player_x_min    eqm $08
+player_x_max    eqm $f0
+
 player_init: subroutine
 	lda #$90
 	sta player_y
@@ -22,7 +29,8 @@ player_init: subroutine
 	lda #$00
 	sta player_trail
 	sta player_manual
-	lda #$00
+	sta player_x_lo
+	sta player_vx
 	sta whip_counter
 	sta whip_frame
 	sta helmet_type
@@ -143,39 +151,118 @@ player_update: subroutine
 	adc road_r_x_offset,y
 	sta temp01
 	lda player_manual
-	beq .auto_bound
-	; left/right 1 px per frame, temp06 = steering -1, 0 or 1
+	bne .game_x
+	jmp .auto_bound
+.game_x
+	; game mode, x only moves from input, temp06 = steering -1, 0 or 1
 	lda #$00
 	sta temp06
 	lda controller1
 	and #BUTTON_LEFT|BUTTON_RIGHT
 	cmp #BUTTON_LEFT
-	beq .steer_left
-	cmp #BUTTON_RIGHT
-	bne .manual_bound
-	inc player_x
-	inc temp06
-	bne .manual_bound
-.steer_left
-	dec player_x
+	bne .not_left
 	dec temp06
-.manual_bound
-	; on the right road, 3 from its left edge up to temp01
-	lda road_r_x_offset,y
+	bne .steer_set
+.not_left
+	cmp #BUTTON_RIGHT
+	bne .steer_set
+	inc temp06
+.steer_set
+	; temp05 = target velocity, the compares use velocity + $80
+	lda temp06
+	beq .target
+	bmi .target_left
+	lda #player_vx_max
+	bne .target
+.target_left
+	lda #256-player_vx_max
+.target
 	clc
-	adc #$03
-	cmp player_x
-	bcc .manual_upper
+	adc #$80
+	sta temp05
+	lda player_vx
+	clc
+	adc #$80
+	cmp temp05
+	beq .vx_done
+	bcs .vx_down
+	; up toward the target, braking while still moving left
+	ldx #player_vx_accel
+	cmp #$80
+	bcs .up_step
+	ldx #player_vx_brake
+.up_step
+	stx temp04
+	clc
+	adc temp04
+	cmp temp05
+	bcc .vx_store
+	lda temp05
+	bcs .vx_store
+.vx_down
+	; down toward the target, braking while still moving right
+	ldx #player_vx_accel
+	cmp #$81
+	bcc .down_step
+	ldx #player_vx_brake
+.down_step
+	stx temp04
+	sec
+	sbc temp04
+	cmp temp05
+	bcs .vx_store
+	lda temp05
+.vx_store
+	sec
+	sbc #$80
+	sta player_vx
+.vx_done
+	; x:x_lo += velocity / 16
+	lda player_vx
+	cmp #$80
+	ror
+	cmp #$80
+	ror
+	cmp #$80
+	ror
+	cmp #$80
+	ror
+	sta temp04
+	lda player_vx
+	asl
+	asl
+	asl
+	asl
+	clc
+	adc player_x_lo
+	sta player_x_lo
+	lda player_x
+	adc temp04
 	sta player_x
-	jmp .x_done
-.manual_upper
-	lda temp01
-	cmp player_x
-	bcs .x_done
+	; keep it on screen, a stop at either side
+	lda player_vx
+	bmi .clamp_left
+	lda player_x
+	cmp #player_x_max+1
+	bcc .x_done
+	lda #player_x_max
+	bne .clamp
+.clamp_left
+	lda player_x
+	cmp #player_x_min
+	bcc .clamp_min
+	cmp #$f8
+	bcc .x_done
+.clamp_min
+	lda #player_x_min
+.clamp
 	sta player_x
+	lda #$00
+	sta player_vx
+	sta player_x_lo
 	jmp .x_done
 .auto_bound
-	; until the first input the bike holds left + 16
+	; attract mode, the bike holds left + 16
 	lda temp00
 	cmp player_x
 	bcs .x_less
@@ -192,15 +279,46 @@ player_update: subroutine
 	sta player_x
 .x_done
 
-	; right road lane under the bike, traffic moves over for it
+	; lane under the bike's center, traffic moves over for it
+	; right road lanes from its left edge, left road lanes from its right edge
 	lda player_x
 	clc
-	adc #$03
+	adc #$04
+	sta temp04
 	sec
 	sbc road_r_x_offset,y
-	bcs .rel_ok
+	bcc .left_road
+	ldx #$00
+	cmp road_w_ring,y
+	bcc .lane_search
+	bcs .no_lane
+.left_road
+	; the left edge is signed, $c0 and up is off the left of the screen
 	lda #$00
-.rel_ok
+	sta temp05
+	lda road_l_x_offset,y
+	cmp #$c0
+	bcc .left_pos
+	dec temp05
+.left_pos
+	clc
+	adc road_w_ring,y
+	bcc .left_sum
+	inc temp05
+.left_sum
+	sec
+	sbc temp04
+	bcs .left_diff
+	dec temp05
+.left_diff
+	ldx temp05
+	bne .no_lane
+	cmp road_w_ring,y
+	bcs .no_lane
+	ldx #$04
+.lane_search
+	; a = px from the median side edge, x = the road's first lane bit
+	stx temp05
 	ldx #$00
 .lane_loop
 	cmp lane_off_lut+1,x
@@ -209,11 +327,27 @@ player_update: subroutine
 	cpx #$03
 	bne .lane_loop
 .lane_found
+	txa
+	clc
+	adc temp05
+	tax
 	lda bit_lut,x
+	bne .lane_store
+.no_lane
+	lda #$00
+.lane_store
 	sta player_lane_mask
 
-	; lean from steering, the input once the player drives,
-	; before that the x step less what the road edge moved
+	lda player_manual
+	beq .attract_lean
+	; game mode, slanted only while left or right is held, the bottom lags
+	lda #$00
+	sec
+	sbc temp06
+	sta player_trail
+	jmp .trail_done
+.attract_lean
+	; lean from the x step less what the road edge moved
 	lda player_x
 	sec
 	sbc player_last_x
@@ -230,15 +364,9 @@ player_update: subroutine
 	sta temp02
 	lda player_lean_timer
 	sta temp03
-	lda player_manual
-	beq .auto_steer
-	lda temp06
-	jmp .lean_in
-.auto_steer
 	lda temp04
 	sec
 	sbc temp05
-.lean_in
 	jsr lean_step
 	lda temp02
 	sta player_lean
@@ -358,7 +486,7 @@ player_update: subroutine
 	; whip timer
 	lda whip_frame
 	bne .whip_timer_done
-	; trigger whip animation, button a once the player drives
+	; trigger whip animation, button a in game mode
 	lda player_manual
 	beq .whip_auto
 	lda controller1_d

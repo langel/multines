@@ -16,7 +16,7 @@ state_game_update: subroutine
 	jsr render_enable
 
 	jsr controller_read
-	; the first input hands the bike to the player
+	; attract mode until the first input, then game mode
 	lda controller1
 	ora player_manual
 	sta player_manual
@@ -31,7 +31,7 @@ state_game_update: subroutine
 	beq .up_done
 	sec
 	lda speed_lo
-	sbc #$03
+	sbc #$06
 	sta speed_lo
 	lda speed_hi
 	sbc #$00
@@ -45,7 +45,7 @@ state_game_update: subroutine
 	; slow down, never past 0
 	clc
 	lda speed_lo
-	adc #$03
+	adc #$0c
 	sta speed_lo
 	lda speed_hi
 	adc #$00

@@ -110,14 +110,16 @@ traffic_rot         eqm $05c1 ; update start index, rotates for sprite flicker
 traffic_idx         eqm $05c2
 traffic_count       eqm $05c3
 traffic_oam_full    eqm $05c4 ; non zero once the sprite page wrapped this frame
-player_lane_mask    eqm $05c5 ; right road lane bit under the player
+player_lane_mask    eqm $05c5 ; lane bit under the player, same bits as ent_r7 on cars, 0 off the roads
 player_last_x       eqm $05c6
 player_lean         eqm $05c7
 player_lean_timer   eqm $05c8
 player_units        eqm $05c9 ; player speed, 1/32 px per frame
 player_last_edge    eqm $05ca ; right road left edge under the bike last frame
 player_trail        eqm $05cb ; lower sprite x offset from the torso
-player_manual       eqm $05cc ; 0 until the first controller input, then the player drives
+player_manual       eqm $05cc ; 0 in attract mode, set by the first controller input for game mode
+player_x_lo         eqm $05cd ; subpixel x, game mode
+player_vx           eqm $05ce ; x velocity, signed 1/16 px per frame, game mode
 
 ; car scratch, only valid during one car update
 car_sy_lo           eqm $05d0 ; screen y of the car top
