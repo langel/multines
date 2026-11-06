@@ -33,6 +33,7 @@ cart_start: subroutine
 	include "src/ent/car.asm"
 	include "src/ent/ghost.asm"
 	include "src/ent/gorilla.asm"
+	include "src/ent/sign.asm"
 	include "src/ent/tester.asm"
 	include "src/ent/werehere.asm"
 	include "src/ent/witch.asm"

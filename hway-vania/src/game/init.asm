@@ -119,7 +119,8 @@ state_game_init: subroutine
 
 	;jsr ent_broom_spawn
 
-	jsr ent_werehere_spawn
+	;jsr ent_werehere_spawn
+	;jsr ent_sign_spawn
 
 	jsr render_enable
 

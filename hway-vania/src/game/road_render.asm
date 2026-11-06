@@ -368,6 +368,7 @@ road_lane_row: subroutine
 	sta lane_t
 	lda lane_schedule+2,x
 	sta lane_rows
+	jsr ent_sign_spawn
 .done
 	rts
 .transition
@@ -394,6 +395,7 @@ road_lane_row: subroutine
 	lda lane_schedule,x
 	cmp temp00
 	bcc .collapse
+.expanding
 	; expanding, low = now, offset grows
 	ldy temp00
 	lda temp01
